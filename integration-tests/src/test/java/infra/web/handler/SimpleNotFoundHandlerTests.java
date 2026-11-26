@@ -39,9 +39,9 @@ class SimpleNotFoundHandlerTests {
   @Test
   void handleNotFound() throws Throwable {
     request.setRequestURI("/not-found");
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, response);
-    assertThat(notFoundHandler.handleNotFound(httpContext)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
-    assertThat(httpContext.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value()).isEqualTo(response.getStatus());
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, request, response);
+    assertThat(notFoundHandler.handleNotFound(exchange)).isEqualTo(HttpRequestHandler.NONE_RETURN_VALUE);
+    assertThat(exchange.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value()).isEqualTo(response.getStatus());
     assertThat(response.isCommitted()).isTrue();
 
   }

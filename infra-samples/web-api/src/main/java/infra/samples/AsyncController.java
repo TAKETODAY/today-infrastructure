@@ -18,8 +18,8 @@ package infra.samples;
 
 import org.jspecify.annotations.Nullable;
 
-import java.util.concurrent.Callable;
 import java.time.Duration;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -28,7 +28,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.ExceptionUtils;
 import infra.util.concurrent.Future;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.annotation.GET;
 import infra.web.annotation.RequestMapping;
@@ -84,7 +84,7 @@ class AsyncController {
   public Callable<String> callable() {
     return () -> {
       // 可以获取 ServerHttpExchange
-      ServerHttpExchange exchange = HttpContextHolder.required();
+      ServerHttpExchange exchange = HttpExchangeHolder.required();
       logger.info("异步任务开始执行");
 //        TimeUnit.SECONDS.sleep(2);
       LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(2));

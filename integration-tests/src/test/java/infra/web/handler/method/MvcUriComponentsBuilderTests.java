@@ -49,7 +49,7 @@ import infra.web.mock.MockResponse;
 import infra.stereotype.Controller;
 import infra.util.MultiValueMap;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.annotation.GetMapping;
 import infra.web.annotation.PathVariable;
 import infra.web.annotation.RequestBody;
@@ -83,13 +83,13 @@ class MvcUriComponentsBuilderTests {
 
   @BeforeEach
   public void setup() {
-    HttpContextHolder.set(new MockServerHttpExchange(
+    HttpExchangeHolder.set(new MockServerHttpExchange(
             null, this.request, response));
   }
 
   @AfterEach
   public void reset() {
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
   }
 
   @Test
@@ -246,7 +246,7 @@ class MvcUriComponentsBuilderTests {
   @Test
   void fromMethodNameUsesCustomUriContributorBeforeBuiltInContributor() {
     try (var context = new AnnotationConfigApplicationContext(WebConfig.class, CustomQueryContributor.class)) {
-      HttpContextHolder.set(new MockServerHttpExchange(context, this.request, this.response));
+      HttpExchangeHolder.set(new MockServerHttpExchange(context, this.request, this.response));
 
       assertThat(fromMethodName(ControllerWithMethods.class, "methodWithNullableNamedParam", "foo").toUriString())
               .isEqualTo("http://localhost/something/optional-param-with-name?customSearch=foo");
@@ -256,7 +256,7 @@ class MvcUriComponentsBuilderTests {
   @Test
   void fromMethodNameSkipsArgumentHandledByCustomResolverWithoutUriContribution() {
     try (var context = new AnnotationConfigApplicationContext(WebConfig.class, CustomQueryResolver.class)) {
-      HttpContextHolder.set(new MockServerHttpExchange(context, this.request, this.response));
+      HttpExchangeHolder.set(new MockServerHttpExchange(context, this.request, this.response));
 
       assertThat(fromMethodName(ControllerWithMethods.class, "methodWithNullableNamedParam", "foo").toUriString())
               .isEqualTo("http://localhost/something/optional-param-with-name");
@@ -506,7 +506,7 @@ class MvcUriComponentsBuilderTests {
     AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
     context.register(configClass);
     context.refresh();
-    HttpContextHolder.set(new MockServerHttpExchange(context, request, new MockResponse()));
+    HttpExchangeHolder.set(new MockServerHttpExchange(context, request, new MockResponse()));
   }
 
   static class CustomQueryResolver implements ParameterResolvingStrategy {

@@ -70,7 +70,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
 
   public static final String DEFAULT_SUFFIX = ".tpl";
 
-  public static final String DEFAULT_HTTP_CONTEXT_ATTRIBUTE = "request";
+  public static final String DEFAULT_HTTP_EXCHANGE_ATTRIBUTE = "request";
 
   private static final MimeType DEFAULT_CONTENT_TYPE = MimeType.valueOf("text/html");
 
@@ -114,7 +114,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
   /**
    * Name of the ServerHttpExchange attribute for all views.
    */
-  private String httpContextAttribute = DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
+  private String exchangeAttribute = DEFAULT_HTTP_EXCHANGE_ATTRIBUTE;
 
   /**
    * Whether all request attributes should be added to the model prior to merging with
@@ -391,12 +391,12 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
     this.suffix = suffix;
   }
 
-  public String getHttpContextAttribute() {
-    return this.httpContextAttribute;
+  public String getExchangeAttribute() {
+    return this.exchangeAttribute;
   }
 
-  public void setHttpContextAttribute(String httpContextAttribute) {
-    this.httpContextAttribute = httpContextAttribute;
+  public void setExchangeAttribute(String exchangeAttribute) {
+    this.exchangeAttribute = exchangeAttribute;
   }
 
   public boolean isExposeRequestAttributes() {
@@ -495,7 +495,7 @@ public class GroovyTemplateProperties implements InitializingBean, ApplicationCo
     resolver.setExposeSessionAttributes(isExposeSessionAttributes());
     resolver.setExposeMessages(isExposeMessages());
     resolver.setExposeBindings(isExposeBindings());
-    resolver.setExchangeAttribute(getHttpContextAttribute());
+    resolver.setExchangeAttribute(getExchangeAttribute());
     // The resolver usually acts as a fallback resolver (e.g. like a
     // InternalResourceViewResolver) so it needs to have low precedence
     resolver.setOrder(Ordered.LOWEST_PRECEDENCE - 5);

@@ -61,10 +61,10 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader(HttpHeaders.RANGE, "bytes=0-5");
     mockRequest.addHeader(HttpHeaders.IF_RANGE, "\"stale\"");
     MockResponse mockResponse = new MockResponse();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(this.messageConverter));
     ServerResponse response = handlerFunction.handle(request);
-    response.writeTo(httpContext, this.context);
+    response.writeTo(exchange, this.context);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
     assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
@@ -80,10 +80,10 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader(HttpHeaders.RANGE, "bytes=0-5");
     mockRequest.addHeader(HttpHeaders.IF_RANGE, "\"current\"");
     MockResponse mockResponse = new MockResponse();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(this.messageConverter));
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(this.messageConverter));
     ServerResponse response = handlerFunction.handle(request);
-    response.writeTo(httpContext, this.context);
+    response.writeTo(exchange, this.context);
 
     assertThat(mockResponse.getStatus()).isEqualTo(206);
     assertThat(mockResponse.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
@@ -110,9 +110,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -121,7 +121,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(httpContext, this.context);
+    Object mav = response.writeTo(exchange, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
@@ -138,10 +138,10 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader("Range", "bytes=0-5");
     MockResponse mockResponse = new MockResponse();
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(
+    MockServerHttpExchange exchange = new MockServerHttpExchange(
             null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -150,7 +150,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(httpContext, this.context);
+    Object mav = response.writeTo(exchange, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(206);
@@ -171,10 +171,10 @@ class ResourceHandlerFunctionTests {
     mockRequest.addHeader("Range", "bytes=0-10, 0-10, 0-10, 0-10, 0-10, 0-10");
 
     MockResponse mockResponse = new MockResponse();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(
+    MockServerHttpExchange exchange = new MockServerHttpExchange(
             null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -183,7 +183,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity()).isEqualTo(this.resource);
 
-    Object mav = response.writeTo(httpContext, this.context);
+    Object mav = response.writeTo(exchange, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(416);
@@ -200,9 +200,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("HEAD", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
@@ -212,7 +212,7 @@ class ResourceHandlerFunctionTests {
     EntityResponse<Resource> entityResponse = (EntityResponse<Resource>) response;
     assertThat(entityResponse.entity().getName()).isEqualTo(this.resource.getName());
 
-    Object mav = response.writeTo(httpContext, this.context);
+    Object mav = response.writeTo(exchange, this.context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
@@ -227,17 +227,17 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("OPTIONS", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(messageConverter));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(messageConverter));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.OK);
     assertThat(response.headers().getAllow()).isEqualTo(Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS));
 
-    Object mav = response.writeTo(httpContext, this.context);
+    Object mav = response.writeTo(exchange, this.context);
     assertThat(mav).isNull();
-    httpContext.flush();
+    exchange.flush();
 
     assertThat(mockResponse.getStatus()).isEqualTo(200);
     String allowHeader = mockResponse.getHeader("Allow");
@@ -252,9 +252,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("POST", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -266,9 +266,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("PUT", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -280,9 +280,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("DELETE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -294,9 +294,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("PATCH", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -308,9 +308,9 @@ class ResourceHandlerFunctionTests {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("TRACE", "/", true);
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     ServerResponse response = this.handlerFunction.handle(request);
     assertThat(response.statusCode()).isEqualTo(HttpStatus.METHOD_NOT_ALLOWED);
@@ -347,14 +347,14 @@ class ResourceHandlerFunctionTests {
   void resourceHandlerFunctionWithHeadersConsumer() throws Throwable {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.singletonList(new ResourceHttpMessageConverter()));
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.singletonList(new ResourceHttpMessageConverter()));
 
     BiConsumer<Resource, HttpHeaders> headersConsumer = (resource, headers) -> headers.set("X-Test-Header", "test-value");
     ResourceHandlerFunction handlerFunctionWithHeaders = new ResourceHandlerFunction(this.resource, headersConsumer);
 
     ServerResponse response = handlerFunctionWithHeaders.handle(request);
-    Object mav = response.writeTo(httpContext, this.context);
+    Object mav = response.writeTo(exchange, this.context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
     assertThat(mockResponse.getHeader("X-Test-Header")).isEqualTo("test-value");

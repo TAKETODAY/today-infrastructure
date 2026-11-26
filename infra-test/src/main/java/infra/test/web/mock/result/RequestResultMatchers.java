@@ -143,7 +143,7 @@ public class RequestResultMatchers {
 
   private static Session getSession(MvcResult result) {
     Session httpSession = result.getRequest().getSession();
-    Session session = result.getContext().getSession();
+    Session session = result.getExchange().getSession();
     if (httpSession != null) {
       // 暂时使用合并的方式
       for (String attr : httpSession.attributeNames()) {
@@ -179,7 +179,7 @@ public class RequestResultMatchers {
    * Assert the given ServerHttpExchange.
    */
   public ResultMatcher request(Consumer<ServerHttpExchange> contextConsumer) {
-    return result -> contextConsumer.accept(result.getContext());
+    return result -> contextConsumer.accept(result.getExchange());
   }
 
   private static void assertAsyncStarted(MockRequest request) {

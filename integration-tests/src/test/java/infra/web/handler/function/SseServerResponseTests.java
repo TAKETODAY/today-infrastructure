@@ -58,15 +58,15 @@ class SseServerResponseTests {
 
   private MockResponse mockResponse;
 
-  private MockServerHttpExchange httpContext;
+  private MockServerHttpExchange exchange;
 
   @BeforeEach
   void setUp() {
     this.mockRequest = new MockRequest("GET", "https://example.com");
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
-    this.httpContext = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
-    this.httpContext.setAsyncRequest(new StandardMockWebAsyncRequest(this.mockRequest, this.mockResponse));
+    this.exchange = new MockServerHttpExchange(null, this.mockRequest, this.mockResponse);
+    this.exchange.setAsyncRequest(new StandardMockWebAsyncRequest(this.mockRequest, this.mockResponse));
   }
 
   @Test
@@ -87,7 +87,7 @@ class SseServerResponseTests {
   void writeToReturnsSseEmitter() throws Throwable {
     ServerResponse response = ServerResponse.sse(sse -> { });
 
-    Object result = response.writeTo(this.httpContext, Collections::emptyList);
+    Object result = response.writeTo(this.exchange, Collections::emptyList);
     assertThat(result).isInstanceOf(SseEmitter.class);
   }
 
@@ -211,9 +211,9 @@ class SseServerResponseTests {
     var emitterHandler = new ResponseBodyEmitterReturnValueHandler(converters);
     var handler = new ServerResponseReturnValueHandler(
             new SelectableReturnValueHandler(List.of(emitterHandler)));
-    this.httpContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE,
-            ServerRequest.create(this.httpContext, converters));
-    handler.handleReturnValue(this.httpContext, null, response);
+    this.exchange.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE,
+            ServerRequest.create(this.exchange, converters));
+    handler.handleReturnValue(this.exchange, null, response);
   }
 
   @FunctionalInterface

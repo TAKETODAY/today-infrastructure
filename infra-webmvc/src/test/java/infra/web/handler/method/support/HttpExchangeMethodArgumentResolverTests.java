@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/9 17:08
  */
-class ServerHttpHttpExchangeMethodArgumentResolverTests {
+class HttpExchangeMethodArgumentResolverTests {
 
   @Test
   void supportsParameterWithSupportedTypes() throws Exception {
@@ -80,28 +80,28 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   }
 
   @Test
-  void resolveArgumentWithHttpContext() throws Throwable {
+  void resolveArgumentWithHttpExchange() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
 
-    Method method = TestController.class.getDeclaredMethod("handleHttpContext", ServerHttpExchange.class);
+    Method method = TestController.class.getDeclaredMethod("handleHttpExchange", ServerHttpExchange.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
-    assertThat(result).isSameAs(httpContext);
+    assertThat(result).isSameAs(exchange);
   }
 
   @Test
   void resolveArgumentWithHttpMethod() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
-    httpContext.setHttpMethod(HttpMethod.POST);
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
+    exchange.setHttpMethod(HttpMethod.POST);
 
     Method method = TestController.class.getDeclaredMethod("handleMethod", HttpMethod.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
     assertThat(result).isEqualTo(HttpMethod.POST);
   }
@@ -109,12 +109,12 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithLocale() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
 
     Method method = TestController.class.getDeclaredMethod("handleLocale", Locale.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
     assertThat(result).isEqualTo(Locale.getDefault());
   }
@@ -122,12 +122,12 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithTimeZone() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
 
     Method method = TestController.class.getDeclaredMethod("handleTimeZone", TimeZone.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
     assertThat(result).isEqualTo(TimeZone.getDefault());
   }
@@ -135,12 +135,12 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithZoneId() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
 
     Method method = TestController.class.getDeclaredMethod("handleZoneId", ZoneId.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
     assertThat(result).isEqualTo(ZoneId.systemDefault());
   }
@@ -148,27 +148,27 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   @Test
   void resolveArgumentWithInputStreamSource() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
 
     Method method = TestController.class.getDeclaredMethod("handleInputStreamSource", InputStreamSource.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
-    assertThat(result).isSameAs(httpContext);
+    assertThat(result).isSameAs(exchange);
   }
 
   @Test
   void resolveArgumentWithOutputStreamSource() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
 
     Method method = TestController.class.getDeclaredMethod("handleOutputStreamSource", OutputStreamSource.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
-    assertThat(result).isSameAs(httpContext);
+    assertThat(result).isSameAs(exchange);
   }
 
   @Test
@@ -247,17 +247,17 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   }
 
   @Test
-  void resolveArgumentWithWrongHttpContextType() throws Throwable {
+  void resolveArgumentWithWrongHttpExchangeType() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange();
+    MockServerHttpExchange exchange = new MockServerHttpExchange();
 
-    httpContext.setHttpMethod(HttpMethod.GET);
+    exchange.setHttpMethod(HttpMethod.GET);
 
-    Method method = TestController.class.getDeclaredMethod("handleWrongHttpContext", WrongServerHttpExchange.class);
+    Method method = TestController.class.getDeclaredMethod("handleWrongHttpExchange", WrongServerHttpExchange.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
     assertThatIllegalStateException()
-            .isThrownBy(() -> resolver.resolveArgument(httpContext, parameter))
+            .isThrownBy(() -> resolver.resolveArgument(exchange, parameter))
             .withMessageContaining("Current request is not of type");
   }
 
@@ -332,16 +332,16 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   }
 
   @Test
-  void resolveArgumentWithCustomHttpContextImplementation() throws Throwable {
+  void resolveArgumentWithCustomHttpExchangeImplementation() throws Throwable {
     HttpExchangeMethodArgumentResolver resolver = new HttpExchangeMethodArgumentResolver();
-    CustomServerHttpExchange httpContext = new CustomServerHttpExchange();
+    CustomServerHttpExchange exchange = new CustomServerHttpExchange();
 
-    Method method = TestController.class.getDeclaredMethod("handleHttpContext", ServerHttpExchange.class);
+    Method method = TestController.class.getDeclaredMethod("handleHttpExchange", ServerHttpExchange.class);
     HandlerParameter parameter = new HandlerParameter(new SynthesizingMethodParameter(method, 0));
 
-    Object result = resolver.resolveArgument(httpContext, parameter);
+    Object result = resolver.resolveArgument(exchange, parameter);
 
-    assertThat(result).isSameAs(httpContext);
+    assertThat(result).isSameAs(exchange);
   }
 
   @Test
@@ -375,7 +375,7 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
   }
 
   static class CustomServerHttpExchange extends MockServerHttpExchange {
-    // Inherits all behavior from MockHttpContext
+    // Inherits all behavior from MockHttpExchange
   }
 
   static abstract class CustomMultipartRequest implements MultipartRequest {
@@ -456,7 +456,7 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
 
     public void handleUnsupported(String unsupported) { }
 
-    public void handleHttpContext(ServerHttpExchange context) { }
+    public void handleHttpExchange(ServerHttpExchange context) { }
 
     public void handleMethod(HttpMethod method) { }
 
@@ -470,7 +470,7 @@ class ServerHttpHttpExchangeMethodArgumentResolverTests {
 
     public void handleOutputStreamSource(OutputStreamSource source) { }
 
-    public void handleWrongHttpContext(WrongServerHttpExchange context) { }
+    public void handleWrongHttpExchange(WrongServerHttpExchange context) { }
 
     public void handleWrongMultipartRequest(WrongMultipartRequest request) { }
 

@@ -84,9 +84,9 @@ public class EncodedResourceResolverTests {
     MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, request, null);
 
-    Resource actual = this.resolver.resolveResource(httpContext, file, this.locations);
+    Resource actual = this.resolver.resolveResource(exchange, file, this.locations);
 
     assertThat(actual).isEqualTo(getResource(file + ".gz"));
     assertThat(actual.getName()).isEqualTo(getResource(file).getName());
@@ -104,9 +104,9 @@ public class EncodedResourceResolverTests {
     String file = "foo-e36d2e05253c6c7085a91522ce43a0b4.css";
     MockRequest request = new MockRequest();
     request.addHeader("Accept-Encoding", "gzip");
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, request, null);
 
-    Resource resolved = this.resolver.resolveResource(httpContext, file, this.locations);
+    Resource resolved = this.resolver.resolveResource(exchange, file, this.locations);
 
     assertThat(resolved).isEqualTo(getResource("foo.css.gz"));
     assertThat(resolved.getName()).isEqualTo(getResource("foo.css").getName());
@@ -121,9 +121,9 @@ public class EncodedResourceResolverTests {
     gzippedFiles.create(file);
     MockRequest request = new MockRequest("GET", "/js/foo.js");
     request.addHeader("Accept-Encoding", "gzip");
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, request, null);
 
-    Resource resolved = this.resolver.resolveResource(httpContext, file, this.locations);
+    Resource resolved = this.resolver.resolveResource(exchange, file, this.locations);
 
     assertThat(resolved).isEqualTo(getResource(file + ".gz"));
     assertThat(resolved.getName()).isEqualTo(getResource(file).getName());
@@ -132,9 +132,9 @@ public class EncodedResourceResolverTests {
 
     // 2. Resolve unencoded resource
     request = new MockRequest("GET", "/js/foo.js");
-    httpContext = new MockServerHttpExchange(null, request, null);
+    exchange = new MockServerHttpExchange(null, request, null);
 
-    resolved = this.resolver.resolveResource(httpContext, file, this.locations);
+    resolved = this.resolver.resolveResource(exchange, file, this.locations);
 
     assertThat(resolved.toString()).isEqualTo(getResource(file).toString());
     assertThat(resolved.getName()).isEqualTo(getResource(file).getName());

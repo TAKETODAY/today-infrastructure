@@ -23,7 +23,7 @@ import org.mockito.BDDMockito;
 import infra.context.ApplicationContext;
 import infra.test.context.TestContext;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -60,7 +60,7 @@ class WebMockTestExecutionListenerTests {
 
     request.setAttribute(SET_UP_OUTSIDE_OF_STEL, "true");
 
-    HttpContextHolder.set(servletWebRequest);
+    HttpExchangeHolder.set(servletWebRequest);
     assertSetUpOutsideOfStelAttributeExists();
   }
 
@@ -86,7 +86,7 @@ class WebMockTestExecutionListenerTests {
   void legacyWebTestCaseWithoutExistingRequestAttributes() throws Exception {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(LegacyWebTestCase.class);
 
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
     assertRequestAttributesDoNotExist();
 
     listener.beforeTestClass(testContext);
@@ -131,7 +131,7 @@ class WebMockTestExecutionListenerTests {
   void atWebAppConfigTestCaseWithoutExistingRequestAttributes() throws Exception {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(AtWebAppConfigWebTestCase.class);
 
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
     listener.beforeTestClass(testContext);
     assertRequestAttributesDoNotExist();
 
@@ -156,7 +156,7 @@ class WebMockTestExecutionListenerTests {
     BDDMockito.<Class<?>>given(testContext.getTestClass()).willReturn(NoAtWebAppConfigWebTestCase.class);
     given(testContext.getAttribute(WebMockTestExecutionListener.ACTIVATE_LISTENER)).willReturn(true);
 
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
     listener.beforeTestClass(testContext);
     assertRequestAttributesDoNotExist();
 
@@ -164,13 +164,13 @@ class WebMockTestExecutionListenerTests {
   }
 
   private ServerHttpExchange assertRequestAttributesExist() {
-    ServerHttpExchange requestAttributes = HttpContextHolder.current();
+    ServerHttpExchange requestAttributes = HttpExchangeHolder.current();
     assertThat(requestAttributes).as("request attributes should exist").isNotNull();
     return requestAttributes;
   }
 
   private void assertRequestAttributesDoNotExist() {
-    assertThat(HttpContextHolder.current()).as("request attributes should not exist").isNull();
+    assertThat(HttpExchangeHolder.current()).as("request attributes should not exist").isNull();
   }
 
   private void assertSetUpOutsideOfStelAttributeExists() {

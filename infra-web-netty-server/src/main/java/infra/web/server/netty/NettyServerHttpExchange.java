@@ -58,7 +58,7 @@ import infra.util.MultiValueMap;
 import infra.util.StringUtils;
 import infra.web.AbstractServerHttpExchange;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.async.WebAsyncManager;
 import infra.web.async.WebAsyncRequest;
@@ -1107,7 +1107,7 @@ public abstract class NettyServerHttpExchange extends AbstractServerHttpExchange
    * <p>Negotiates {@code 100 Continue} and enforces the configured maximum
    * content length before delegating to {@link #processRequest()}. Unhandled
    * failures are reported through {@link HttpTrafficHandler}, and the context is
-   * removed from {@link HttpContextHolder} when the exchange completes.
+   * removed from {@link HttpExchangeHolder} when the exchange completes.
    * <p>Protocol specific behavior is supplied by the {@code 100 Continue} and
    * request dispatch hooks, so subclasses only provide transport details.
    * <p>When {@link NettyRequestConfig#manualBodyRead} is enabled, body reading
@@ -1117,7 +1117,7 @@ public abstract class NettyServerHttpExchange extends AbstractServerHttpExchange
    * returns above call {@code cleanup} directly because they bypass it.
    */
   public final void run() {
-    HttpContextHolder.set(this);
+    HttpExchangeHolder.set(this);
 
     try {
       long contentLength = getContentLength();
@@ -1145,7 +1145,7 @@ public abstract class NettyServerHttpExchange extends AbstractServerHttpExchange
       httpTrafficHandler.handleException(channel, e);
     }
     finally {
-      HttpContextHolder.cleanup();
+      HttpExchangeHolder.cleanup();
     }
   }
 

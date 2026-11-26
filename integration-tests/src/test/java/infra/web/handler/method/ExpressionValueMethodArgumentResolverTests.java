@@ -30,7 +30,7 @@ import infra.core.DefaultParameterNameDiscoverer;
 import infra.core.MethodParameter;
 import infra.core.ParameterNameDiscoverer;
 import infra.web.BindingContext;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.handler.method.support.ExpressionValueMethodArgumentResolver;
 import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
@@ -77,12 +77,12 @@ public class ExpressionValueMethodArgumentResolverTests {
     webRequest = new MockServerHttpExchange(null, request, new MockResponse());
 
     // Expose request to the current thread (for SpEL expressions)
-    HttpContextHolder.set(webRequest);
+    HttpExchangeHolder.set(webRequest);
   }
 
   @AfterEach
   public void teardown() {
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
   }
 
   @Test

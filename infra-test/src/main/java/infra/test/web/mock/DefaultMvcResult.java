@@ -92,7 +92,7 @@ class DefaultMvcResult implements MvcResult {
   }
 
   @Override
-  public ServerHttpExchange getContext() {
+  public ServerHttpExchange getExchange() {
     return exchange;
   }
 

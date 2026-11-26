@@ -48,7 +48,7 @@ import infra.web.view.BindStatus;
 import infra.web.view.BindingAccessor;
 import infra.web.view.ViewRenderingException;
 
-import static infra.freemarker.config.FreeMarkerProperties.DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
+import static infra.freemarker.config.FreeMarkerProperties.DEFAULT_HTTP_EXCHANGE_ATTRIBUTE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
@@ -99,7 +99,7 @@ class FreeMarkerMacroTests {
       @Override
       protected void processTemplate(Template template, SimpleHash fmModel, ServerHttpExchange response) throws IOException, TemplateException {
         Map model = fmModel.toMap();
-        assertThat(model.get(DEFAULT_HTTP_CONTEXT_ATTRIBUTE)).isInstanceOf(ServerHttpExchange.class);
+        assertThat(model.get(DEFAULT_HTTP_EXCHANGE_ATTRIBUTE)).isInstanceOf(ServerHttpExchange.class);
         BindingAccessor bindings = (BindingAccessor) model.get(BINDINGS_ATTRIBUTE);
         BindStatus status = bindings.getBindStatus("tb.name");
         assertThat(status.getExpression()).isEqualTo("name");
@@ -108,7 +108,7 @@ class FreeMarkerMacroTests {
     };
     fv.setUrl(TEMPLATE_FILE);
     fv.setApplicationContext(wac);
-    fv.setExchangeAttribute(DEFAULT_HTTP_CONTEXT_ATTRIBUTE);
+    fv.setExchangeAttribute(DEFAULT_HTTP_EXCHANGE_ATTRIBUTE);
 
     Map<String, Object> model = new HashMap<>();
     model.put("tb", new TestBean("juergen", 99));
@@ -480,7 +480,7 @@ class FreeMarkerMacroTests {
     assertThat(macro).isNotNull();
     storeTemplateInTempDir(macro);
 
-    DummyMacroHttpContext rc = new DummyMacroHttpContext(context);
+    DummyMacroExchange rc = new DummyMacroExchange(context);
     rc.setContextPath("/infratest");
 
     TestBean darren = new TestBean("Darren", 99);

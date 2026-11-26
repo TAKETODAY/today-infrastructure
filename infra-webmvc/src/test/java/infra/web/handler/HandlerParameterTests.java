@@ -335,7 +335,7 @@ class HandlerParameterTests {
   }
 
   @Test
-  public void shouldResolveArgumentFromHttpContext() throws Exception {
+  public void shouldResolveArgumentFromHttpExchange() throws Exception {
     final Method method = HandlerParameterTests.class.getDeclaredMethod("plain", String.class);
     HandlerParameter parameter = createParameter(0, method, null);
     MockServerHttpExchange context = new MockServerHttpExchange();

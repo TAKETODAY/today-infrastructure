@@ -45,7 +45,7 @@ class StreamingServerResponseTests {
 
   private MockResponse mockResponse;
 
-  MockServerHttpExchange httpContext;
+  MockServerHttpExchange exchange;
 
   @BeforeEach
   void setUp() {
@@ -53,7 +53,7 @@ class StreamingServerResponseTests {
     this.mockRequest.setAsyncSupported(true);
     this.mockResponse = new MockResponse();
 
-    httpContext = new MockServerHttpExchange(mockRequest, mockResponse);
+    exchange = new MockServerHttpExchange(mockRequest, mockResponse);
   }
 
   @Test
@@ -71,7 +71,7 @@ class StreamingServerResponseTests {
             });
 
     ServerResponse.Context context = Collections::emptyList;
-    Object mav = response.writeTo(httpContext, context);
+    Object mav = response.writeTo(exchange, context);
     assertThat(mav).isNull();
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(body);
@@ -93,7 +93,7 @@ class StreamingServerResponseTests {
               }
             });
     ServerResponse.Context context = Collections::emptyList;
-    Object mav = response.writeTo(httpContext, context);
+    Object mav = response.writeTo(exchange, context);
     assertThat(mav).isNull();
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.TEXT_EVENT_STREAM.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo(body);
@@ -120,7 +120,7 @@ class StreamingServerResponseTests {
             });
 
     ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
-    Object mav = response.writeTo(httpContext, context);
+    Object mav = response.writeTo(exchange, context);
     assertThat(mav).isNull();
     assertThat(this.mockResponse.getContentType()).isEqualTo(MediaType.APPLICATION_NDJSON.toString());
     assertThat(this.mockResponse.getContentAsString()).isEqualTo("""

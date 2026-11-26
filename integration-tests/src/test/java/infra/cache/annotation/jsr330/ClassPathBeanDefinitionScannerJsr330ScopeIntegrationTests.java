@@ -43,7 +43,7 @@ import infra.web.mock.MockResponse;
 import infra.web.mock.MockSession;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.context.support.WebScopeRegistrar;
 import jakarta.inject.Named;
 import jakarta.inject.Singleton;
@@ -86,7 +86,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @AfterEach
   void reset() {
-    HttpContextHolder.set(null);
+    HttpExchangeHolder.set(null);
   }
 
   @Test
@@ -100,7 +100,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @Test
   void testSingletonScopeWithNoProxy() {
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     ApplicationContext context = createContext(ScopedProxyMode.NO);
     ScopedTestBean bean = (ScopedTestBean) context.getBean("singleton");
     assertThat(context.isSingleton("singleton")).isTrue();
@@ -112,7 +112,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributes);
+    HttpExchangeHolder.set(newRequestAttributes);
     // not a proxy so this should not have changed
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
 
@@ -123,7 +123,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @Test
   void testSingletonScopeIgnoresProxyInterfaces() {
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     ApplicationContext context = createContext(ScopedProxyMode.INTERFACES);
     ScopedTestBean bean = (ScopedTestBean) context.getBean("singleton");
 
@@ -133,7 +133,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributes);
+    HttpExchangeHolder.set(newRequestAttributes);
     // not a proxy so this should not have changed
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
 
@@ -144,7 +144,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @Test
   void testSingletonScopeIgnoresProxyTargetClass() {
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     ApplicationContext context = createContext(ScopedProxyMode.TARGET_CLASS);
     ScopedTestBean bean = (ScopedTestBean) context.getBean("singleton");
 
@@ -154,7 +154,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributes);
+    HttpExchangeHolder.set(newRequestAttributes);
     // not a proxy so this should not have changed
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
 
@@ -165,7 +165,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @Test
   void testRequestScopeWithNoProxy() {
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     ApplicationContext context = createContext(ScopedProxyMode.NO);
     ScopedTestBean bean = (ScopedTestBean) context.getBean("request");
 
@@ -175,7 +175,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributes);
+    HttpExchangeHolder.set(newRequestAttributes);
     // not a proxy so this should not have changed
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
 
@@ -186,7 +186,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @Test
   void testRequestScopeWithProxiedInterfaces() {
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     ApplicationContext context = createContext(ScopedProxyMode.INTERFACES);
     IScopedTestBean bean = (IScopedTestBean) context.getBean("request");
 
@@ -198,17 +198,17 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributes);
+    HttpExchangeHolder.set(newRequestAttributes);
     // this is a proxy so it should be reset to default
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
 
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
   }
 
   @Test
   void testRequestScopeWithProxiedTargetClass() {
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     ApplicationContext context = createContext(ScopedProxyMode.TARGET_CLASS);
     IScopedTestBean bean = (IScopedTestBean) context.getBean("request");
 
@@ -220,17 +220,17 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributes);
+    HttpExchangeHolder.set(newRequestAttributes);
     // this is a proxy so it should be reset to default
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
 
-    HttpContextHolder.set(oldRequestAttributes);
+    HttpExchangeHolder.set(oldRequestAttributes);
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
   }
 
   @Test
   void testSessionScopeWithNoProxy() {
-    HttpContextHolder.set(oldRequestAttributesWithSession);
+    HttpExchangeHolder.set(oldRequestAttributesWithSession);
     ApplicationContext context = createContext(ScopedProxyMode.NO);
     ScopedTestBean bean = (ScopedTestBean) context.getBean("session");
 
@@ -240,7 +240,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributesWithSession);
+    HttpExchangeHolder.set(newRequestAttributesWithSession);
     // not a proxy so this should not have changed
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
 
@@ -251,7 +251,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
 
   @Test
   void testSessionScopeWithProxiedInterfaces() {
-    HttpContextHolder.set(oldRequestAttributesWithSession);
+    HttpExchangeHolder.set(oldRequestAttributesWithSession);
     ApplicationContext context = createContext(ScopedProxyMode.INTERFACES);
     IScopedTestBean bean = (IScopedTestBean) context.getBean("session");
 
@@ -263,7 +263,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributesWithSession);
+    HttpExchangeHolder.set(newRequestAttributesWithSession);
     // this is a proxy so it should be reset to default
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
@@ -273,13 +273,13 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     bean2.setName(DEFAULT_NAME);
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
 
-    HttpContextHolder.set(oldRequestAttributesWithSession);
+    HttpExchangeHolder.set(oldRequestAttributesWithSession);
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
   }
 
   @Test
   void testSessionScopeWithProxiedTargetClass() {
-    HttpContextHolder.set(oldRequestAttributesWithSession);
+    HttpExchangeHolder.set(oldRequestAttributesWithSession);
     ApplicationContext context = createContext(ScopedProxyMode.TARGET_CLASS);
     IScopedTestBean bean = (IScopedTestBean) context.getBean("session");
 
@@ -293,7 +293,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
 
-    HttpContextHolder.set(newRequestAttributesWithSession);
+    HttpExchangeHolder.set(newRequestAttributesWithSession);
     // this is a proxy so it should be reset to default
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
     bean.setName(MODIFIED_NAME);
@@ -303,7 +303,7 @@ class ClassPathBeanDefinitionScannerJsr330ScopeIntegrationTests {
     bean2.setName(DEFAULT_NAME);
     assertThat(bean.getName()).isEqualTo(DEFAULT_NAME);
 
-    HttpContextHolder.set(oldRequestAttributesWithSession);
+    HttpExchangeHolder.set(oldRequestAttributesWithSession);
     assertThat(bean.getName()).isEqualTo(MODIFIED_NAME);
   }
 

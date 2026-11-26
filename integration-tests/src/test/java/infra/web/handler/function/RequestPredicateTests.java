@@ -41,8 +41,8 @@ class RequestPredicateTests {
   @BeforeEach
   void createRequest() {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest("GET", "/", true);
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, new MockResponse());
-    this.request = new DefaultServerRequest(httpContext, Collections.emptyList());
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, new MockResponse());
+    this.request = new DefaultServerRequest(exchange, Collections.emptyList());
   }
 
   @Test

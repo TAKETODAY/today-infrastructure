@@ -37,7 +37,7 @@ import infra.core.io.ClassPathResource;
 import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.context.support.RequestScope;
 
 import static infra.beans.factory.config.AutowireCapableBeanFactory.AUTOWIRE_CONSTRUCTOR;
@@ -67,7 +67,7 @@ public class RequestScopedProxyTests {
 
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -80,7 +80,7 @@ public class RequestScopedProxyTests {
       assertThat(target.toString()).isEqualTo(bean.toString());
     }
     finally {
-      HttpContextHolder.set(null);
+      HttpExchangeHolder.set(null);
     }
   }
 
@@ -92,7 +92,7 @@ public class RequestScopedProxyTests {
 
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -105,7 +105,7 @@ public class RequestScopedProxyTests {
       assertThat(target.toString()).isEqualTo(bean.toString());
     }
     finally {
-      HttpContextHolder.set(null);
+      HttpExchangeHolder.set(null);
     }
   }
 
@@ -117,7 +117,7 @@ public class RequestScopedProxyTests {
 
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, new MockResponse());
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -131,7 +131,7 @@ public class RequestScopedProxyTests {
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).wasDestroyed()).isTrue();
     }
     finally {
-      HttpContextHolder.set(null);
+      HttpExchangeHolder.set(null);
     }
   }
 
@@ -143,7 +143,7 @@ public class RequestScopedProxyTests {
 
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -153,7 +153,7 @@ public class RequestScopedProxyTests {
       assertThat(this.beanFactory.getBean(name)).isSameAs(bean);
     }
     finally {
-      HttpContextHolder.set(null);
+      HttpExchangeHolder.set(null);
     }
   }
 
@@ -167,7 +167,7 @@ public class RequestScopedProxyTests {
 
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -177,7 +177,7 @@ public class RequestScopedProxyTests {
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).getName()).isEqualTo("scoped");
     }
     finally {
-      HttpContextHolder.set(null);
+      HttpExchangeHolder.set(null);
     }
   }
 
@@ -194,7 +194,7 @@ public class RequestScopedProxyTests {
 
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = new MockServerHttpExchange(null, request, null);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     try {
       assertThat(request.getAttribute("scopedTarget." + name)).isNull();
@@ -204,7 +204,7 @@ public class RequestScopedProxyTests {
       assertThat(((TestBean) request.getAttribute("scopedTarget." + name)).getName()).isEqualTo("scoped");
     }
     finally {
-      HttpContextHolder.set(null);
+      HttpExchangeHolder.set(null);
     }
   }
 

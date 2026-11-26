@@ -27,7 +27,7 @@ import infra.beans.factory.config.Scope;
 import infra.session.Session;
 import infra.session.SessionAttributeListener;
 import infra.session.SessionManager;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.util.WebUtils;
 
@@ -54,7 +54,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable String getConversationId() {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
     Session session = getSession(context, false);
     if (session != null) {
       return session.getId();
@@ -64,7 +64,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public Object get(String name, Supplier<?> objectFactory) {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
     Session session = getSession(context);
     Object sessionMutex = WebUtils.getSessionMutex(session);
     synchronized(sessionMutex) {
@@ -74,7 +74,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable Object remove(String name) {
-    ServerHttpExchange context = HttpContextHolder.current();
+    ServerHttpExchange context = HttpExchangeHolder.current();
     if (context != null) {
       Session session = getSession(context);
       if (session != null) {
@@ -146,10 +146,10 @@ public class SessionScope extends AbstractWebContextScope<Session> {
   @Override
   public @Nullable Object resolveContextualObject(String key) {
     if (ServerHttpExchange.SCOPE_REQUEST.equals(key)) {
-      return HttpContextHolder.current();
+      return HttpExchangeHolder.current();
     }
     else if (ServerHttpExchange.SCOPE_SESSION.equals(key)) {
-      ServerHttpExchange context = HttpContextHolder.current();
+      ServerHttpExchange context = HttpExchangeHolder.current();
       if (context != null) {
         return getSession(context, false);
       }
@@ -159,7 +159,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
     Session session = getSession(context);
     session.setAttribute(getDestructionCallbackName(name),
             new DestructionCallbackBindingListener(callback));

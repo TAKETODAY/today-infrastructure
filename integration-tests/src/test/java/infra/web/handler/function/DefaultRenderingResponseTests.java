@@ -75,9 +75,9 @@ public class DefaultRenderingResponseTests {
   @Nullable
   private static ModelAndView getModelAndView(
           RenderingResponse result, MockRequest request, MockResponse response) throws Throwable {
-    MockServerHttpExchange mockHttpContext = new MockServerHttpExchange(null, request, response);
-    Object write = result.writeTo(mockHttpContext, EMPTY_CONTEXT);
-    mockHttpContext.flush();
+    MockServerHttpExchange mockHttpExchange = new MockServerHttpExchange(null, request, response);
+    Object write = result.writeTo(mockHttpExchange, EMPTY_CONTEXT);
+    mockHttpExchange.flush();
     if (write instanceof ModelAndView andView) {
       return andView;
     }

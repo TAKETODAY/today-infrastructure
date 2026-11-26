@@ -239,9 +239,9 @@ class RouterFunctionBuilderTests {
     MockRequest mockRequest = new MockRequest("GET", "/error");
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    ServerRequest serverRequest = new DefaultServerRequest(httpContext, emptyList());
+    ServerRequest serverRequest = new DefaultServerRequest(exchange, emptyList());
 
     Optional<HttpStatusCode> responseStatus = route.route(serverRequest)
             .map(handlerFunction -> handle(handlerFunction, serverRequest))
@@ -258,8 +258,8 @@ class RouterFunctionBuilderTests {
           String httpMethod, String requestUri, @Nullable Consumer<MockRequest> consumer) {
     MockRequest mockRequest = PathPatternsTestUtils.initRequest(httpMethod, null, requestUri, true, consumer);
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
-    return new DefaultServerRequest(httpContext, emptyList());
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    return new DefaultServerRequest(exchange, emptyList());
   }
 
   @Test

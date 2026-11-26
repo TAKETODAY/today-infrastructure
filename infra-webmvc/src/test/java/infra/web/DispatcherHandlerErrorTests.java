@@ -69,12 +69,12 @@ class DispatcherHandlerErrorTests {
       var multipart = mock(MultipartRequest.class);
       var request = new TrackingExchangeServer(multipart);
       request.registerCallback(ServerHttpExchange.Lifecycle.COMPLETED, "test", callbacks::incrementAndGet);
-      HttpContextHolder.set(request);
+      HttpExchangeHolder.set(request);
       try {
         RequestScope.instance.registerDestructionCallback("bean", destroyed::incrementAndGet);
       }
       finally {
-        HttpContextHolder.cleanup();
+        HttpExchangeHolder.cleanup();
       }
 
       Throwable escaped = catchThrowable(() -> {

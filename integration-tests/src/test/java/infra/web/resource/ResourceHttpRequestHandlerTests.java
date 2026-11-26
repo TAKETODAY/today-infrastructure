@@ -293,7 +293,7 @@ public class ResourceHttpRequestHandlerTests {
     private MockRequest request;
 
     private MockResponse response;
-    private MockServerHttpExchange httpContext;
+    private MockServerHttpExchange exchange;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -302,13 +302,13 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockServerHttpExchange(null, request, response);
+      exchange = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
     void servesResource() throws Throwable {
       this.request.setRequestURI("foo.css");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentLength()).isEqualTo(17);
@@ -319,8 +319,8 @@ public class ResourceHttpRequestHandlerTests {
     void supportsHeadRequests() throws Throwable {
       this.request.setMethod("HEAD");
       this.request.setRequestURI("foo.css");
-      this.handler.handleRequest(httpContext);
-      httpContext.flush();
+      this.handler.handleRequest(exchange);
+      exchange.flush();
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentLength()).isEqualTo(17);
@@ -331,8 +331,8 @@ public class ResourceHttpRequestHandlerTests {
     void supportsOptionsRequests() throws Throwable {
       this.request.setMethod("OPTIONS");
       this.request.setRequestURI("foo.css");
-      this.handler.handleRequest(httpContext);
-      httpContext.flush();
+      this.handler.handleRequest(exchange);
+      exchange.flush();
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getHeader("Allow")).isEqualTo("GET,HEAD,OPTIONS");
     }
@@ -340,7 +340,7 @@ public class ResourceHttpRequestHandlerTests {
     @Test
     void servesHtmlResources() throws Throwable {
       this.request.setRequestURI("foo.html");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("text/html");
     }
@@ -360,7 +360,7 @@ public class ResourceHttpRequestHandlerTests {
       handler.afterPropertiesSet();
 
       this.request.setRequestURI("foo.bar");
-      handler.handleRequest(httpContext);
+      handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("foo/bar");
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
@@ -382,7 +382,7 @@ public class ResourceHttpRequestHandlerTests {
 
       this.request.addHeader("Accept", "application/json,text/plain,*/*");
       this.request.setRequestURI("foo.html");
-      handler.handleRequest(httpContext);
+      handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("text/html");
     }
@@ -408,7 +408,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.setMethod("POST");
       assertThatExceptionOfType(HttpRequestMethodNotSupportedException.class).isThrownBy(() ->
-              this.handler.handleRequest(httpContext));
+              this.handler.handleRequest(exchange));
     }
 
     @Test
@@ -418,9 +418,9 @@ public class ResourceHttpRequestHandlerTests {
         this.request.setRequestURI("not-there.css");
         this.request.setMethod(method.name());
         this.response = new MockResponse();
-        httpContext = new MockServerHttpExchange(null, request, response);
+        exchange = new MockServerHttpExchange(null, request, response);
 
-        assertThat(this.handler.handleRequest(httpContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
+        assertThat(this.handler.handleRequest(exchange)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
       }
     }
 
@@ -435,7 +435,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockResponse response;
 
-    private MockServerHttpExchange httpContext;
+    private MockServerHttpExchange exchange;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -444,13 +444,13 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockServerHttpExchange(null, request, response);
+      exchange = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
     void supportsRangeRequest() throws Throwable {
       this.request.setRequestURI("foo.css");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
       assertThat(this.response.getHeaders("Accept-Ranges")).hasSize(1);
@@ -460,7 +460,7 @@ public class ResourceHttpRequestHandlerTests {
     void partialContentByteRange() throws Throwable {
       this.request.addHeader("Range", "bytes=0-1");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getContentType()).isEqualTo("text/plain");
@@ -475,7 +475,7 @@ public class ResourceHttpRequestHandlerTests {
     void partialContentByteRangeNoEnd() throws Throwable {
       this.request.addHeader("Range", "bytes=9-");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getContentType()).isEqualTo("text/plain");
@@ -492,7 +492,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.addHeader(HttpHeaders.RANGE, "bytes=0-1");
       this.request.addHeader(HttpHeaders.IF_RANGE, "\"stale\"");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
@@ -506,7 +506,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.addHeader(HttpHeaders.RANGE, "bytes=0-1");
       this.request.addHeader(HttpHeaders.IF_RANGE, "\"current\"");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getHeader(HttpHeaders.ETAG)).isEqualTo("\"current\"");
@@ -518,7 +518,7 @@ public class ResourceHttpRequestHandlerTests {
     void partialContentByteRangeLargeEnd() throws Throwable {
       this.request.addHeader("Range", "bytes=9-10000");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getContentType()).isEqualTo("text/plain");
@@ -533,7 +533,7 @@ public class ResourceHttpRequestHandlerTests {
     void partialContentSuffixRange() throws Throwable {
       this.request.addHeader("Range", "bytes=-1");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getContentType()).isEqualTo("text/plain");
@@ -548,7 +548,7 @@ public class ResourceHttpRequestHandlerTests {
     void partialContentSuffixRangeLargeSuffix() throws Throwable {
       this.request.addHeader("Range", "bytes=-11");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getContentType()).isEqualTo("text/plain");
@@ -563,9 +563,9 @@ public class ResourceHttpRequestHandlerTests {
     void partialContentInvalidRangeHeader() throws Throwable {
       this.request.addHeader("Range", "bytes= foo bar");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
-      httpContext.flush();
+      exchange.flush();
       assertThat(this.response.getStatus()).isEqualTo(416);
       assertThat(this.response.getHeader("Content-Range")).isEqualTo("bytes */10");
       assertThat(this.response.getHeader("Accept-Ranges")).isEqualTo("bytes");
@@ -576,7 +576,7 @@ public class ResourceHttpRequestHandlerTests {
     void partialContentMultipleByteRanges() throws Throwable {
       this.request.addHeader("Range", "bytes=0-1, 4-5, 8-9");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getContentType()).startsWith("multipart/byteranges; boundary=");
@@ -616,7 +616,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.addHeader("Accept-Encoding", "gzip");
       this.request.addHeader("Range", "bytes=0-1");
       this.request.setRequestURI(path);
-      handler.handleRequest(httpContext);
+      handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getHeaderNames()).containsExactlyInAnyOrder(
@@ -637,7 +637,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setMethod("HEAD");
       this.request.addHeader("Range", "bytes=0-1");
       this.request.setRequestURI("foo.txt");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getStatus()).isEqualTo(206);
       assertThat(this.response.getContentType()).isEqualTo("text/plain");
@@ -656,7 +656,7 @@ public class ResourceHttpRequestHandlerTests {
     private MockRequest request;
 
     private MockResponse response;
-    private MockServerHttpExchange httpContext;
+    private MockServerHttpExchange exchange;
 
     @BeforeEach
     void setup() {
@@ -664,14 +664,14 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockServerHttpExchange(null, request, response);
+      exchange = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
     void defaultCachingHeaders() throws Throwable {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("foo.css");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.containsHeader("Last-Modified")).isTrue();
       assertThat(this.response.getDateHeader("Last-Modified") / 1000).isEqualTo(resourceLastModified("test/foo.css") / 1000);
@@ -682,7 +682,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setCacheSeconds(3600);
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("foo.css");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
@@ -692,7 +692,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setCacheSeconds(0);
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("foo.css");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("no-store");
     }
@@ -705,7 +705,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
 
       this.request.setRequestURI("versionString/foo.css");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getHeader("ETag")).isEqualTo("W/\"versionString\"");
     }
@@ -716,8 +716,8 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
-      this.handler.handleRequest(httpContext);
-      httpContext.flush();
+      this.handler.handleRequest(exchange);
+      exchange.flush();
       assertThat(this.response.getStatus()).isEqualTo(304);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
@@ -727,7 +727,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css") / 1000 * 1000 - 1);
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
     }
@@ -739,8 +739,8 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
-      this.handler.handleRequest(httpContext);
-      httpContext.flush();
+      this.handler.handleRequest(exchange);
+      exchange.flush();
       assertThat(this.response.getStatus()).isEqualTo(304);
       assertThat(this.response.getHeader("Cache-Control")).isEqualTo("max-age=3600");
     }
@@ -751,7 +751,7 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
       assertThat(this.response.getStatus()).isEqualTo(200);
       assertThat(this.response.getContentAsString()).isEqualTo("h1 { color:red; }");
     }
@@ -763,7 +763,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.request.addHeader("If-None-Match", "\"testEtag\"");
       this.request.addHeader("If-Modified-Since", resourceLastModified("test/foo.css"));
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
       assertThat(this.response.getStatus()).isEqualTo(304);
     }
 
@@ -775,11 +775,11 @@ public class ResourceHttpRequestHandlerTests {
 
       this.response.setHeader("Cache-Control", "no-store");
 
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
-      httpContext.flush();
+      exchange.flush();
 
-      assertThat(this.httpContext.responseHeaders().getFirst("Cache-Control")).isEqualTo("max-age=3600");
+      assertThat(this.exchange.responseHeaders().getFirst("Cache-Control")).isEqualTo("max-age=3600");
     }
 
     @Test
@@ -787,7 +787,7 @@ public class ResourceHttpRequestHandlerTests {
       this.request.setRequestURI("foo.css");
       this.handler.setUseLastModified(false);
       this.handler.afterPropertiesSet();
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentLength()).isEqualTo(17);
@@ -810,7 +810,7 @@ public class ResourceHttpRequestHandlerTests {
 
     private MockResponse response;
 
-    private MockServerHttpExchange httpContext;
+    private MockServerHttpExchange exchange;
 
     @BeforeEach
     void setup() throws Throwable {
@@ -818,14 +818,14 @@ public class ResourceHttpRequestHandlerTests {
       this.handler.setLocations(List.of(testResource, testAlternatePathResource, webjarsResource));
       this.request = new MockRequest("GET", "");
       this.response = new MockResponse();
-      httpContext = new MockServerHttpExchange(null, request, response);
+      exchange = new MockServerHttpExchange(null, request, response);
     }
 
     @Test
     void servesResourcesFromAlternatePath() throws Throwable {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("baz.css");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("text/css");
       assertThat(this.response.getContentLength()).isEqualTo(17);
@@ -836,7 +836,7 @@ public class ResourceHttpRequestHandlerTests {
     void servesResourcesFromSubDirectory() throws Throwable {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("js/foo.js");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("text/javascript");
       assertThat(this.response.getContentAsString()).isEqualTo("function foo() { console.log(\"hello world\"); }");
@@ -846,7 +846,7 @@ public class ResourceHttpRequestHandlerTests {
     void servesResourcesFromSubDirectoryOfAlternatePath() throws Throwable {
       this.handler.afterPropertiesSet();
       this.request.setRequestURI("js/baz.js");
-      this.handler.handleRequest(httpContext);
+      this.handler.handleRequest(exchange);
 
       assertThat(this.response.getContentType()).isEqualTo("text/javascript");
       assertThat(this.response.getContentAsString()).isEqualTo("function foo() { console.log(\"hello world\"); }");
@@ -902,13 +902,13 @@ public class ResourceHttpRequestHandlerTests {
     private void testInvalidPath(String requestPath) {
       this.request.setRequestURI(requestPath);
       this.response = new MockResponse();
-      httpContext = new MockServerHttpExchange(null, request, response);
+      exchange = new MockServerHttpExchange(null, request, response);
       assertNotFound();
     }
 
     private void assertNotFound() {
       try {
-        assertThat(this.handler.handleRequest(httpContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
+        assertThat(this.handler.handleRequest(exchange)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
       }
       catch (Throwable e) {
         throw ExceptionUtils.sneakyThrow(e);
@@ -954,7 +954,7 @@ public class ResourceHttpRequestHandlerTests {
     private void testResolvePathWithTraversal(Resource location, String requestPath) {
       this.request.setRequestURI(requestPath);
       this.response = new MockResponse();
-      httpContext = new MockServerHttpExchange(null, request, response);
+      exchange = new MockServerHttpExchange(null, request, response);
       assertNotFound();
     }
 
@@ -1048,7 +1048,7 @@ public class ResourceHttpRequestHandlerTests {
     @Test
     void noPathWithinHandlerMappingAttribute() throws Throwable {
       this.handler.afterPropertiesSet();
-      assertThat(this.handler.handleRequest(httpContext)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
+      assertThat(this.handler.handleRequest(exchange)).isEqualTo(SimpleNotFoundHandler.NONE_RETURN_VALUE);
     }
 
     @Test

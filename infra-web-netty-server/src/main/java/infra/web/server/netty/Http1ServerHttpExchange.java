@@ -54,11 +54,11 @@ import io.netty.util.AsciiString;
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0
  */
-final class ServerHttpExchange extends NettyServerHttpExchange implements Runnable {
+final class Http1ServerHttpExchange extends NettyServerHttpExchange implements Runnable {
 
   public final HttpRequest request;
 
-  public ServerHttpExchange(Channel channel, HttpRequest request, NettyRequestConfig config,
+  public Http1ServerHttpExchange(Channel channel, HttpRequest request, NettyRequestConfig config,
           ApplicationContext context, DispatcherHandler dispatcherHandler, HttpTrafficHandler httpTrafficHandler) {
     super(context, channel, config, dispatcherHandler, httpTrafficHandler, getContentLength(request),
             request.method(), newResponseHeaders());

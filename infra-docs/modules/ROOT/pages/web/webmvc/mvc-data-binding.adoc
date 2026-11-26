@@ -39,7 +39,7 @@ MVC 的 `HttpExchangeDataBinder` 除了查询参数和表单字段，还可以�
   属性绑定会移除请求头名称中的连字符并将首字母转为小写，例如 `X-Region` 作为 `xRegion` 候选属性。
 
 请求头筛选默认排除 `Authorization`、`Cookie` 和 `Host` 等请求头。可以用
-`HttpContextDataBinder.addHeaderPredicate(...)` 进一步收窄范围；`setHeaderPredicate(...)` 会替换默认筛选规则。
+`HttpExchangeDataBinder.addHeaderPredicate(...)` 进一步收窄范围；`setHeaderPredicate(...)` 会替换默认筛选规则。
 请求参数可能覆盖同名路径变量，因此需要用路径 ID 选择或授权资源时，应显式声明 `@PathVariable` 参数，
 不要从绑定对象的同名属性中读取该 ID。
 

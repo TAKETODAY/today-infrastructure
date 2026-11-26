@@ -22,28 +22,30 @@ import java.util.List;
 
 import infra.beans.factory.InitializingBean;
 import infra.context.ApplicationContextAware;
+import infra.test.web.mock.RequestBuilder;
+import infra.test.web.mock.request.MockMvcRequestBuilders;
+import infra.test.web.mock.request.MockRequestCustomizer;
 import infra.validation.Validator;
+import infra.web.Filter;
 import infra.web.HandlerExceptionHandler;
 import infra.web.RedirectModelManager;
 import infra.web.accept.ApiVersionStrategy;
 import infra.web.annotation.GET;
 import infra.web.annotation.RestController;
+import infra.web.client.ApiVersionInserter;
 import infra.web.handler.ReturnValueHandlerManager;
 import infra.web.handler.method.ParameterResolvingRegistry;
+import infra.web.mock.api.MockContext;
 import infra.web.view.ViewResolver;
-import infra.web.client.ApiVersionInserter;
-import infra.web.Filter;
-import infra.test.web.mock.RequestBuilder;
-import infra.test.web.mock.request.MockMvcRequestBuilders;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
 class StandaloneInfrastructureTests {
@@ -59,9 +61,9 @@ class StandaloneInfrastructureTests {
       assertThat(configured.build()).isNotNull();
       var configurer = new MockMvcConfigurer() {
         @Override
-        public infra.test.web.mock.request.MockRequestCustomizer beforeMockMvcCreated(
-                ConfigurableMockMvcBuilder<?> builder, infra.web.mock.api.MockContext context) {
-          return (request, httpContext) -> { };
+        public MockRequestCustomizer beforeMockMvcCreated(
+                ConfigurableMockMvcBuilder<?> builder, MockContext context) {
+          return (request, exchange) -> { };
         }
       };
       assertThat(MockMvcBuilders.standaloneSetup(Controller.class).defaultRequest(defaults).apply(configurer).build()).isNotNull();

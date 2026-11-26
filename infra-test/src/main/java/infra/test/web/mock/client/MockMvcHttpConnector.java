@@ -259,8 +259,8 @@ public class MockMvcHttpConnector implements ClientHttpConnector {
     }
 
     @Override
-    public ServerHttpExchange getContext() {
-      return mvcResult.getContext();
+    public ServerHttpExchange getExchange() {
+      return mvcResult.getExchange();
     }
 
     @Nullable

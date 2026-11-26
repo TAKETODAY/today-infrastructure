@@ -48,8 +48,8 @@ public abstract class AbstractMockRequestAssert<SELF extends AbstractMockRequest
   }
 
   @Override
-  protected @Nullable ServerHttpExchange getHttpContext() {
-    return result != null ? result.getContext() : null;
+  protected @Nullable ServerHttpExchange findExchange() {
+    return result != null ? result.getExchange() : null;
   }
 
 }

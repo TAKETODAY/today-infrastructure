@@ -315,9 +315,9 @@ class DefaultServerResponseBuilderTests {
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     MockResponse mockResponse = new MockResponse();
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
-    Object mav = response.writeTo(httpContext, context);
+    Object mav = response.writeTo(exchange, context);
 
     assertThat(mav).isEqualTo(EntityResponse.NONE_RETURN_VALUE);
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
@@ -334,8 +334,8 @@ class DefaultServerResponseBuilderTests {
     MockResponse mockResponse = new MockResponse();
     ServerResponse.Context context = () -> Collections.singletonList(new JacksonJsonHttpMessageConverter());
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(httpContext, context);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    Object mav = response.writeTo(exchange, context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
@@ -354,8 +354,8 @@ class DefaultServerResponseBuilderTests {
 
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(httpContext, context);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    Object mav = response.writeTo(exchange, context);
 
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
@@ -374,8 +374,8 @@ class DefaultServerResponseBuilderTests {
 
     ServerResponse.Context context = () -> Collections.singletonList(new StringHttpMessageConverter());
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
-    Object mav = response.writeTo(httpContext, context);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    Object mav = response.writeTo(exchange, context);
     assertThat(mav).isEqualTo(ServerResponse.NONE_RETURN_VALUE);
 
     assertThat(mockResponse.getContentAsString()).isEqualTo(body);
@@ -532,10 +532,10 @@ class DefaultServerResponseBuilderTests {
   void buildWithWriteFunction() throws Throwable {
     MockRequest mockRequest = new MockRequest("GET", "https://example.com");
     MockResponse mockResponse = new MockResponse();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
 
     ServerResponse response = ServerResponse.ok().build(request -> "custom response");
-    Object result = response.writeTo(httpContext, DefaultServerResponseBuilderTests.EMPTY_CONTEXT);
+    Object result = response.writeTo(exchange, DefaultServerResponseBuilderTests.EMPTY_CONTEXT);
 
     assertThat(result).isEqualTo("custom response");
   }

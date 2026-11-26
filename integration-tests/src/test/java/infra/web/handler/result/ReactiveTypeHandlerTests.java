@@ -276,8 +276,8 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, null, mockResponse);
-    emitter.extendResponse(httpContext);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, null, mockResponse);
+    emitter.extendResponse(exchange);
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -286,7 +286,7 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitNext(bar2);
     sink.tryEmitComplete();
 
-    assertThat(httpContext.responseHeaders().getContentType()).hasToString(mediaType);
+    assertThat(exchange.responseHeaders().getContentType()).hasToString(mediaType);
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 
@@ -302,8 +302,8 @@ class ReactiveTypeHandlerTests {
     EmitterHandler emitterHandler = new EmitterHandler();
     emitter.initialize(emitterHandler);
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, null, mockResponse);
-    emitter.extendResponse(httpContext);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, null, mockResponse);
+    emitter.extendResponse(exchange);
 
     Bar bar1 = new Bar("foo");
     Bar bar2 = new Bar("bar");
@@ -312,7 +312,7 @@ class ReactiveTypeHandlerTests {
     sink.tryEmitNext(bar2);
     sink.tryEmitComplete();
 
-    assertThat(httpContext.getResponseContentType()).isEqualTo("application/vnd.myapp.v1+x-ndjson");
+    assertThat(exchange.getResponseContentType()).isEqualTo("application/vnd.myapp.v1+x-ndjson");
     assertThat(emitterHandler.getValues()).isEqualTo(Arrays.asList(bar1, "\n", bar2, "\n"));
   }
 

@@ -27,7 +27,7 @@ import java.util.concurrent.CountDownLatch;
 import infra.context.ApplicationContext;
 import infra.util.Assert;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ReturnValueHandler;
 import infra.web.async.CallableProcessingInterceptor;
 import infra.web.async.DeferredResult;
@@ -70,14 +70,14 @@ public final class TestMockDispatcherHandler extends MockDispatcherHandler {
 
   @Override
   public void service(MockRequest request, MockResponse response) throws MockException {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
     MockRequest mockRequest = MockUtils.getMockRequest(context);
     MockResponse mockResponse = MockUtils.getMockResponse(context);
 
     if (request != mockRequest && response != mockResponse) {
       context = new MockServerHttpExchange(
               getApplicationContext(), request, response, this);
-      HttpContextHolder.set(context);
+      HttpExchangeHolder.set(context);
     }
 
     registerAsyncResultInterceptors(context);

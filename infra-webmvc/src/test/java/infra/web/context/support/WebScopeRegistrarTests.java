@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.session.Session;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.mock.MockServerHttpExchange;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,12 +39,12 @@ class WebScopeRegistrarTests {
 
   @AfterEach
   void cleanup() {
-    HttpContextHolder.set(null);
+    HttpExchangeHolder.set(null);
   }
 
   @Test
   void registersScopesAndLazyDependenciesWithoutActiveRequest() {
-    HttpContextHolder.set(null);
+    HttpExchangeHolder.set(null);
     ConfigurableBeanFactory beanFactory = mock(ConfigurableBeanFactory.class);
     WebScopeRegistrar.registerScopes(beanFactory);
 
@@ -63,14 +63,14 @@ class WebScopeRegistrarTests {
 
     MockServerHttpExchange first = new MockServerHttpExchange();
     first.setRequestURI("/first");
-    HttpContextHolder.set(first);
+    HttpExchangeHolder.set(first);
     assertThat(request.getRequestURI()).isEqualTo("/first");
     assertThat(first.getSession(false)).isNull();
     assertThat(session.get()).isSameAs(first.getSession());
 
     MockServerHttpExchange second = new MockServerHttpExchange();
     second.setRequestURI("/second");
-    HttpContextHolder.set(second);
+    HttpExchangeHolder.set(second);
     assertThat(request.getRequestURI()).isEqualTo("/second");
     assertThat(second.getSession(false)).isNull();
     assertThat(session.get()).isSameAs(second.getSession()).isNotSameAs(first.getSession());

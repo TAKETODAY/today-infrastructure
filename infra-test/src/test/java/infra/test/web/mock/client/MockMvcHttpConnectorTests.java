@@ -56,7 +56,7 @@ class MockMvcHttpConnectorTests {
     MockResponse serverResponse = new MockResponse();
     given(result.getRequest()).willReturn(serverRequest);
     given(result.getResponse()).willReturn(serverResponse);
-    given(result.getContext()).willReturn(new MockServerHttpExchange(null, serverRequest, serverResponse));
+    given(result.getExchange()).willReturn(new MockServerHttpExchange(null, serverRequest, serverResponse));
     ResultActions actions = ResultActions.forMvcResult(result);
     given(mvc.perform(any())).willAnswer(invocation -> {
       MockHttpRequestBuilder builder = invocation.getArgument(0);

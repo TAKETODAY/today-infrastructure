@@ -31,13 +31,13 @@ import infra.web.util.UriComponentsBuilder;
  * @author Juergen Hoeller
  * @since 25.01.2005
  */
-public class DummyMacroHttpContext {
+public class DummyMacroExchange {
 
   private final ServerHttpExchange request;
 
   private String contextPath;
 
-  public DummyMacroHttpContext(ServerHttpExchange request) {
+  public DummyMacroExchange(ServerHttpExchange request) {
     this.request = request;
   }
 

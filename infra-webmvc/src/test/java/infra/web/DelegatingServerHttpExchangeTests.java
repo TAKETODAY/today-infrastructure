@@ -242,7 +242,7 @@ class DelegatingServerHttpExchangeTests {
   }
 
   @Test
-  void equals_ShouldReturnFalse_ForNonDelegatingHttpContext() {
+  void equals_ShouldReturnFalse_ForNonDelegatingHttpExchange() {
     ServerHttpExchange delegate = mock(ServerHttpExchange.class);
     DelegatingServerHttpExchange wrapper = new DelegatingServerHttpExchange(delegate);
 

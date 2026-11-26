@@ -28,7 +28,7 @@ import infra.context.support.GenericApplicationContext;
 import infra.core.env.ConfigurableEnvironment;
 import infra.session.Session;
 import infra.stereotype.Component;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.context.StandardWebEnvironment;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -124,7 +124,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
 
     @Override
     public MockRequest get() {
-      return MockUtils.getMockRequest(HttpContextHolder.current());
+      return MockUtils.getMockRequest(HttpExchangeHolder.current());
     }
 
     @Override
@@ -142,7 +142,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
 
     @Override
     public MockResponse get() {
-      return MockUtils.getMockResponse(HttpContextHolder.current());
+      return MockUtils.getMockResponse(HttpExchangeHolder.current());
     }
 
     @Override
@@ -159,7 +159,7 @@ public class GenericMockWebApplicationContext extends GenericApplicationContext
 
     @Override
     public Session get() {
-      return HttpContextHolder.required().getSession();
+      return HttpExchangeHolder.required().getSession();
     }
 
     @Override

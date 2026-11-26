@@ -47,7 +47,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-class HttpComponentsClientHttpExchangeTests {
+class HttpComponentsClientHttpContextTests {
 
   private static final URI URI_VALUE = URI.create("https://example.test/orders");
 

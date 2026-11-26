@@ -24,7 +24,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
 import infra.http.server.RequestPath;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.filter.ForwardedHeaderFilter;
 import infra.web.mock.MockFilterChain;
 import infra.web.mock.MockServerHttpExchange;
@@ -44,7 +44,7 @@ class ServerHttpExchangeUriComponentsBuilderTests {
 
   @AfterEach
   void cleanup() {
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
   }
 
   @Test
@@ -123,7 +123,7 @@ class ServerHttpExchangeUriComponentsBuilderTests {
   void currentRequestFactories() {
     this.request.setRequestURI("/app/data");
     this.request.setQueryString("foo=123");
-    HttpContextHolder.set(context());
+    HttpExchangeHolder.set(context());
 
     assertThat(HttpExchangeUriComponentsBuilder.fromCurrentRequest().build().toUriString())
             .isEqualTo("http://localhost/app/data?foo=123");
@@ -135,7 +135,7 @@ class ServerHttpExchangeUriComponentsBuilderTests {
 
   @Test
   void currentRequestRequired() {
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
     assertThatIllegalStateException().isThrownBy(HttpExchangeUriComponentsBuilder::fromCurrentRequest);
     assertThatIllegalStateException().isThrownBy(HttpExchangeUriComponentsBuilder::fromCurrentRequestUri);
     assertThatIllegalStateException().isThrownBy(HttpExchangeUriComponentsBuilder::fromCurrentContextPath);

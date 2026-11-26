@@ -122,7 +122,7 @@ class GroovyTemplateAutoConfigurationTests {
           """)
   @WithResource(name = "templates/excluded.tpl", content = "yield 'excluded'")
   void appliesViewNamesAndModelExposureSettingsWhenRendering() throws Exception {
-    registerAndRefreshContext("groovy.template.view-names=allowed", "groovy.template.http-context-attribute=webContext",
+    registerAndRefreshContext("groovy.template.view-names=allowed", "groovy.template.exchange-attribute=webContext",
             "groovy.template.expose-request-attributes=true", "groovy.template.allow-request-override=true",
             "groovy.template.expose-session-attributes=true", "groovy.template.allow-session-override=true",
             "groovy.template.expose-messages=false");

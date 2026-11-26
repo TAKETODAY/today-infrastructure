@@ -60,7 +60,7 @@ import infra.validation.DataBinder;
  * @see #setRequiredFields
  * @see #setFieldMarkerPrefix
  * @see #setFieldDefaultPrefix
- * @see infra.web.bind.HttpContextDataBinder
+ * @see infra.web.bind.HttpExchangeDataBinder
  * @since 4.0 2022/3/2 16:28
  */
 public class WebDataBinder extends DataBinder {

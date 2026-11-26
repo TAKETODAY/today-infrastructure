@@ -35,7 +35,7 @@ import infra.core.annotation.SynthesizingMethodParameter;
 import infra.format.support.DefaultFormattingConversionService;
 import infra.util.ReflectionUtils;
 import infra.web.BindingContext;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.annotation.RequestHeader;
 import infra.web.bind.MissingRequestHeaderException;
 import infra.web.bind.RequestBindingException;
@@ -100,7 +100,7 @@ class RequestHeaderMethodArgumentResolverTests {
     webRequest = new MockServerHttpExchange(null, mockRequest, new MockResponse());
 
     // Expose request to the current thread (for SpEL expressions)
-    HttpContextHolder.set(webRequest);
+    HttpExchangeHolder.set(webRequest);
 
   }
 
@@ -112,7 +112,7 @@ class RequestHeaderMethodArgumentResolverTests {
 
   @AfterEach
   void reset() {
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
   }
 
   @Test

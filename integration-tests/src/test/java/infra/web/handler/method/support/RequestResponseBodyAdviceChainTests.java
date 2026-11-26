@@ -70,7 +70,7 @@ class RequestResponseBodyAdviceChainTests {
 
   private ServerHttpRequest request;
   private ServerHttpResponse response;
-  private MockServerHttpExchange httpContext;
+  private MockServerHttpExchange exchange;
 
   @BeforeEach
   public void setup() {
@@ -85,7 +85,7 @@ class RequestResponseBodyAdviceChainTests {
     MockResponse mockResponse = new MockResponse();
 
     this.response = new MockServerHttpResponse(mockResponse);
-    this.httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    this.exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
   }
 
   @SuppressWarnings("unchecked")
@@ -122,10 +122,10 @@ class RequestResponseBodyAdviceChainTests {
     String expected = "body++";
     given(responseAdvice.supports(body, this.returnType, this.converterType)).willReturn(true);
     given(responseAdvice.beforeBodyWrite(ArgumentMatchers.eq(this.body), ArgumentMatchers.eq(this.returnType), ArgumentMatchers.eq(this.contentType),
-            ArgumentMatchers.eq(this.converterType), ArgumentMatchers.same(httpContext))).willReturn(expected);
+            ArgumentMatchers.eq(this.converterType), ArgumentMatchers.same(exchange))).willReturn(expected);
 
     String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-            this.converterType, httpContext);
+            this.converterType, exchange);
 
     assertThat(actual).isEqualTo(expected);
   }
@@ -136,7 +136,7 @@ class RequestResponseBodyAdviceChainTests {
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
 
     String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-            this.converterType, httpContext);
+            this.converterType, exchange);
 
     assertThat(actual).isEqualTo("body-MyControllerAdvice");
   }
@@ -147,7 +147,7 @@ class RequestResponseBodyAdviceChainTests {
     RequestResponseBodyAdviceChain chain = new RequestResponseBodyAdviceChain(Collections.singletonList(adviceBean));
 
     String actual = (String) chain.beforeBodyWrite(this.body, this.returnType, this.contentType,
-            this.converterType, httpContext);
+            this.converterType, exchange);
 
     assertThat(actual).isEqualTo(this.body);
   }

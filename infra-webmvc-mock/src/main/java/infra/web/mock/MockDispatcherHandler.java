@@ -24,7 +24,7 @@ import java.io.Serializable;
 import infra.context.ApplicationContext;
 import infra.web.DispatcherHandler;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.async.WebAsyncManager;
 import infra.web.mock.api.DispatcherType;
 import infra.web.mock.api.MockException;
@@ -63,13 +63,13 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
       return;
     }
 
-    ServerHttpExchange context = HttpContextHolder.current();
+    ServerHttpExchange context = HttpExchangeHolder.current();
 
     boolean reset = false;
     if (context == null) {
       context = new MockServerHttpExchange(getApplicationContext(),
               request, response, this);
-      HttpContextHolder.set(context);
+      HttpExchangeHolder.set(context);
       reset = true;
     }
 
@@ -81,7 +81,7 @@ public class MockDispatcherHandler extends DispatcherHandler implements MockHand
     }
     finally {
       if (reset) {
-        HttpContextHolder.cleanup();
+        HttpExchangeHolder.cleanup();
       }
     }
   }

@@ -105,9 +105,9 @@ class PathResourceLookupFunctionTests {
 
   private ServerRequest initRequest(String httpMethod, String requestUri) {
     MockRequest request = PathPatternsTestUtils.initRequest(httpMethod, requestUri, true);
-    var httpContext = new MockServerHttpExchange(null, request, new MockResponse());
+    var exchange = new MockServerHttpExchange(null, request, new MockResponse());
     return new DefaultServerRequest(
-            httpContext,
+            exchange,
             Collections.emptyList());
   }
 

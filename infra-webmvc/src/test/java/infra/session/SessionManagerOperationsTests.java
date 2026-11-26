@@ -110,7 +110,7 @@ class SessionManagerOperationsTests {
   }
 
   @Test
-  void getAttribute_fromHttpContext_whenSessionExists_shouldReturnAttributeValue() {
+  void getAttribute_fromExchange_whenSessionExists_shouldReturnAttributeValue() {
     String attributeName = "testAttribute";
     String attributeValue = "testValue";
     session.setAttribute(attributeName, attributeValue);
@@ -123,7 +123,7 @@ class SessionManagerOperationsTests {
   }
 
   @Test
-  void getAttribute_fromHttpContext_whenSessionNotExists_shouldReturnNull() {
+  void getAttribute_fromHttpExchange_whenSessionNotExists_shouldReturnNull() {
     when(sessionManager.getSession(exchange, false)).thenReturn(null);
 
     Object result = sessionManagerOperations.getAttribute(exchange, "testAttribute");

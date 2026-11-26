@@ -64,7 +64,7 @@ import infra.web.multipart.Part;
  * <pre> {@code
  * MyBean myBean = new MyBean();
  * // apply binder to custom target object
- * HttpContextDataBinder binder = new HttpContextDataBinder(myBean);
+ * HttpExchangeDataBinder binder = new HttpExchangeDataBinder(myBean);
  * // register custom editors, if desired
  * binder.registerCustomEditor(...);
  * // trigger actual binding of request parameters

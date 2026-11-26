@@ -31,7 +31,7 @@ import infra.test.web.mock.setup.MockMvcBuilders;
 import infra.util.Assert;
 import infra.web.Filter;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.mock.MockDispatcherHandler;
 import infra.web.mock.MockFilterChain;
 import infra.web.mock.MockServerHttpExchange;
@@ -147,7 +147,7 @@ public final class MockMvc {
       response.setDefaultCharacterEncoding(this.defaultResponseCharacterEncoding.name());
     }
 
-    ServerHttpExchange previous = HttpContextHolder.current();
+    ServerHttpExchange previous = HttpExchangeHolder.current();
 
     var context = new MockServerHttpExchange(mockContext.getApplicationContext(),
             request, response, mockContext.getDispatcherHandler());
@@ -157,13 +157,13 @@ public final class MockMvc {
       smartRequestBuilder.customize(request, context);
     }
 
-    HttpContextHolder.set(context);
+    HttpExchangeHolder.set(context);
 
     try {
       MockFilterChain filterChain = new MockFilterChain(mockContext.getDispatcherHandler(), this.filters);
       filterChain.doFilter(context);
 
-      ServerHttpExchange maybeNew = HttpContextHolder.required();
+      ServerHttpExchange maybeNew = HttpExchangeHolder.required();
       if (maybeNew != context) {
         mvcResult.setContext(maybeNew);
       }
@@ -176,7 +176,7 @@ public final class MockMvc {
       applyDefaultResultActions(mvcResult);
     }
     finally {
-      HttpContextHolder.set(previous);
+      HttpExchangeHolder.set(previous);
     }
     return ResultActions.forMvcResult(mvcResult);
   }

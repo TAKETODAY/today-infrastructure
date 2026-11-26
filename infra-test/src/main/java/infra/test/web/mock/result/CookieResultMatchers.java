@@ -87,7 +87,7 @@ public class CookieResultMatchers {
    */
   public ResultMatcher doesNotExist(String name) {
     return result -> {
-      ResponseCookie cookie = getCookie(result.getContext(), name);
+      ResponseCookie cookie = getCookie(result.getExchange(), name);
       assertNull("Unexpected cookie with name '" + name + "'", cookie);
     };
   }
@@ -201,7 +201,7 @@ public class CookieResultMatchers {
   }
 
   private static ResponseCookie getCookie(MvcResult result, String cookieName) {
-    ServerHttpExchange context = result.getContext();
+    ServerHttpExchange context = result.getExchange();
     ResponseCookie cookie = getCookie(context, cookieName);
     assertNotNull("No cookie with name '" + cookieName + "'", cookie);
     return cookie;

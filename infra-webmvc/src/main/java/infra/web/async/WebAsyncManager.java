@@ -33,7 +33,7 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.Assert;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.util.DisconnectedClientHelper;
 import infra.web.util.TimeoutUtils;
@@ -343,7 +343,7 @@ public final class WebAsyncManager {
     try {
       Future<?> future = taskExecutor.submit(() -> {
         // context aware
-        HttpContextHolder.set(exchange);
+        HttpExchangeHolder.set(exchange);
         Object result = null;
         try {
           interceptorChain.applyPreProcess(exchange, callable);
@@ -356,7 +356,7 @@ public final class WebAsyncManager {
           result = interceptorChain.applyPostProcess(exchange, callable, result);
         }
         setConcurrentResultAndDispatch(result);
-        HttpContextHolder.cleanup();
+        HttpExchangeHolder.cleanup();
       });
       interceptorChain.setTaskFuture(future);
     }

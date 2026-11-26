@@ -66,7 +66,7 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     Session httpSession = request.getSession();
     Assertions.assertThat(httpSession).as("HTTP session").isNotNull();
     Map<String, Object> map = toMap(httpSession.attributeNames(), httpSession::getAttribute);
-    ServerHttpExchange exchange = getHttpContext();
+    ServerHttpExchange exchange = findExchange();
     if (exchange != null) {
       Session session = exchange.getSession(false);
       if (session != null) {
@@ -76,7 +76,7 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     return Assertions.assertThat(map).as("Session Attributes");
   }
 
-  protected @Nullable ServerHttpExchange getHttpContext() {
+  protected @Nullable ServerHttpExchange findExchange() {
     return null;
   }
 
@@ -122,7 +122,7 @@ public abstract class AbstractRequestAssert<SELF extends AbstractRequestAssert<S
     return this.myself;
   }
 
-  private static Map<String, Object> toMap(Iterable<String> keys, Function<String, Object> valueProvider) {
+  private static Map<String, Object> toMap(Iterable<String> keys, Function<String, @Nullable Object> valueProvider) {
     Map<String, Object> map = new LinkedHashMap<>();
     for (String key : keys) {
       map.put(key, valueProvider.apply(key));

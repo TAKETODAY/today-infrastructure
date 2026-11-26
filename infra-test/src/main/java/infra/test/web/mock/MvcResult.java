@@ -62,7 +62,7 @@ public interface MvcResult {
    */
   MockResponse getResponse();
 
-  ServerHttpExchange getContext();
+  ServerHttpExchange getExchange();
 
   /**
    * Return the executed handler.

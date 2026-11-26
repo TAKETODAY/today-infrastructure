@@ -259,7 +259,7 @@ class SessionIdResolverTests {
   void getSessionId_withNullContext_shouldHandleGracefully() {
     SessionIdResolver resolver = SessionIdResolver.forHeader("X-Token");
 
-    // MockHttpContext 不允许 null，所以这里验证不会抛出 NPE
+    // MockHttpExchange 不允许 null，所以这里验证不会抛出 NPE
     assertThatCode(() -> resolver.getSessionId(exchange)).doesNotThrowAnyException();
   }
 

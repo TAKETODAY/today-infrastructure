@@ -40,7 +40,7 @@ import infra.util.CollectionUtils;
 import infra.util.MimeTypeUtils;
 import infra.util.StringUtils;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.HttpMediaTypeNotAcceptableException;
 import infra.web.ServerHttpExchange;
 import infra.web.accept.ContentNegotiationManager;
@@ -212,7 +212,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
   @Override
   @Nullable
   public View resolveViewName(String viewName, Locale locale) throws Exception {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
     List<MediaType> requestedMediaTypes = getMediaTypes(context);
     if (requestedMediaTypes != null) {
       List<View> candidateViews = getCandidateViews(viewName, locale, requestedMediaTypes);
@@ -302,7 +302,7 @@ public class ContentNegotiatingViewResolver extends ApplicationObjectSupport imp
               negotiationManager.getStrategy(PathExtensionContentNegotiationStrategy.class);
       String pathExtension = null;
       if (pathStrategy != null) {
-        pathExtension = UriUtils.extractFileExtension(HttpContextHolder.required().getRequestURI());
+        pathExtension = UriUtils.extractFileExtension(HttpExchangeHolder.required().getRequestURI());
       }
       for (ViewResolver viewResolver : viewResolvers) {
         View view = viewResolver.resolveViewName(viewName, locale);

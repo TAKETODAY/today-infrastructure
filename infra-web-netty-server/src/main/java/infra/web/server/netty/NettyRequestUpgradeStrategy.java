@@ -94,7 +94,7 @@ public class NettyRequestUpgradeStrategy implements RequestUpgradeStrategy {
   public @Nullable WebSocketSession upgrade(ServerHttpExchange context, @Nullable String selectedProtocol, List<WebSocketExtension> selectedExtensions,
           WebSocketHandler wsHandler, Map<String, Object> attributes) throws HandshakeFailureException //
   {
-    var nettyContext = WebUtils.getNativeContext(context, infra.web.server.netty.ServerHttpExchange.class);
+    var nettyContext = WebUtils.getNativeContext(context, Http1ServerHttpExchange.class);
     if (nettyContext == null) {
       throw new IllegalStateException("WebSocket upgrade requires an HTTP/1.x Netty request context");
     }

@@ -22,7 +22,7 @@ import infra.beans.factory.annotation.Autowired;
 import infra.context.annotation.Configuration;
 import infra.web.mock.MockRequest;
 import infra.test.context.junit.jupiter.web.JUnitWebConfig;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.mock.MockUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,7 +49,7 @@ class WebMockTestExecutionListenerJUnitIntegrationTests {
    */
   @Test
   void ensureMocksAreReinjectedBetweenTests_1() {
-    assertInjectedRequestEqualsRequestInHttpContextHolder();
+    assertInjectedRequestEqualsRequestInHttpExchangeHolder();
   }
 
   /**
@@ -57,12 +57,12 @@ class WebMockTestExecutionListenerJUnitIntegrationTests {
    */
   @Test
   void ensureMocksAreReinjectedBetweenTests_2() {
-    assertInjectedRequestEqualsRequestInHttpContextHolder();
+    assertInjectedRequestEqualsRequestInHttpExchangeHolder();
   }
 
-  private void assertInjectedRequestEqualsRequestInHttpContextHolder() {
-    assertThat(MockUtils.getMockRequest(HttpContextHolder.current()))
-            .as("Injected MockRequest must be stored in the HttpContextHolder")
+  private void assertInjectedRequestEqualsRequestInHttpExchangeHolder() {
+    assertThat(MockUtils.getMockRequest(HttpExchangeHolder.current()))
+            .as("Injected MockRequest must be stored in the ExchangeHolder")
             .isEqualTo(mockRequest);
   }
 

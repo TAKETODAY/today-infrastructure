@@ -61,7 +61,7 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
 
   public static final String DEFAULT_SUFFIX = FreeMarkerTemplateAvailabilityProvider.DEFAULT_SUFFIX;
 
-  public static final String DEFAULT_HTTP_CONTEXT_ATTRIBUTE = "request";
+  public static final String DEFAULT_HTTP_EXCHANGE_ATTRIBUTE = "request";
 
   private static final MimeType DEFAULT_CONTENT_TYPE = MimeType.TEXT_HTML;
 
@@ -108,7 +108,7 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
   /**
    * Name of the ServerHttpExchange attribute for all views.
    */
-  private @Nullable String httpContextAttribute = DEFAULT_HTTP_CONTEXT_ATTRIBUTE;
+  private @Nullable String exchangeAttribute = DEFAULT_HTTP_EXCHANGE_ATTRIBUTE;
 
   /**
    * Whether all request attributes should be added to the model prior to merging with
@@ -341,12 +341,12 @@ public class FreeMarkerProperties implements InitializingBean, ApplicationContex
     this.suffix = suffix;
   }
 
-  public @Nullable String getHttpContextAttribute() {
-    return this.httpContextAttribute;
+  public @Nullable String getExchangeAttribute() {
+    return this.exchangeAttribute;
   }
 
-  public void setHttpContextAttribute(@Nullable String httpContextAttribute) {
-    this.httpContextAttribute = httpContextAttribute;
+  public void setExchangeAttribute(@Nullable String exchangeAttribute) {
+    this.exchangeAttribute = exchangeAttribute;
   }
 
   public boolean isExposeRequestAttributes() {

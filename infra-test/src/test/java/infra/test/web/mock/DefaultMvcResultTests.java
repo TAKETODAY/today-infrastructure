@@ -116,7 +116,7 @@ public class DefaultMvcResultTests {
 
   @Test
   void resultFindsExplicitAndBindingContextModelAndViews() {
-    var context = mvcResult.getContext();
+    var context = mvcResult.getExchange();
     var explicit = new ModelAndView("explicit");
     context.setAttribute(MvcResult.MODEL_AND_VIEW_ATTRIBUTE, explicit);
     assertThat(mvcResult.getModelAndView()).isSameAs(explicit);

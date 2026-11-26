@@ -97,7 +97,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
             "freemarker.expose-request-attributes=true",
             "freemarker.allow-request-override=true",
             "freemarker.expose-session-attributes=true",
-            "freemarker.http-context-attribute=webContext");
+            "freemarker.exchange-attribute=webContext");
 
     var resolver = this.context.getBean(FreeMarkerViewResolver.class);
     assertThat(resolver.resolveViewName("other", Locale.UK)).isNull();
@@ -226,9 +226,9 @@ class FreeMarkerAutoConfigurationIntegrationTests {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(request, response);
-    view.render(null, httpContext);
-    httpContext.flush();
+    MockServerHttpExchange exchange = new MockServerHttpExchange(request, response);
+    view.render(null, exchange);
+    exchange.flush();
     return response;
   }
 

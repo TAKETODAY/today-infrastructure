@@ -30,7 +30,7 @@ import java.security.Principal;
  * current request context supports this capability and act accordingly:
  *
  * <pre>{@code
- * if (context instanceof AuthHttpContext authenticated) {
+ * if (context instanceof AuthHttpExchange authenticated) {
  *   Principal user = authenticated.getPrincipal();
  *   if (authenticated.isUserInRole("ADMIN")) {
  *     ...

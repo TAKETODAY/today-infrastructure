@@ -47,7 +47,7 @@ class ServerResponseReturnValueHandlerTests {
 
   private final List<HttpMessageConverter<?>> messageConverters = List.of(new StringHttpMessageConverter());
 
-  private MockServerHttpExchange httpContext;
+  private MockServerHttpExchange exchange;
 
   private ServerRequest serverRequest;
 
@@ -57,9 +57,9 @@ class ServerResponseReturnValueHandlerTests {
 
   @BeforeEach
   void setUp() {
-    this.httpContext = new MockServerHttpExchange(new MockRequest(), new MockResponse());
-    this.serverRequest = ServerRequest.create(this.httpContext, this.messageConverters);
-    this.httpContext.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, this.serverRequest);
+    this.exchange = new MockServerHttpExchange(new MockRequest(), new MockResponse());
+    this.serverRequest = ServerRequest.create(this.exchange, this.messageConverters);
+    this.exchange.setAttribute(RouterFunctions.REQUEST_ATTRIBUTE, this.serverRequest);
 
     this.delegate = mock(ReturnValueHandler.class);
     this.handler = new ServerResponseReturnValueHandler(this.delegate);
@@ -79,19 +79,19 @@ class ServerResponseReturnValueHandlerTests {
   void writesResponseAndContinuesWithReturnedValue() throws Exception {
     ServerResponse response = mock(ServerResponse.class);
     Object handler = new Object();
-    given(response.writeTo(this.httpContext, this.serverRequest)).willReturn("view");
+    given(response.writeTo(this.exchange, this.serverRequest)).willReturn("view");
 
-    this.handler.handleReturnValue(this.httpContext, handler, response);
+    this.handler.handleReturnValue(this.exchange, handler, response);
 
-    verify(this.delegate).handleReturnValue(this.httpContext, handler, "view");
+    verify(this.delegate).handleReturnValue(this.exchange, handler, "view");
   }
 
   @Test
   void stopsWhenResponseIsFullyWritten() throws Exception {
     ServerResponse response = mock(ServerResponse.class);
-    given(response.writeTo(this.httpContext, this.serverRequest)).willReturn(ReturnValueHandler.NONE_RETURN_VALUE);
+    given(response.writeTo(this.exchange, this.serverRequest)).willReturn(ReturnValueHandler.NONE_RETURN_VALUE);
 
-    this.handler.handleReturnValue(this.httpContext, null, response);
+    this.handler.handleReturnValue(this.exchange, null, response);
 
     verify(this.delegate, never()).handleReturnValue(any(), any(), any());
   }
@@ -100,11 +100,11 @@ class ServerResponseReturnValueHandlerTests {
   void delegatesEmitterToReturnValueChain() throws Exception {
     ServerResponse response = mock(ServerResponse.class);
     SseEmitter emitter = ResponseBodyEmitter.forServerSentEvents();
-    given(response.writeTo(this.httpContext, this.serverRequest)).willReturn(emitter);
+    given(response.writeTo(this.exchange, this.serverRequest)).willReturn(emitter);
 
-    this.handler.handleReturnValue(this.httpContext, null, response);
+    this.handler.handleReturnValue(this.exchange, null, response);
 
-    verify(this.delegate).handleReturnValue(this.httpContext, null, emitter);
+    verify(this.delegate).handleReturnValue(this.exchange, null, emitter);
   }
 
 }

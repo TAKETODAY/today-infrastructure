@@ -498,7 +498,7 @@ class Http2ServerHttpExchangeTests {
   void finalNoBodyStatusDiscardsTrailers(int status) {
     Http2ServerHttpExchange context = createContext();
     AtomicInteger calls = registerCountingTrailer(context);
-    context.registerCallback(ServerHttpExchange.Lifecycle.COMMITTING, "status", () -> context.setStatus(status));
+    context.registerCallback(Http1ServerHttpExchange.Lifecycle.COMMITTING, "status", () -> context.setStatus(status));
 
     context.completeRequestInternal(null);
 

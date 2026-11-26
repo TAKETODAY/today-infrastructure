@@ -119,16 +119,16 @@ class NettyWebAsyncRequestTests {
     }
   }
 
-  private ServerHttpExchange newRequest() {
+  private Http1ServerHttpExchange newRequest() {
     return newRequest(mock(DispatcherHandler.class));
   }
 
-  private ServerHttpExchange newRequest(DispatcherHandler dispatcher) {
+  private Http1ServerHttpExchange newRequest(DispatcherHandler dispatcher) {
     var context = mock(ApplicationContext.class);
     var config = NettyRequestConfig.forBuilder(false)
             .sendErrorHandler(mock(SendErrorHandler.class)).multipartParser(mock(MultipartParser.class)).build();
     var handler = new HttpTrafficHandler(config, context, dispatcher, (request, task) -> task.run());
-    return new ServerHttpExchange(channel, new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/"),
+    return new Http1ServerHttpExchange(channel, new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/"),
             config, context, dispatcher, handler);
   }
 

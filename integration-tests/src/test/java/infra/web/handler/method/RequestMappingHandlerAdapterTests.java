@@ -310,11 +310,11 @@ class RequestMappingHandlerAdapterTests {
     MockRequest request = new MockRequest();
     HandlerMethod handlerMethod = new HandlerMethod(new TestController(), "handle");
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(request);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(request);
     handlerAdapter.afterPropertiesSet();
-    this.handlerAdapter.handleInternal(httpContext, handlerMethod);
+    this.handlerAdapter.handleInternal(exchange, handlerMethod);
 
-    assertThat(httpContext.responseHeaders().get(HttpHeaders.CACHE_CONTROL)).isNull();
+    assertThat(exchange.responseHeaders().get(HttpHeaders.CACHE_CONTROL)).isNull();
   }
 
   private HandlerMethod handlerMethod(Object handler, String methodName, Class<?>... paramTypes) throws Exception {

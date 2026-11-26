@@ -122,23 +122,23 @@ public class RouterFunctionsTests {
     MockRequest mockRequest = new MockRequest("GET", "/bar");
 
     MockResponse mockResponse = new MockResponse();
-    var httpContext = new MockServerHttpExchange(null, mockRequest, mockResponse);
+    var exchange = new MockServerHttpExchange(null, mockRequest, mockResponse);
     var binding = new BindingContext();
-    var metadata = new HandlerMatchingMetadata(httpContext);
+    var metadata = new HandlerMatchingMetadata(exchange);
     var inputRedirectModel = new RedirectModel("source", "redirect");
-    BindingContext.set(httpContext, binding);
-    HandlerMatchingMetadata.set(httpContext, metadata);
-    httpContext.setAttribute(RedirectModel.INPUT_ATTRIBUTE, inputRedirectModel);
-    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(inputRedirectModel);
-    httpContext.removeAttribute(RedirectModel.INPUT_ATTRIBUTE);
-    ServerRequest request = new DefaultServerRequest(httpContext, Collections.emptyList());
+    BindingContext.set(exchange, binding);
+    HandlerMatchingMetadata.set(exchange, metadata);
+    exchange.setAttribute(RedirectModel.INPUT_ATTRIBUTE, inputRedirectModel);
+    assertThatObject(RedirectModel.findInputModel(exchange)).isSameAs(inputRedirectModel);
+    exchange.removeAttribute(RedirectModel.INPUT_ATTRIBUTE);
+    ServerRequest request = new DefaultServerRequest(exchange, Collections.emptyList());
 
     Optional<HandlerFunction<ServerResponse>> resultHandlerFunction = result.route(request);
     assertThat(resultHandlerFunction.isPresent()).isTrue();
     assertThat(resultHandlerFunction.get()).isEqualTo(handlerFunction);
-    assertThat(BindingContext.obtain(httpContext)).isSameAs(binding);
-    assertThat(HandlerMatchingMetadata.obtain(httpContext)).isSameAs(metadata);
-    assertThatObject(RedirectModel.findInputModel(httpContext)).isSameAs(inputRedirectModel);
+    assertThat(BindingContext.obtain(exchange)).isSameAs(binding);
+    assertThat(HandlerMatchingMetadata.obtain(exchange)).isSameAs(metadata);
+    assertThatObject(RedirectModel.findInputModel(exchange)).isSameAs(inputRedirectModel);
   }
 
   @Test

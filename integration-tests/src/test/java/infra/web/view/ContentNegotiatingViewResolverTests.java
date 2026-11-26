@@ -36,7 +36,7 @@ import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.web.HandlerMatchingMetadata;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.accept.ContentNegotiationManager;
 import infra.web.accept.FixedContentNegotiationStrategy;
 import infra.web.accept.HeaderContentNegotiationStrategy;
@@ -68,12 +68,12 @@ public class ContentNegotiatingViewResolverTests {
     request = new MockRequest("GET", "/test");
     MockResponse response = new MockResponse();
     this.exchange = new MockServerHttpExchange(wac, request, response);
-    HttpContextHolder.set(exchange);
+    HttpExchangeHolder.set(exchange);
   }
 
   @AfterEach
-  public void resetHttpContextHolder() {
-    HttpContextHolder.cleanup();
+  public void resetHttpExchangeHolder() {
+    HttpExchangeHolder.cleanup();
   }
 
   @Test
@@ -449,7 +449,7 @@ public class ContentNegotiatingViewResolverTests {
     assertThat(result).as("Invalid view").isNotNull();
     MockResponse response = new MockResponse();
     this.exchange = new MockServerHttpExchange(wac, request, response);
-    HttpContextHolder.set(exchange);
+    HttpExchangeHolder.set(exchange);
     result.render(null, exchange);
     assertThat(response.getStatus()).as("Invalid status code set").isEqualTo(406);
   }

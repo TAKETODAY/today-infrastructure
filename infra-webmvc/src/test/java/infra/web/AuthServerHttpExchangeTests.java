@@ -82,7 +82,7 @@ class AuthServerHttpExchangeTests {
   }
 
   @Test
-  void getNativeContextFindsAuthHttpContextDirectly() {
+  void getNativeContextFindsAuthHttpExchangeDirectly() {
     ServerHttpExchange delegate = mock(ServerHttpExchange.class, withSettings().extraInterfaces(AuthHttpExchange.class));
 
     AuthHttpExchange found = WebUtils.getNativeContext(delegate, AuthHttpExchange.class);
@@ -91,7 +91,7 @@ class AuthServerHttpExchangeTests {
   }
 
   @Test
-  void getNativeContextUnwrapsDecoratorToFindAuthHttpContext() {
+  void getNativeContextUnwrapsDecoratorToFindAuthHttpExchange() {
     ServerHttpExchange delegate = mock(ServerHttpExchange.class, withSettings().extraInterfaces(AuthHttpExchange.class));
     DelegatingServerHttpExchange wrapper = new DelegatingServerHttpExchange(delegate);
 
@@ -102,7 +102,7 @@ class AuthServerHttpExchangeTests {
   }
 
   @Test
-  void getNativeContextReturnsNullForPlainHttpContext() {
+  void getNativeContextReturnsNullForPlainExchange() {
     ServerHttpExchange delegate = mock(ServerHttpExchange.class);
     DelegatingServerHttpExchange wrapper = new DelegatingServerHttpExchange(delegate);
 

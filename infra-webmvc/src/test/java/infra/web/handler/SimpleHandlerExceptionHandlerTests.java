@@ -252,7 +252,7 @@ class SimpleHandlerExceptionHandlerTests {
 
       @Override
       protected ModelAndView handleHttpRequestMethodNotSupported(
-              HttpRequestMethodNotSupportedException ex, ServerHttpExchange httpContext, @Nullable Object handler) {
+              HttpRequestMethodNotSupportedException ex, ServerHttpExchange exchange, @Nullable Object handler) {
         return expected;
       }
     };

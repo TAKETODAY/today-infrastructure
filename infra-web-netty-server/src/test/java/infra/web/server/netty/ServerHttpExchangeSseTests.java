@@ -53,7 +53,7 @@ class ServerHttpExchangeSseTests {
 
   @Test
   void explicitChunkedTransferEncodingUsesChunkedFraming() throws Exception {
-    ServerHttpExchange context = createContext();
+    Http1ServerHttpExchange context = createContext();
     context.setContentType(MediaType.TEXT_EVENT_STREAM);
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.getOutputStream().write("data: hello\n\n".getBytes(StandardCharsets.UTF_8));
@@ -68,7 +68,7 @@ class ServerHttpExchangeSseTests {
 
   @Test
   void explicitChunkedTransferEncodingRemovesContentLength() throws Exception {
-    ServerHttpExchange context = createContext();
+    Http1ServerHttpExchange context = createContext();
     context.setContentType(MediaType.TEXT_EVENT_STREAM);
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.setContentLength(100);
@@ -84,7 +84,7 @@ class ServerHttpExchangeSseTests {
 
   @Test
   void explicitChunkedFramingIsNotLimitedToEventStream() throws Exception {
-    ServerHttpExchange context = createContext();
+    Http1ServerHttpExchange context = createContext();
     context.setContentType(MediaType.APPLICATION_JSON);
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
     context.getOutputStream().write("{\"hello\":\"world\"}".getBytes(StandardCharsets.UTF_8));
@@ -100,7 +100,7 @@ class ServerHttpExchangeSseTests {
   @Test
   void eventStreamContentTypeAloneUsesContentLength() throws Exception {
     byte[] body = "data: hello\n\n".getBytes(StandardCharsets.UTF_8);
-    ServerHttpExchange context = createContext();
+    Http1ServerHttpExchange context = createContext();
     context.setContentType(MediaType.TEXT_EVENT_STREAM);
     context.getOutputStream().write(body);
 
@@ -114,7 +114,7 @@ class ServerHttpExchangeSseTests {
 
   @Test
   void chunkedMultipleFlushesWriteEachSegment() throws Exception {
-    ServerHttpExchange context = createContext();
+    Http1ServerHttpExchange context = createContext();
     context.setContentType(MediaType.TEXT_PLAIN);
     context.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), "chunked");
 
@@ -143,7 +143,7 @@ class ServerHttpExchangeSseTests {
 
   @Test
   void firstFlushWithoutChunkedFixesContentLength() throws Exception {
-    ServerHttpExchange context = createContext();
+    Http1ServerHttpExchange context = createContext();
     context.setContentType(MediaType.TEXT_PLAIN);
 
     context.getOutputStream().write("first".getBytes(StandardCharsets.UTF_8));
@@ -155,13 +155,13 @@ class ServerHttpExchangeSseTests {
     assertThat(response.headers().contains(HttpHeaderNames.TRANSFER_ENCODING)).isFalse();
   }
 
-  private ServerHttpExchange createContext() {
+  private Http1ServerHttpExchange createContext() {
     var request = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/events");
     NettyRequestConfig config = NettyRequestConfig.forBuilder(false)
             .multipartParser(mock())
             .sendErrorHandler((request1, message) -> { })
             .build();
-    return new ServerHttpExchange(channel, request, config, mock(ApplicationContext.class),
+    return new Http1ServerHttpExchange(channel, request, config, mock(ApplicationContext.class),
             mock(DispatcherHandler.class), mock(HttpTrafficHandler.class));
   }
 

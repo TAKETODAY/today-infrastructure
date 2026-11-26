@@ -119,7 +119,7 @@ public final class FreeMarkerAutoConfiguration {
       resolver.setExposeSessionAttributes(properties.isExposeSessionAttributes());
       resolver.setExposeMessages(properties.isExposeMessages());
       resolver.setExposeBindings(properties.isExposeBindings());
-      resolver.setExchangeAttribute(properties.getHttpContextAttribute());
+      resolver.setExchangeAttribute(properties.getExchangeAttribute());
       resolver.setOrder(Ordered.HIGHEST_PRECEDENCE + 100);
     }
 

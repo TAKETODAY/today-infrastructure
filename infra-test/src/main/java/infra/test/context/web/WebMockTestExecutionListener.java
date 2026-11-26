@@ -29,7 +29,7 @@ import infra.test.context.TestContext;
 import infra.test.context.TestExecutionListener;
 import infra.test.context.support.AbstractTestExecutionListener;
 import infra.test.context.support.DependencyInjectionTestExecutionListener;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.mock.DefaultMockContext;
 import infra.web.mock.MockRequest;
@@ -43,7 +43,7 @@ import infra.web.mock.support.GenericMockWebApplicationContext;
  * TestContext Framework</em>.
  *
  * <p>Specifically, {@code MockTestExecutionListener} sets up thread-local
- * state via Infra Web's {@link HttpContextHolder} during {@linkplain
+ * state via Infra Web's {@link HttpExchangeHolder} during {@linkplain
  * #prepareTestInstance(TestContext) test instance preparation} and {@linkplain
  * #beforeTestMethod(TestContext) before each test method} and creates a {@link
  * MockRequest}, {@link MockResponse}, and
@@ -68,26 +68,26 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates
    * whether or not the {@code MockTestExecutionListener} should {@linkplain
-   * HttpContextHolder#cleanup() reset} Infra Web's
-   * {@code HttpContextHolder} in {@link #afterTestMethod(TestContext)}.
+   * HttpExchangeHolder#cleanup() reset} Infra Web's
+   * {@code HttpExchangeHolder} in {@link #afterTestMethod(TestContext)}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          WebMockTestExecutionListener.class, "resetHttpContextHolder");
+          WebMockTestExecutionListener.class, "resetHttpExchangeHolder");
 
   /**
    * Attribute name for a {@link TestContext} attribute which indicates that
    * {@code MockTestExecutionListener} has already populated Infra Web's
-   * {@code HttpContextHolder}.
+   * {@code HttpExchangeHolder}.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
   public static final String POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE = Conventions.getQualifiedAttributeName(
-          WebMockTestExecutionListener.class, "populatedHttpContextHolder");
+          WebMockTestExecutionListener.class, "populatedHttpExchangeHolder");
 
   /**
    * Attribute name for a request attribute which indicates that the
    * {@link MockRequest} stored in the {@link ServerHttpExchange}
-   * in Infra Web's {@link HttpContextHolder} was created by the TestContext
+   * in Infra Web's {@link HttpExchangeHolder} was created by the TestContext
    * framework.
    * <p>Permissible values include {@link Boolean#TRUE} and {@link Boolean#FALSE}.
    */
@@ -116,38 +116,38 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
 
   /**
    * Sets up thread-local state during the <em>test instance preparation</em>
-   * callback phase via Infra Web's {@link HttpContextHolder}, but only if
+   * callback phase via Infra Web's {@link HttpExchangeHolder}, but only if
    * the {@linkplain TestContext#getTestClass() test class} is annotated with
    * {@link WebAppConfiguration @WebAppConfiguration}.
    *
    * @see TestExecutionListener#prepareTestInstance(TestContext)
-   * @see #setUpHttpContextIfNecessary(TestContext)
+   * @see #setUpHttpExchangeIfNecessary(TestContext)
    */
   @Override
   public void prepareTestInstance(TestContext testContext) throws Exception {
-    setUpHttpContextIfNecessary(testContext);
+    setUpHttpExchangeIfNecessary(testContext);
   }
 
   /**
    * Sets up thread-local state before each test method via Infra Web's
-   * {@link HttpContextHolder}, but only if the
+   * {@link HttpExchangeHolder}, but only if the
    * {@linkplain TestContext#getTestClass() test class} is annotated with
    * {@link WebAppConfiguration @WebAppConfiguration}.
    *
    * @see TestExecutionListener#beforeTestMethod(TestContext)
-   * @see #setUpHttpContextIfNecessary(TestContext)
+   * @see #setUpHttpExchangeIfNecessary(TestContext)
    */
   @Override
   public void beforeTestMethod(TestContext testContext) throws Exception {
-    setUpHttpContextIfNecessary(testContext);
+    setUpHttpExchangeIfNecessary(testContext);
   }
 
   /**
    * If the {@link #RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE} in the supplied
    * {@code TestContext} has a value of {@link Boolean#TRUE}, this method will
    * (1) clean up thread-local state after each test method by {@linkplain
-   * HttpContextHolder#cleanup() resetting} Infra Web's
-   * {@code HttpContextHolder} and (2) ensure that new mocks are injected
+   * HttpExchangeHolder#cleanup() resetting} Infra Web's
+   * {@code HttpExchangeHolder} and (2) ensure that new mocks are injected
    * into the test instance for subsequent tests by setting the
    * {@link DependencyInjectionTestExecutionListener#REINJECT_DEPENDENCIES_ATTRIBUTE}
    * in the test context to {@code true}.
@@ -160,8 +160,8 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
   @Override
   public void afterTestMethod(TestContext testContext) throws Exception {
     if (Boolean.TRUE.equals(testContext.getAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE))) {
-      logger.debug("Resetting HttpContextHolder for test context {}.", testContext);
-      HttpContextHolder.cleanup();
+      logger.debug("Resetting ExchangeHolder for test context {}.", testContext);
+      HttpExchangeHolder.cleanup();
       testContext.setAttribute(DependencyInjectionTestExecutionListener.REINJECT_DEPENDENCIES_ATTRIBUTE,
               Boolean.TRUE);
     }
@@ -174,25 +174,25 @@ public class WebMockTestExecutionListener extends AbstractTestExecutionListener 
             || AnnotatedElementUtils.hasAnnotation(testContext.getTestClass(), WebAppConfiguration.class);
   }
 
-  private boolean alreadyPopulatedHttpContextHolder(TestContext testContext) {
+  private boolean alreadyPopulatedHttpExchangeHolder(TestContext testContext) {
     return Boolean.TRUE.equals(testContext.getAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE));
   }
 
-  private void setUpHttpContextIfNecessary(TestContext testContext) {
-    if (!isActivated(testContext) || alreadyPopulatedHttpContextHolder(testContext)) {
+  private void setUpHttpExchangeIfNecessary(TestContext testContext) {
+    if (!isActivated(testContext) || alreadyPopulatedHttpExchangeHolder(testContext)) {
       return;
     }
 
     ApplicationContext context = testContext.getApplicationContext();
 
-    logger.debug("Setting up MockRequest, MockResponse, and HttpContextHolder for test context {}", testContext);
+    logger.debug("Setting up MockRequest, MockResponse, and ExchangeHolder for test context {}", testContext);
 
     MockRequest request = new MockRequest();
     request.setAttribute(CREATED_BY_THE_TESTCONTEXT_FRAMEWORK, Boolean.TRUE);
     MockResponse response = new MockResponse();
 
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(context, request, response);
-    HttpContextHolder.set(httpContext);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(context, request, response);
+    HttpExchangeHolder.set(exchange);
     testContext.setAttribute(POPULATED_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
     testContext.setAttribute(RESET_REQUEST_CONTEXT_HOLDER_ATTRIBUTE, Boolean.TRUE);
 

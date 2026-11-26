@@ -56,7 +56,7 @@ import infra.session.SessionRepository;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
@@ -96,7 +96,7 @@ public class SessionScopeTests {
 
   @AfterEach
   public void reset() {
-    HttpContextHolder.set(null);
+    HttpExchangeHolder.set(null);
   }
 
   @Test
@@ -141,7 +141,7 @@ public class SessionScopeTests {
     MockServerHttpExchange requestAttributes = new MockServerHttpExchange(
             context, request, new MockResponse(), new DispatcherHandler(context));
 
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
     return requestAttributes;
   }
 
@@ -164,7 +164,7 @@ public class SessionScopeTests {
 
   @Test
   void getConversationIdReturnsNullWhenNoSession() {
-    HttpContextHolder.set(new MockServerHttpExchange(context, new MockRequest(),
+    HttpExchangeHolder.set(new MockServerHttpExchange(context, new MockRequest(),
             new MockResponse(), new DispatcherHandler(context)));
 
     SessionScope sessionScope = new SessionScope();
@@ -175,13 +175,13 @@ public class SessionScopeTests {
 
   @Test
   void resolveContextualObjectWithRequestKey() {
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(context, new MockRequest(), new MockResponse());
-    HttpContextHolder.set(httpContext);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(context, new MockRequest(), new MockResponse());
+    HttpExchangeHolder.set(exchange);
 
     SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject(ServerHttpExchange.SCOPE_REQUEST);
 
-    assertThat(result).isSameAs(httpContext);
+    assertThat(result).isSameAs(exchange);
   }
 
   @Test
@@ -198,7 +198,7 @@ public class SessionScopeTests {
 
   @Test
   void resolveContextualObjectWithInvalidKey() {
-    HttpContextHolder.set(new MockServerHttpExchange(context, new MockRequest(), new MockResponse()));
+    HttpExchangeHolder.set(new MockServerHttpExchange(context, new MockRequest(), new MockResponse()));
 
     SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject("invalidKey");
@@ -207,8 +207,8 @@ public class SessionScopeTests {
   }
 
   @Test
-  void resolveContextualObjectWithSessionKeyAndNoHttpContext() {
-    HttpContextHolder.set(null);
+  void resolveContextualObjectWithSessionKeyAndNoHttpExchange() {
+    HttpExchangeHolder.set(null);
 
     SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.resolveContextualObject(ServerHttpExchange.SCOPE_SESSION);
@@ -263,7 +263,7 @@ public class SessionScopeTests {
   void getWithObjectFactoryCreatesAndStoresBean() {
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = getContext(request);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     SessionScope sessionScope = new SessionScope();
     String beanName = "testBean";
@@ -281,7 +281,7 @@ public class SessionScopeTests {
   void getReturnsExistingBeanFromSession() {
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = getContext(request);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     SessionScope sessionScope = new SessionScope();
     String beanName = "testBean";
@@ -302,7 +302,7 @@ public class SessionScopeTests {
   void removeReturnsAndRemovesBeanFromSession() {
     MockRequest request = new MockRequest();
     MockServerHttpExchange requestAttributes = getContext(request);
-    HttpContextHolder.set(requestAttributes);
+    HttpExchangeHolder.set(requestAttributes);
 
     SessionScope sessionScope = new SessionScope();
     String beanName = "testBean";
@@ -320,7 +320,7 @@ public class SessionScopeTests {
 
   @Test
   void removeReturnsNullWhenNoSession() {
-    HttpContextHolder.set(null);
+    HttpExchangeHolder.set(null);
 
     SessionScope sessionScope = new SessionScope();
     Object result = sessionScope.remove("testBean");

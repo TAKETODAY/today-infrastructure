@@ -92,7 +92,7 @@ public class PrintingResultHandler implements ResultHandler {
   @Override
   public final void handle(MvcResult result) throws Exception {
     this.printer.printHeading("HttpRequest");
-    printRequest(result.getRequest(), result.getContext());
+    printRequest(result.getRequest(), result.getExchange());
 
     this.printer.printHeading("Handler");
     printHandler(result.getHandler(), result.getInterceptors());
@@ -107,7 +107,7 @@ public class PrintingResultHandler implements ResultHandler {
     printModelAndView(result.getModelAndView());
 
     this.printer.printHeading("RedirectModel");
-    printRedirectModel(WebUtils.getOutputRedirectModel(result.getContext()));
+    printRedirectModel(WebUtils.getOutputRedirectModel(result.getExchange()));
 
     this.printer.printHeading("HttpResponse");
     printResponse(result.getResponse());

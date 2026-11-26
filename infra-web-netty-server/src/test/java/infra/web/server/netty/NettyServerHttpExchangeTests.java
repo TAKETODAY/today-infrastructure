@@ -39,7 +39,7 @@ import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.QueryStringEncoder;
 
-import static infra.web.server.netty.ServerHttpExchange.newResponseHeaders;
+import static infra.web.server.netty.Http1ServerHttpExchange.newResponseHeaders;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;

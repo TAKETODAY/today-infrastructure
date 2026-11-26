@@ -72,7 +72,7 @@ class NettyServerHttpExchangeParametersTests {
   void chunkedFormBodyIsParsed() {
     HttpRequest request = formRequest("/echo?q=query", FORM_URLENCODED);
     request.headers().set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, "name=today", StandardCharsets.US_ASCII);
 
@@ -84,7 +84,7 @@ class NettyServerHttpExchangeParametersTests {
   @Test
   void nonFormContentTypeDoesNotConsumeBody() throws Exception {
     HttpRequest request = formRequest("/echo", "application/x-www-form-urlencodedx");
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, "name=today", StandardCharsets.US_ASCII);
 
@@ -95,7 +95,7 @@ class NettyServerHttpExchangeParametersTests {
   @Test
   void getRequestDoesNotParseFormBody() throws Exception {
     HttpRequest request = formRequest(HttpMethod.GET, "/echo", FORM_URLENCODED, "10");
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, "name=today", StandardCharsets.US_ASCII);
 
@@ -107,7 +107,7 @@ class NettyServerHttpExchangeParametersTests {
   void contentLengthFormBodyIsParsed() {
     String body = "name=today&city=%E6%9D%AD%E5%B7%9E&note=a+b";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo?q=query", FORM_URLENCODED, String.valueOf(body.length()));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.US_ASCII);
 
@@ -123,7 +123,7 @@ class NettyServerHttpExchangeParametersTests {
     String body = "name=today";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo",
             FORM_URLENCODED + "; charset=UTF-8", String.valueOf(body.length()));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.US_ASCII);
 
@@ -135,7 +135,7 @@ class NettyServerHttpExchangeParametersTests {
     String body = "name=%D6%D0%CE%C4";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo",
             FORM_URLENCODED + "; charset=GBK", String.valueOf(body.length()));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.US_ASCII);
 
@@ -148,7 +148,7 @@ class NettyServerHttpExchangeParametersTests {
     String body = "name=中文";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo",
             FORM_URLENCODED + "; charset=GBK", String.valueOf(body.getBytes(gbk).length));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, gbk);
 
@@ -160,7 +160,7 @@ class NettyServerHttpExchangeParametersTests {
     String body = "name=中文";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo",
             FORM_URLENCODED, String.valueOf(body.getBytes(StandardCharsets.UTF_8).length));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.UTF_8);
 
@@ -172,7 +172,7 @@ class NettyServerHttpExchangeParametersTests {
     String body = "name=%E9";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo",
             FORM_URLENCODED + "; charset=ISO-8859-1", String.valueOf(body.length()));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.US_ASCII);
 
@@ -183,7 +183,7 @@ class NettyServerHttpExchangeParametersTests {
   void queryParametersComeBeforeBodyParameters() {
     String body = "tag=body&id=2";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo?tag=query&id=1", FORM_URLENCODED, String.valueOf(body.length()));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.US_ASCII);
 
@@ -196,7 +196,7 @@ class NettyServerHttpExchangeParametersTests {
   void nonFormContentTypeWithContentLengthDoesNotConsumeBody() throws Exception {
     String body = "name=today";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo", MediaType.APPLICATION_JSON_VALUE, String.valueOf(body.length()));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.US_ASCII);
 
@@ -207,7 +207,7 @@ class NettyServerHttpExchangeParametersTests {
   @Test
   void zeroContentLengthFormBodyProducesNoParameters() {
     HttpRequest request = formRequest(HttpMethod.POST, "/echo", FORM_URLENCODED, "0");
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, "", StandardCharsets.US_ASCII);
 
@@ -218,7 +218,7 @@ class NettyServerHttpExchangeParametersTests {
   void malformedFormBodyEncodingIsRejectedAsBadRequest() {
     String body = "name=%2";
     HttpRequest request = formRequest(HttpMethod.POST, "/echo", FORM_URLENCODED, String.valueOf(body.length()));
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     sendBody(context, body, StandardCharsets.US_ASCII);
 
@@ -230,7 +230,7 @@ class NettyServerHttpExchangeParametersTests {
   @Test
   void malformedQueryEncodingIsRejectedAsBadRequest() {
     HttpRequest request = formRequest(HttpMethod.GET, "/echo?name=%2", null, null);
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     assertThatThrownBy(context::getParameters)
             .isInstanceOfSatisfying(ResponseStatusException.class,
@@ -241,7 +241,7 @@ class NettyServerHttpExchangeParametersTests {
   void oversizedChunkedFormBodyIsRejectedAsPayloadTooLarge() {
     HttpRequest request = formRequest("/echo", FORM_URLENCODED);
     request.headers().set(HttpHeaderNames.TRANSFER_ENCODING, HttpHeaderValues.CHUNKED);
-    ServerHttpExchange context = createContext(request, config(10));
+    Http1ServerHttpExchange context = createContext(request, config(10));
 
     sendBody(context, "name=todayx", StandardCharsets.US_ASCII);
 
@@ -254,7 +254,7 @@ class NettyServerHttpExchangeParametersTests {
   @SuppressWarnings("unchecked")
   void cachedFormBodyIsMergedWithQueryParameters() {
     HttpRequest request = formRequest(HttpMethod.POST, "/echo?q=query", FORM_URLENCODED, "0");
-    ServerHttpExchange context = createContext(request, config());
+    Http1ServerHttpExchange context = createContext(request, config());
 
     MultiValueMap<String, String> formBody = MultiValueMap.forSmartListAdaptation(new LinkedHashMap<>());
     formBody.add("name", "today");
@@ -265,8 +265,8 @@ class NettyServerHttpExchangeParametersTests {
             .containsEntry("name", List.of("today"));
   }
 
-  private ServerHttpExchange createContext(HttpRequest request, NettyRequestConfig config) {
-    return new ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
+  private Http1ServerHttpExchange createContext(HttpRequest request, NettyRequestConfig config) {
+    return new Http1ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
   }
 
   private static HttpRequest formRequest(String uri, String contentType) {
@@ -299,7 +299,7 @@ class NettyServerHttpExchangeParametersTests {
             .build();
   }
 
-  private static void sendBody(ServerHttpExchange context, String body, Charset charset) {
+  private static void sendBody(Http1ServerHttpExchange context, String body, Charset charset) {
     ByteBuf content = Unpooled.copiedBuffer(body, charset);
     context.onDataReceived(content, true);
   }

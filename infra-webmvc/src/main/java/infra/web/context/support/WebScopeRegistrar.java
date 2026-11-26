@@ -25,7 +25,7 @@ import java.util.function.Supplier;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.session.Session;
 import infra.web.AbstractDelegatingServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 
 /**
@@ -43,7 +43,7 @@ public final class WebScopeRegistrar {
    * Register the {@code request} and {@code session} scopes, along with
    * resolvable dependencies for {@link ServerHttpExchange} and {@link Session}.
    * <p>Registration does not require an active request or create a session.
-   * Dependencies resolve against {@link HttpContextHolder} when accessed.
+   * Dependencies resolve against {@link HttpExchangeHolder} when accessed.
    *
    * @param beanFactory the BeanFactory to configure
    */
@@ -65,7 +65,7 @@ public final class WebScopeRegistrar {
 
     @Override
     public Session get() {
-      return HttpContextHolder.required().getSession();
+      return HttpExchangeHolder.required().getSession();
     }
 
     @Override
@@ -81,7 +81,7 @@ public final class WebScopeRegistrar {
 
     @Override
     public ServerHttpExchange delegate() {
-      return HttpContextHolder.required();
+      return HttpExchangeHolder.required();
     }
 
     @Override

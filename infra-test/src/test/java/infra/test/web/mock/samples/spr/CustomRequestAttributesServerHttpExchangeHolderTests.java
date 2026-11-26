@@ -31,7 +31,7 @@ import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockRequest;
 import infra.web.mock.MockResponse;
 import infra.test.web.mock.MockMvc;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
@@ -62,7 +62,7 @@ class CustomRequestAttributesServerHttpExchangeHolderTests {
   void setUp() {
     MockRequest mockRequest = new MockRequest();
     mockRequest.setAttribute(FROM_CUSTOM_MOCK, FROM_CUSTOM_MOCK);
-    HttpContextHolder.set(new MockServerHttpExchange(null, mockRequest, new MockResponse()));
+    HttpExchangeHolder.set(new MockServerHttpExchange(null, mockRequest, new MockResponse()));
 
     new AnnotatedBeanDefinitionReader(this.wac).register(WebConfig.class);
     this.wac.refresh();
@@ -80,13 +80,13 @@ class CustomRequestAttributesServerHttpExchangeHolderTests {
 
   @AfterEach
   void verifyCustomRequestAttributesAreRestored() {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
 
     assertThat(context.getAttribute(FROM_CUSTOM_MOCK)).isEqualTo(FROM_CUSTOM_MOCK);
     assertThat(context.getAttribute(FROM_MVC_TEST_DEFAULT)).isNull();
     assertThat(context.getAttribute(FROM_MVC_TEST_MOCK)).isNull();
 
-    HttpContextHolder.cleanup();
+    HttpExchangeHolder.cleanup();
     this.wac.close();
   }
 
@@ -112,7 +112,7 @@ class CustomRequestAttributesServerHttpExchangeHolderTests {
   }
 
   private static void assertRequestAttributes() {
-    ServerHttpExchange request = HttpContextHolder.required();
+    ServerHttpExchange request = HttpExchangeHolder.required();
     assertRequestAttributes(request);
   }
 

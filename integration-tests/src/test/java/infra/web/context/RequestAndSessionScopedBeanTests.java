@@ -31,7 +31,7 @@ import infra.web.mock.MockResponse;
 import infra.session.Session;
 import infra.session.config.EnableSession;
 import infra.web.DispatcherHandler;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.context.support.WebScopeRegistrar;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,7 +57,7 @@ public class RequestAndSessionScopedBeanTests {
     wac.refresh();
 
     MockRequest request = new MockRequest();
-    HttpContextHolder.set(new MockServerHttpExchange(null, request, null));
+    HttpExchangeHolder.set(new MockServerHttpExchange(null, request, null));
     TestBean target = (TestBean) wac.getBean(targetBeanName);
     assertThat(target.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target);
@@ -68,13 +68,13 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target2);
 
     request = new MockRequest();
-    HttpContextHolder.set(new MockServerHttpExchange(null, request, null));
+    HttpExchangeHolder.set(new MockServerHttpExchange(null, request, null));
     TestBean target3 = (TestBean) wac.getBean(targetBeanName);
     assertThat(target3.getName()).isEqualTo("abc");
     assertThat(request.getAttribute(targetBeanName)).isSameAs(target3);
     assertThat(target).isNotSameAs(target3);
 
-    HttpContextHolder.set(null);
+    HttpExchangeHolder.set(null);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
             wac.getBean(targetBeanName));
   }
@@ -87,7 +87,7 @@ public class RequestAndSessionScopedBeanTests {
     AnnotationConfigApplicationContext wac = new AnnotationConfigApplicationContext();
 
     MockServerHttpExchange context = new MockServerHttpExchange(wac, request, new MockResponse(), new DispatcherHandler(wac));
-    HttpContextHolder.set(context);
+    HttpExchangeHolder.set(context);
 
     RootBeanDefinition bd = new RootBeanDefinition(TestBean.class);
     bd.setScope(ServerHttpExchange.SCOPE_SESSION);
@@ -105,7 +105,7 @@ public class RequestAndSessionScopedBeanTests {
     assertThat(target.getName()).isEqualTo("abc");
     assertThat(session.getAttribute(targetBeanName)).isSameAs(target);
 
-    HttpContextHolder.set(null);
+    HttpExchangeHolder.set(null);
     assertThatExceptionOfType(BeanCreationException.class).isThrownBy(() ->
             wac.getBean(targetBeanName));
   }

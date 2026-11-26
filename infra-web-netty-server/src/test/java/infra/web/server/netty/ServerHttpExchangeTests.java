@@ -232,8 +232,8 @@ class ServerHttpExchangeTests {
     }
   }
 
-  private static infra.web.server.netty.ServerHttpExchange createContext(Channel channel, HttpRequest request) {
-    return new infra.web.server.netty.ServerHttpExchange(channel, request, createRequestConfig(), mock(ApplicationContext.class),
+  private static Http1ServerHttpExchange createContext(Channel channel, HttpRequest request) {
+    return new Http1ServerHttpExchange(channel, request, createRequestConfig(), mock(ApplicationContext.class),
             mock(DispatcherHandler.class), mock(HttpTrafficHandler.class));
   }
 
@@ -304,7 +304,7 @@ class ServerHttpExchangeTests {
         var trafficHandler = new HttpTrafficHandler(config, applicationContext, dispatcher, (request, task) -> task.run());
         var message = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
         message.headers().set(HttpHeaderNames.CONTENT_LENGTH, 10);
-        var request = new infra.web.server.netty.ServerHttpExchange(channel, message, config, applicationContext, dispatcher, trafficHandler);
+        var request = new Http1ServerHttpExchange(channel, message, config, applicationContext, dispatcher, trafficHandler);
         request.attach();
         var completed = new AtomicInteger();
         request.registerCompletedCallback(completed::incrementAndGet);
@@ -355,7 +355,7 @@ class ServerHttpExchangeTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When
-    infra.web.server.netty.ServerHttpExchange contextUnderTest = new infra.web.server.netty.ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
+    Http1ServerHttpExchange contextUnderTest = new Http1ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
 
     // Then
     assertThat(contextUnderTest.getContentLength()).isEqualTo(150L);
@@ -375,7 +375,7 @@ class ServerHttpExchangeTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
     // When
-    infra.web.server.netty.ServerHttpExchange contextUnderTest = new infra.web.server.netty.ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
+    Http1ServerHttpExchange contextUnderTest = new Http1ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
 
     // Then
     assertThat(contextUnderTest.getContentLength()).isEqualTo(150L);
@@ -401,7 +401,7 @@ class ServerHttpExchangeTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders()
             .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-    infra.web.server.netty.ServerHttpExchange contextUnderTest = new infra.web.server.netty.ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
+    Http1ServerHttpExchange contextUnderTest = new Http1ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
 
     // When
     contextUnderTest.onDataReceived(httpContent);
@@ -430,7 +430,7 @@ class ServerHttpExchangeTests {
     when(request.headers()).thenReturn(new DefaultHttpHeaders()
             .set(HttpHeaderNames.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
 
-    infra.web.server.netty.ServerHttpExchange contextUnderTest = new infra.web.server.netty.ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
+    Http1ServerHttpExchange contextUnderTest = new Http1ServerHttpExchange(channel, request, config, context, dispatcherHandler, channelHandler);
 
     // When
     contextUnderTest.onDataReceived(lastHttpContent);
@@ -443,12 +443,12 @@ class ServerHttpExchangeTests {
   void getContentLength() {
     DefaultHttpRequest message = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "/");
     message.headers().set(HttpHeaderNames.CONTENT_LENGTH, "150");
-    assertThat(infra.web.server.netty.ServerHttpExchange.getContentLength(message)).isEqualTo(150L);
+    assertThat(Http1ServerHttpExchange.getContentLength(message)).isEqualTo(150L);
     message.headers().set(HttpHeaderNames.CONTENT_LENGTH, "0");
-    assertThat(infra.web.server.netty.ServerHttpExchange.getContentLength(message)).isEqualTo(0L);
+    assertThat(Http1ServerHttpExchange.getContentLength(message)).isEqualTo(0L);
 
     message.headers().remove(HttpHeaderNames.CONTENT_LENGTH);
-    assertThat(infra.web.server.netty.ServerHttpExchange.getContentLength(message)).isEqualTo(-1L);
+    assertThat(Http1ServerHttpExchange.getContentLength(message)).isEqualTo(-1L);
   }
 
   @Test
@@ -486,7 +486,7 @@ class ServerHttpExchangeTests {
     when(request.protocolVersion()).thenReturn(HttpVersion.HTTP_1_1);
     when(request.decoderResult()).thenReturn(DecoderResult.SUCCESS);
 
-    infra.web.server.netty.ServerHttpExchange context = new infra.web.server.netty.ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
+    Http1ServerHttpExchange context = new Http1ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
     assertThat(channel.config().isAutoRead()).isFalse();
 
     context.run();
@@ -507,7 +507,7 @@ class ServerHttpExchangeTests {
     when(request.method()).thenReturn(HttpMethod.POST);
     when(request.headers()).thenReturn(new DefaultHttpHeaders().set(HttpHeaderNames.CONTENT_LENGTH, "150"));
 
-    infra.web.server.netty.ServerHttpExchange context = new infra.web.server.netty.ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
+    Http1ServerHttpExchange context = new Http1ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
     assertThat(channel.config().isAutoRead()).isFalse();
 
     context.run();
@@ -533,7 +533,7 @@ class ServerHttpExchangeTests {
     when(request.protocolVersion()).thenReturn(HttpVersion.HTTP_1_1);
     when(dispatcherHandler.requestContinueExpected(any())).thenReturn(false);
 
-    infra.web.server.netty.ServerHttpExchange context = new infra.web.server.netty.ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
+    Http1ServerHttpExchange context = new Http1ServerHttpExchange(channel, request, config, applicationContext, dispatcherHandler, trafficHandler);
     assertThat(channel.config().isAutoRead()).isFalse();
     assertThat(context.is100ContinueExpected()).isTrue();
 

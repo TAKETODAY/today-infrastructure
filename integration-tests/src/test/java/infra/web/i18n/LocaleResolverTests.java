@@ -89,16 +89,16 @@ public class LocaleResolverTests {
     MockRequest request = new MockRequest();
     request.addPreferredLocale(Locale.UK);
     MockResponse response = new MockResponse();
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(applicationContext, request, response, new DispatcherHandler(applicationContext));
+    MockServerHttpExchange exchange = new MockServerHttpExchange(applicationContext, request, response, new DispatcherHandler(applicationContext));
     // check original locale
-    Locale locale = localeResolver.resolveLocale(httpContext);
+    Locale locale = localeResolver.resolveLocale(exchange);
     assertThat(locale).isEqualTo(Locale.UK);
     // set new locale
     try {
-      localeResolver.setLocale(httpContext, Locale.GERMANY);
+      localeResolver.setLocale(exchange, Locale.GERMANY);
       assertThat(shouldSet).as("should not be able to set Locale").isTrue();
       // check new locale
-      locale = localeResolver.resolveLocale(httpContext);
+      locale = localeResolver.resolveLocale(exchange);
       assertThat(locale).isEqualTo(Locale.GERMANY);
     }
     catch (UnsupportedOperationException ex) {
@@ -107,7 +107,7 @@ public class LocaleResolverTests {
 
     // check LocaleContext
     if (localeResolver instanceof LocaleContextResolver localeContextResolver) {
-      LocaleContext localeContext = localeContextResolver.resolveLocaleContext(httpContext);
+      LocaleContext localeContext = localeContextResolver.resolveLocaleContext(exchange);
       if (shouldSet) {
         assertThat(localeContext.getLocale()).isEqualTo(Locale.GERMANY);
       }
@@ -124,11 +124,11 @@ public class LocaleResolverTests {
       }
 
       try {
-        localeContextResolver.setLocaleContext(httpContext, new SimpleLocaleContext(Locale.US));
+        localeContextResolver.setLocaleContext(exchange, new SimpleLocaleContext(Locale.US));
         if (!shouldSet) {
           fail("should not be able to set Locale");
         }
-        localeContext = localeContextResolver.resolveLocaleContext(httpContext);
+        localeContext = localeContextResolver.resolveLocaleContext(exchange);
         assertThat(localeContext.getLocale()).isEqualTo(Locale.US);
         if (localeContextResolver instanceof AbstractLocaleContextResolver) {
           assertThat(TimeZone.getTimeZone("GMT+1")).isEqualTo(((TimeZoneAwareLocaleContext) localeContext).getTimeZone());
@@ -137,17 +137,17 @@ public class LocaleResolverTests {
           assertThat(((TimeZoneAwareLocaleContext) localeContext).getTimeZone()).isNull();
         }
 
-        localeContextResolver.setLocaleContext(httpContext,
+        localeContextResolver.setLocaleContext(exchange,
                 new SimpleTimeZoneAwareLocaleContext(Locale.GERMANY, TimeZone.getTimeZone("GMT+2")));
-        localeContext = localeContextResolver.resolveLocaleContext(httpContext);
+        localeContext = localeContextResolver.resolveLocaleContext(exchange);
         assertThat(localeContext.getLocale()).isEqualTo(Locale.GERMANY);
         boolean condition1 = localeContext instanceof TimeZoneAwareLocaleContext;
         assertThat(condition1).isTrue();
         assertThat(TimeZone.getTimeZone("GMT+2")).isEqualTo(((TimeZoneAwareLocaleContext) localeContext).getTimeZone());
 
-        localeContextResolver.setLocaleContext(httpContext,
+        localeContextResolver.setLocaleContext(exchange,
                 new SimpleTimeZoneAwareLocaleContext(null, TimeZone.getTimeZone("GMT+3")));
-        localeContext = localeContextResolver.resolveLocaleContext(httpContext);
+        localeContext = localeContextResolver.resolveLocaleContext(exchange);
         assertThat(localeContext.getLocale()).isEqualTo(Locale.UK);
         boolean condition = localeContext instanceof TimeZoneAwareLocaleContext;
         assertThat(condition).isTrue();

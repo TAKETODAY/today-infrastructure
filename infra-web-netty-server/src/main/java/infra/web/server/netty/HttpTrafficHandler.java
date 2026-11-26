@@ -55,7 +55,7 @@ import static infra.web.socket.handler.ExceptionWebSocketHandler.tryCloseWithErr
 
 /**
  * Handles HTTP traffic in Netty server, processing incoming requests and managing HTTP context.
- * This handler is responsible for creating and managing {@link ServerHttpExchange} instances,
+ * This handler is responsible for creating and managing {@link Http1ServerHttpExchange} instances,
  * delegating request handling to the service executor, and managing WebSocket frames.
  *
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -96,15 +96,14 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
   public final void channelRead(final ChannelHandlerContext ctx, final Object msg) throws IOException {
     if (msg instanceof HttpRequest request) {
       Channel channel = ctx.channel();
-      ServerHttpExchange httpContext = new ServerHttpExchange(channel, request, requestConfig,
-              context, dispatcherHandler, this);
-      httpContext.attach();
-      executor.execute(httpContext, httpContext);
+      var exchange = new Http1ServerHttpExchange(channel, request, requestConfig, context, dispatcherHandler, this);
+      exchange.attach();
+      executor.execute(exchange, exchange);
     }
     else if (msg instanceof HttpContent content) {
-      NettyServerHttpExchange httpContext = NettyServerHttpExchange.lookup(ctx);
-      if (httpContext != null) {
-        httpContext.onDataReceived(content);
+      NettyServerHttpExchange exchange = NettyServerHttpExchange.lookup(ctx);
+      if (exchange != null) {
+        exchange.onDataReceived(content);
       }
       else {
         content.release();
@@ -126,18 +125,18 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
       handleHttp2Headers(ctx, headersFrame);
     }
     else if (frame instanceof Http2DataFrame dataFrame) {
-      NettyServerHttpExchange httpContext = NettyServerHttpExchange.lookup(ctx);
-      if (httpContext != null) {
-        httpContext.onDataReceived(dataFrame.content(), dataFrame.isEndStream());
+      NettyServerHttpExchange exchange = NettyServerHttpExchange.lookup(ctx);
+      if (exchange != null) {
+        exchange.onDataReceived(dataFrame.content(), dataFrame.isEndStream());
       }
       else {
         dataFrame.release();
       }
     }
     else if (frame instanceof Http2ResetFrame resetFrame) {
-      NettyServerHttpExchange httpContext = NettyServerHttpExchange.getAndRemove(ctx);
-      if (httpContext != null) {
-        httpContext.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
+      NettyServerHttpExchange exchange = NettyServerHttpExchange.getAndRemove(ctx);
+      if (exchange != null) {
+        exchange.onError(new IOException("HTTP/2 stream reset: " + resetFrame.errorCode()));
       }
     }
     else {
@@ -149,20 +148,20 @@ public class HttpTrafficHandler extends ChannelInboundHandlerAdapter {
     Http2Headers headers = frame.headers();
     if (headers.method() == null) {
       // trailing headers of an already started request
-      NettyServerHttpExchange httpContext = NettyServerHttpExchange.lookup(ctx);
-      if (httpContext != null) {
-        httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
+      NettyServerHttpExchange exchange = NettyServerHttpExchange.lookup(ctx);
+      if (exchange != null) {
+        exchange.onDataReceived(Unpooled.EMPTY_BUFFER, true);
       }
       return;
     }
 
     Http2StreamChannel channel = (Http2StreamChannel) ctx.channel();
-    Http2ServerHttpExchange httpContext = new Http2ServerHttpExchange(channel, headers,
+    Http2ServerHttpExchange exchange = new Http2ServerHttpExchange(channel, headers,
             requestConfig, context, dispatcherHandler, this);
-    httpContext.attach();
-    executor.execute(httpContext, httpContext);
+    exchange.attach();
+    executor.execute(exchange, exchange);
     if (frame.isEndStream()) {
-      httpContext.onDataReceived(Unpooled.EMPTY_BUFFER, true);
+      exchange.onDataReceived(Unpooled.EMPTY_BUFFER, true);
     }
   }
 

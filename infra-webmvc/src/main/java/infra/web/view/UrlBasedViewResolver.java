@@ -587,9 +587,9 @@ public class UrlBasedViewResolver extends AbstractCachingViewResolver implements
       view.setContentType(contentType);
     }
 
-    String httpContextAttribute = getExchangeAttribute();
-    if (httpContextAttribute != null) {
-      view.setExchangeAttribute(httpContextAttribute);
+    String exchangeAttribute = getExchangeAttribute();
+    if (exchangeAttribute != null) {
+      view.setExchangeAttribute(exchangeAttribute);
     }
 
     Boolean exposePathVariables = getExposePathVariables();

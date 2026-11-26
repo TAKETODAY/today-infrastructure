@@ -109,7 +109,7 @@ public class FrameworkExtensionTests {
 
     @Override
     public MockRequestCustomizer beforeMockMvcCreated(ConfigurableMockMvcBuilder<?> builder, MockContext context) {
-      return (request, httpContext) -> request.setUserPrincipal(mock());
+      return (request, exchange) -> request.setUserPrincipal(mock());
     }
   }
 

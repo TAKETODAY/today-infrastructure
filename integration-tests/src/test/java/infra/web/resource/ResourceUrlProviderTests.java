@@ -78,14 +78,14 @@ public class ResourceUrlProviderTests {
   void getStaticResourceUrlRequestWithQueryOrHash() {
     MockRequest request = new MockRequest();
     request.setRequestURI("/");
-    MockServerHttpExchange httpContext = new MockServerHttpExchange(null, request, null);
+    MockServerHttpExchange exchange = new MockServerHttpExchange(null, request, null);
 
     String url = "/resources/foo.css?foo=bar&url=https://example.org";
-    String resolvedUrl = this.urlProvider.getForRequestUrl(httpContext, url);
+    String resolvedUrl = this.urlProvider.getForRequestUrl(exchange, url);
     assertThat(resolvedUrl).isEqualTo("/resources/foo.css?foo=bar&url=https://example.org");
 
     url = "/resources/foo.css#hash";
-    resolvedUrl = this.urlProvider.getForRequestUrl(httpContext, url);
+    resolvedUrl = this.urlProvider.getForRequestUrl(exchange, url);
     assertThat(resolvedUrl).isEqualTo("/resources/foo.css#hash");
   }
 

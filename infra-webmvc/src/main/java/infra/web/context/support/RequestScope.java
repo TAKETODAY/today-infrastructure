@@ -22,7 +22,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 
 /**
@@ -37,13 +37,13 @@ public class RequestScope extends AbstractWebContextScope<ServerHttpExchange> {
 
   @Override
   public Object get(String beanName, Supplier<?> objectFactory) {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
     return doGetBean(context, beanName, objectFactory);
   }
 
   @Override
   public @Nullable Object remove(String name) {
-    ServerHttpExchange context = HttpContextHolder.required();
+    ServerHttpExchange context = HttpExchangeHolder.required();
     return remove(context, name);
   }
 
@@ -65,10 +65,10 @@ public class RequestScope extends AbstractWebContextScope<ServerHttpExchange> {
   @Override
   public @Nullable Object resolveContextualObject(String key) {
     if (ServerHttpExchange.SCOPE_REQUEST.equals(key)) {
-      return HttpContextHolder.current();
+      return HttpExchangeHolder.current();
     }
     else if (ServerHttpExchange.SCOPE_SESSION.equals(key)) {
-      var request = HttpContextHolder.current();
+      var request = HttpExchangeHolder.current();
       if (request != null) {
         return request.getSession(true);
       }
@@ -78,7 +78,7 @@ public class RequestScope extends AbstractWebContextScope<ServerHttpExchange> {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    var request = HttpContextHolder.required();
+    var request = HttpExchangeHolder.required();
     request.registerCallback(ServerHttpExchange.Lifecycle.COMPLETED, name, callback);
   }
 

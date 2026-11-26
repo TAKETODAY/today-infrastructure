@@ -27,7 +27,7 @@ import org.jspecify.annotations.Nullable;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 2.3.7 2019-03-23 10:29
  */
-public abstract class HttpContextHolder {
+public abstract class HttpExchangeHolder {
 
   private static final RequestThreadLocal contextHolder = RequestThreadLocal.lookup();
 

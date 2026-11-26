@@ -18,7 +18,7 @@ ServerHttpExchange exchange = ...
 
 // 重用 scheme, host, port, path, 和 query string...
 
-URI uri = HttpContextUriComponentsBuilder.fromRequest(exchange)
+URI uri = HttpExchangeUriComponentsBuilder.fromRequest(exchange)
     .replaceQueryParam("accountId", "{id}")
     .build("123");
 ----
@@ -31,7 +31,7 @@ ServerHttpExchange exchange = ...
 
 // 重用 scheme, host, port, 和 context path...
 
-URI uri = HttpContextUriComponentsBuilder.fromContextPath(exchange)
+URI uri = HttpExchangeUriComponentsBuilder.fromContextPath(exchange)
     .path("/accounts")
     .build()
     .toUri();

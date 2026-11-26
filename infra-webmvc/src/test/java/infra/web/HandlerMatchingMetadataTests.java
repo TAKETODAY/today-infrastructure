@@ -89,7 +89,7 @@ class HandlerMatchingMetadataTests {
   }
 
   @Test
-  void constructorWithHandlerAndHttpContext() {
+  void constructorWithHandlerAndHttpExchange() {
     Object handler = new Object();
     MockServerHttpExchange request = createExchange();
     HandlerMatchingMetadata metadata = new HandlerMatchingMetadata(handler, request);

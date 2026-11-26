@@ -148,7 +148,7 @@ class DockerHostTests {
   }
 
   @Test
-  void getWhenHasHttpContext() {
+  void getWhenHasHttpExchange() {
     List<DockerCliContextResponse> context = List.of(new DockerCliContextResponse("test", true, HTTP_HOST));
     DockerHost host = DockerHost.get(null, NO_SYSTEM_ENV, () -> context);
     assertThat(host).hasToString("192.168.1.1");

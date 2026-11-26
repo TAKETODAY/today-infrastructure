@@ -38,7 +38,7 @@ import infra.test.context.web.WebAppConfiguration;
 import infra.test.web.mock.MockMvc;
 import infra.web.FilterChain;
 import infra.web.ServerHttpExchange;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.annotation.RequestMapping;
 import infra.web.annotation.RestController;
 import infra.web.config.annotation.EnableWebMvc;
@@ -251,7 +251,7 @@ public class ServerHttpExchangeHolderTests {
     @Override
     public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
       this.service.process();
-      ServerHttpExchange http = HttpContextHolder.current();
+      ServerHttpExchange http = HttpExchangeHolder.current();
       assertRequestAttributes(http);
       assertRequestAttributes();
       chain.doFilter(exchange);
@@ -271,7 +271,7 @@ public class ServerHttpExchangeHolderTests {
 
     @Override
     public void doFilter(ServerHttpExchange exchange, FilterChain chain) throws Exception {
-      HttpContextHolder.required()
+      HttpExchangeHolder.required()
               .setAttribute(FROM_REQUEST_ATTRIBUTES_FILTER, FROM_REQUEST_ATTRIBUTES_FILTER);
 
       chain.doFilter(exchange);
@@ -283,7 +283,7 @@ public class ServerHttpExchangeHolderTests {
   }
 
   private static void assertRequestAttributes(boolean withinMockMvc) {
-    ServerHttpExchange requestAttributes = HttpContextHolder.required();
+    ServerHttpExchange requestAttributes = HttpExchangeHolder.required();
     assertRequestAttributes(requestAttributes, withinMockMvc);
   }
 

@@ -21,7 +21,7 @@ package infra.web.util;
 import org.jspecify.annotations.Nullable;
 
 import infra.util.StringUtils;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.filter.ForwardedHeaderFilter;
 
@@ -146,13 +146,13 @@ public class HttpExchangeUriComponentsBuilder extends UriComponentsBuilder {
   }
 
   /**
-   * Obtain the current request through {@link HttpContextHolder}.
+   * Obtain the current request through {@link HttpExchangeHolder}.
    *
    * @return the current request context
    * @throws IllegalStateException if no request context is bound to the thread
    */
   protected static ServerHttpExchange getCurrentRequest() {
-    return HttpContextHolder.required();
+    return HttpExchangeHolder.required();
   }
 
   private void initPath(String path) {
@@ -164,7 +164,7 @@ public class HttpExchangeUriComponentsBuilder extends UriComponentsBuilder {
    * Remove any path extension from the original request URI. Invoke this method
    * before any calls to {@link #path(String)} or {@link #pathSegment(String...)}.
    * <pre>
-   * HttpContextUriComponentsBuilder builder = HttpContextUriComponentsBuilder.fromRequestUri(context);
+   * HttpExchangeUriComponentsBuilder builder = HttpExchangeUriComponentsBuilder.fromRequestUri(context);
    * String extension = builder.removePathExtension();
    * String uri = builder.path("/pages/1.{ext}").buildAndExpand(extension).toUriString();
    * </pre>

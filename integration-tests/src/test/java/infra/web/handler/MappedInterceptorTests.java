@@ -200,7 +200,7 @@ class MappedInterceptorTests {
   }
 
   @Test
-  void matchesWithHttpContext() {
+  void matchesWithHttpExchange() {
     ServerHttpExchange request = mock(ServerHttpExchange.class);
     given(request.getRequestPath()).willReturn(RequestPath.parse("/test", null));
 

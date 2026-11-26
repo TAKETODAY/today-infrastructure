@@ -53,7 +53,7 @@ import infra.util.ObjectUtils;
 import infra.util.PathMatcher;
 import infra.util.ReflectionUtils;
 import infra.util.StringUtils;
-import infra.web.HttpContextHolder;
+import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.annotation.RequestMapping;
 import infra.web.handler.method.support.CompositeUriComponentsContributor;
@@ -630,7 +630,7 @@ public class MvcUriComponentsBuilder {
 
   @Nullable
   private static ApplicationContext getApplicationContext() {
-    ServerHttpExchange context = HttpContextHolder.current();
+    ServerHttpExchange context = HttpExchangeHolder.current();
     if (context == null) {
       return null;
     }
