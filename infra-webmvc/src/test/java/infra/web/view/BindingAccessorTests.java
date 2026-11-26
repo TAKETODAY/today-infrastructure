@@ -26,6 +26,7 @@ import java.util.Map;
 import infra.beans.testfixture.beans.TestBean;
 import infra.context.support.MessageSourceAccessor;
 import infra.context.support.StaticMessageSource;
+import infra.validation.BindException;
 import infra.validation.BeanPropertyBindingResult;
 import infra.validation.BindingResult;
 import infra.validation.FieldError;
@@ -109,6 +110,25 @@ class BindingAccessorTests {
     var status = accessor(model).getBindStatus("bean.name");
     assertThat(status.getErrors()).isNull();
     assertThat(status.getValue()).isEqualTo("model");
+  }
+
+  @Test
+  void unwrapsBindExceptionStoredInTheRenderingModel() {
+    var errors = new BeanPropertyBindingResult(new TestBean("sample"), "bean");
+    String key = BindingResult.MODEL_KEY_PREFIX + "bean";
+    var status = accessor(Map.of(key, new BindException(errors))).getBindStatus("bean.name");
+
+    assertThat(status.getErrors()).isSameAs(errors);
+    assertThat(status.getValue()).isEqualTo("sample");
+  }
+
+  @Test
+  void rejectsAnInvalidBindingResultInTheRenderingModel() {
+    String key = BindingResult.MODEL_KEY_PREFIX + "bean";
+    var bindings = accessor(Map.of(key, "not a binding result", "bean", new TestBean("sample")));
+
+    assertThatIllegalStateException().isThrownBy(() -> bindings.getBindStatus("bean.name"))
+            .withMessageContaining(key).withMessageContaining("not an Errors instance");
   }
 
   @Test

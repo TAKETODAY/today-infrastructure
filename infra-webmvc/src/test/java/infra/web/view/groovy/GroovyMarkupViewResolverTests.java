@@ -35,6 +35,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class GroovyMarkupViewResolverTests {
 
   @Test
+  void constructorAndCustomViewClass() {
+    GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver("templates/", ".tpl");
+    DirectFieldAccessor accessor = new DirectFieldAccessor(resolver);
+    assertThat(accessor.getPropertyValue("prefix")).isEqualTo("templates/");
+    assertThat(accessor.getPropertyValue("suffix")).isEqualTo(".tpl");
+    assertThat(resolver.instantiateView()).isExactlyInstanceOf(GroovyMarkupView.class);
+    resolver.setViewClass(CustomView.class);
+    assertThat(resolver.instantiateView()).isExactlyInstanceOf(CustomView.class);
+  }
+
+  public static class CustomView extends GroovyMarkupView {
+  }
+
+  @Test
   public void viewClass() throws Exception {
     GroovyMarkupViewResolver resolver = new GroovyMarkupViewResolver();
     assertThat(resolver.requiredViewClass()).isEqualTo(GroovyMarkupView.class);

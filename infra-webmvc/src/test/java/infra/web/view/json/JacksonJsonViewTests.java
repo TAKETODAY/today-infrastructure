@@ -30,6 +30,7 @@ import org.mozilla.javascript.ScriptableObject;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Set;
 
@@ -43,6 +44,7 @@ import infra.validation.BindingResult;
 import infra.web.HttpContext;
 import infra.web.view.View;
 import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonEncoding;
 import tools.jackson.core.JsonGenerator;
 import tools.jackson.databind.BeanDescription;
 import tools.jackson.databind.JavaType;
@@ -81,6 +83,37 @@ class JacksonJsonViewTests {
   @Test
   void isExposePathVars() {
     assertThat(view.isExposePathVariables()).as("Must not expose path variables").isFalse();
+  }
+
+  @Test
+  void rendersOnlyTheConfiguredKeyWithCustomPrefixAndEncoding() throws Exception {
+    JacksonJsonView configuredView = new JacksonJsonView(JsonMapper.builder());
+    configuredView.setModelKey("included");
+    configuredView.setJsonPrefix("/* json */");
+    configuredView.setEncoding(JsonEncoding.UTF16_BE);
+
+    configuredView.render(Map.of("included", "sample", "ignored", "other"), context);
+
+    assertThat(configuredView.getModelKeys()).containsExactly("included");
+    assertThat(configuredView.getEncoding()).isEqualTo(JsonEncoding.UTF16_BE);
+    assertThat(new String(response.getContentAsByteArray(), StandardCharsets.UTF_16BE))
+            .isEqualTo("/* json */{\"included\":\"sample\"}");
+  }
+
+  @Test
+  void appliesBothSerializationViewAndFilterHints() throws Exception {
+    view.render(Map.of("bean", new FilteredViewBean("visible", "filtered", "out of view"),
+            JsonView.class.getName(), MyJacksonView1.class,
+            FilterProvider.class.getName(), new SimpleFilterProvider().addFilter("sample",
+                    SimpleBeanPropertyFilter.serializeAllExcept("filtered"))), context);
+
+    assertThat(response.getContentAsString()).isEqualTo("{\"bean\":{\"visible\":\"visible\"}}");
+  }
+
+  @JsonFilter("sample")
+  record FilteredViewBean(@JsonView(MyJacksonView1.class) String visible,
+                          @JsonView(MyJacksonView1.class) String filtered,
+                          @JsonView(MyJacksonView2.class) String outsideView) {
   }
 
   @Test

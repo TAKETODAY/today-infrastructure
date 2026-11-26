@@ -68,9 +68,24 @@ class AbstractCachingViewResolverTests {
   }
 
   @Test
+  void usesCacheFilterToKeepOnlyViewsThatCanBeReused() throws Exception {
+    AbstractCachingViewResolver.CacheFilter filter = (view, name, locale) -> !name.equals("dynamic");
+    resolver.setCacheFilter(filter);
+    assertThat(resolver.getCacheFilter()).isSameAs(filter);
+    assertThat(resolver.isCacheUnresolved()).isTrue();
+
+    View dynamic = resolver.resolveViewName("dynamic", Locale.ENGLISH);
+    View reusable = resolver.resolveViewName("reusable", Locale.ENGLISH);
+
+    assertThat(resolver.resolveViewName("dynamic", Locale.ENGLISH)).isNotSameAs(dynamic);
+    assertThat(resolver.resolveViewName("reusable", Locale.ENGLISH)).isSameAs(reusable);
+  }
+
+  @Test
   void resolvesASeparateViewEachTimeWhenCachingIsDisabled() throws Exception {
     resolver.setCache(false);
     View report = resolver.resolveViewName("report", Locale.ENGLISH);
+    resolver.removeFromCache("report", Locale.ENGLISH);
 
     assertThat(resolver.resolveViewName("report", Locale.ENGLISH)).isNotNull().isNotSameAs(report);
   }

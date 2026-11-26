@@ -182,6 +182,15 @@ class JacksonXmlViewTests {
   }
 
   @Test
+  void rejectsMissingConfiguredModelKey() {
+    JacksonXmlView configuredView = new JacksonXmlView(XmlMapper.builder());
+    configuredView.setModelKey("required");
+
+    assertThatIllegalStateException().isThrownBy(() -> configuredView.render(Map.of("other", "sample"), context))
+            .withMessageContaining("required");
+  }
+
+  @Test
   void renderModelWithMultipleKeys() {
     Map<String, Object> model = new TreeMap<>();
     model.put("foo", "foo");

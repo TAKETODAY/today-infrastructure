@@ -32,6 +32,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ScriptTemplateViewResolverTests {
 
   @Test
+  void constructorAndCustomViewClass() {
+    ScriptTemplateViewResolver resolver = new ScriptTemplateViewResolver("templates/", ".html");
+    DirectFieldAccessor accessor = new DirectFieldAccessor(resolver);
+    assertThat(accessor.getPropertyValue("prefix")).isEqualTo("templates/");
+    assertThat(accessor.getPropertyValue("suffix")).isEqualTo(".html");
+    assertThat(resolver.instantiateView()).isExactlyInstanceOf(ScriptTemplateView.class);
+    resolver.setViewClass(CustomView.class);
+    assertThat(resolver.instantiateView()).isExactlyInstanceOf(CustomView.class);
+  }
+
+  public static class CustomView extends ScriptTemplateView {
+  }
+
+  @Test
   public void viewClass() throws Exception {
     ScriptTemplateViewResolver resolver = new ScriptTemplateViewResolver();
     assertThat(resolver.requiredViewClass()).isEqualTo(ScriptTemplateView.class);

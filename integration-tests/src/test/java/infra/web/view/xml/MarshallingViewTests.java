@@ -55,6 +55,17 @@ class MarshallingViewTests {
   private MarshallingView view = new MarshallingView(marshallerMock);
 
   @Test
+  void setMarshallerAndValidateInitialization() {
+    MarshallingView view = new MarshallingView();
+    assertThatIllegalStateException().isThrownBy(view::initApplicationContext)
+            .withMessage("Property 'marshaller' is required");
+
+    Marshaller marshaller = mock();
+    view.setMarshaller(marshaller);
+    view.initApplicationContext();
+  }
+
+  @Test
   void getContentType() {
     assertThat(view.getContentType()).as("Invalid content type").isEqualTo("application/xml");
   }

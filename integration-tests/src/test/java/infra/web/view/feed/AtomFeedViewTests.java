@@ -45,6 +45,18 @@ public class AtomFeedViewTests {
   private final MyAtomFeedView view = new MyAtomFeedView();
 
   @Test
+  public void renderWithConfiguredFeedType() throws Exception {
+    view.setFeedType("atom_0.3");
+
+    MockRequest request = new MockRequest();
+    MockResponse response = new MockResponse();
+    view.render(Map.of("1", "Configured feed"), new MockHttpContext(null, request, response));
+
+    assertThat(response.getContentType()).isEqualTo("application/atom+xml");
+    assertThat(response.getContentAsString()).contains("Configured feed");
+  }
+
+  @Test
   public void render() throws Exception {
     MockRequest request = new MockRequest();
     MockResponse response = new MockResponse();
