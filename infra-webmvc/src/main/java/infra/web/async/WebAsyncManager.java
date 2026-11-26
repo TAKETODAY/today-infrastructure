@@ -33,7 +33,6 @@ import infra.logging.Logger;
 import infra.logging.LoggerFactory;
 import infra.util.Assert;
 import infra.web.HandlerMatchingMetadata;
-import infra.web.HttpExchangeHolder;
 import infra.web.ServerHttpExchange;
 import infra.web.util.DisconnectedClientHelper;
 import infra.web.util.TimeoutUtils;
