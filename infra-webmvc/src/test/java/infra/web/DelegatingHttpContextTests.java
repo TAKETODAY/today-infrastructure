@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.Reader;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -30,7 +31,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 import infra.context.ApplicationContext;
 import infra.core.AttributeAccessor;
@@ -43,6 +48,7 @@ import infra.http.MediaType;
 import infra.http.ResponseCookie;
 import infra.http.server.RequestPath;
 import infra.http.server.ServerHttpResponse;
+import infra.session.Session;
 import infra.util.MultiValueMap;
 import infra.web.async.WebAsyncRequest;
 import infra.web.async.WebAsyncManager;
@@ -58,6 +64,112 @@ import static org.mockito.Mockito.when;
  * @since 5.0 2025/10/9 16:21
  */
 class DelegatingHttpContextTests {
+
+  @Test
+  void requestHeadersAndContentTypeAreDelegated() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    when(delegate.getContentType()).thenReturn(MediaType.TEXT_PLAIN);
+    when(delegate.getHeader("X-Test")).thenReturn("first");
+    when(delegate.getHeaders("X-Test")).thenReturn(List.of("first", "second"));
+    when(delegate.getHeaderNames()).thenReturn(List.of("X-Test"));
+    when(delegate.containsHeader("X-Test")).thenReturn(true);
+    when(delegate.containsHeaderValue("X-Test", "second")).thenReturn(true);
+
+    assertThat(wrapper.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(wrapper.getHeader("X-Test")).isEqualTo("first");
+    assertThat(wrapper.getHeaders("X-Test")).containsExactly("first", "second");
+    assertThat(wrapper.getHeaderNames()).containsExactly("X-Test");
+    assertThat(wrapper.containsHeader("X-Test")).isTrue();
+    assertThat(wrapper.containsHeaderValue("X-Test", "second")).isTrue();
+    HttpHeaders headers = HttpHeaders.forWritable();
+    wrapper.setHeaders(headers);
+    verify(delegate).setHeaders(headers);
+  }
+
+  @Test
+  void cookieLookupAndBuilderOverloadsAreDelegated() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    HttpCookie cookie = mock(HttpCookie.class);
+    ResponseCookie.Builder builder = mock(ResponseCookie.Builder.class);
+    Consumer<ResponseCookie.Builder> configure = candidate -> candidate.path("/");
+    when(delegate.cookie("test")).thenReturn(Optional.of(cookie));
+
+    assertThat(wrapper.cookie("test")).containsSame(cookie);
+    wrapper.addCookie("test", configure);
+    wrapper.addCookie(builder);
+    wrapper.addCookie(cookie);
+
+    verify(delegate).addCookie("test", configure);
+    verify(delegate).addCookie(builder);
+    verify(delegate).addCookie(cookie);
+  }
+
+  @Test
+  void callbackRegistrationAndRemovalAreDelegated() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    Runnable callback = mock(Runnable.class);
+    HttpContext.Lifecycle phase = HttpContext.Lifecycle.COMPLETED;
+    when(delegate.registerCompletedCallback(callback)).thenReturn("completed");
+    when(delegate.registerCommittedCallback(callback)).thenReturn("committed");
+    when(delegate.registerCommittingCallback(callback)).thenReturn("committing");
+    when(delegate.registerCallback(phase, callback)).thenReturn("generated");
+
+    assertThat(wrapper.registerCompletedCallback(callback)).isEqualTo("completed");
+    assertThat(wrapper.registerCommittedCallback(callback)).isEqualTo("committed");
+    assertThat(wrapper.registerCommittingCallback(callback)).isEqualTo("committing");
+    assertThat(wrapper.registerCallback(phase, callback)).isEqualTo("generated");
+    wrapper.registerCallback(phase, "custom", callback);
+    wrapper.removeCallback(phase, "custom");
+
+    verify(delegate).registerCallback(phase, "custom", callback);
+    verify(delegate).removeCallback(phase, "custom");
+  }
+
+  @Test
+  void sessionAccessIsDelegatedWithoutChangingCreationPolicy() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    Session session = mock(Session.class);
+    when(delegate.getSession()).thenReturn(session);
+    when(delegate.changeSessionId()).thenReturn("new-id");
+
+    assertThat(wrapper.getSession(false)).isNull();
+    verify(delegate).getSession(false);
+    assertThat(wrapper.getSession()).isSameAs(session);
+    assertThat(wrapper.changeSessionId()).isEqualTo("new-id");
+  }
+
+  @Test
+  void attributesAndRequestCompletionAreDelegated() {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    Map<String, Object> attributes = Map.of("name", "value");
+    Function<String, String> compute = name -> name + "-value";
+    when(delegate.computeAttribute("name", compute)).thenReturn("name-value");
+    when(delegate.getRequestProcessingTime()).thenReturn(42L);
+    when(delegate.isRequestCompleted()).thenReturn(true);
+
+    wrapper.setAttributes(attributes);
+    verify(delegate).setAttributes(attributes);
+    assertThat(wrapper.computeAttribute("name", compute)).isEqualTo("name-value");
+    assertThat(wrapper.getRequestProcessingTime()).isEqualTo(42L);
+    assertThat(wrapper.isRequestCompleted()).isTrue();
+  }
+
+  @Test
+  void forwardAndBodyTransferAreDelegated() throws Exception {
+    HttpContext delegate = mock(HttpContext.class);
+    DelegatingHttpContext wrapper = new DelegatingHttpContext(delegate);
+    OutputStream output = mock(OutputStream.class);
+    when(delegate.transferTo(output)).thenReturn(12L);
+
+    wrapper.forward("/next?mode=test");
+    verify(delegate).forward("/next?mode=test");
+    assertThat(wrapper.transferTo(output)).isEqualTo(12L);
+  }
 
   @Test
   void sendIsDelegated() throws Exception {
