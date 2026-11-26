@@ -32,23 +32,22 @@ import infra.core.AttributeAccessor;
  * <p>Subclasses may wish to override the {@link #doGetBean} and {@link #remove}
  * methods to add synchronization around the call back into this super class.
  *
- * @param <T> context type
  * @author Rod Johnson
  * @author Juergen Hoeller
  * @author Rob Harrop
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:31
  */
-public abstract class AbstractWebContextScope<T> implements Scope {
+public abstract class AbstractWebScope implements Scope {
 
-  protected final Object doGetBean(T context, String beanName, Supplier<?> objectFactory) {
-    Object scopedObject = getAttribute(context, beanName);
+  protected final Object doGetBean(AttributeAccessor ctx, String beanName, Supplier<?> objectFactory) {
+    Object scopedObject = getAttribute(ctx, beanName);
     if (scopedObject == null) {
       scopedObject = objectFactory.get();
-      setAttribute(context, beanName, scopedObject);
+      setAttribute(ctx, beanName, scopedObject);
       // Retrieve object again, registering it for implicit session attribute updates.
       // As a bonus, we also allow for potential decoration at the getAttribute level.
-      Object retrievedObject = getAttribute(context, beanName);
+      Object retrievedObject = getAttribute(ctx, beanName);
       if (retrievedObject != null) {
         // Only proceed with retrieved object if still present (the expected case).
         // If it disappeared concurrently, we return our locally created instance.
@@ -58,23 +57,27 @@ public abstract class AbstractWebContextScope<T> implements Scope {
     return scopedObject;
   }
 
-  protected @Nullable Object remove(T context, String name) {
-    Object scopedObject = getAttribute(context, name);
+  protected @Nullable Object remove(AttributeAccessor ctx, String name) {
+    Object scopedObject = getAttribute(ctx, name);
     if (scopedObject != null) {
-      removeAttribute(context, name);
+      removeAttribute(ctx, name);
       return scopedObject;
     }
-    else {
-      return null;
-    }
+    return null;
   }
 
   // Abstract stuff
 
-  protected abstract void setAttribute(T context, String beanName, Object scopedObject);
+  protected void setAttribute(AttributeAccessor ctx, String beanName, Object scopedObject) {
+    ctx.setAttribute(beanName, scopedObject);
+  }
 
-  protected abstract @Nullable Object getAttribute(T context, String beanName);
+  protected @Nullable Object getAttribute(AttributeAccessor ctx, String beanName) {
+    return ctx.getAttribute(beanName);
+  }
 
-  protected abstract void removeAttribute(T context, String name);
+  protected void removeAttribute(AttributeAccessor ctx, String name) {
+    ctx.removeAttribute(name);
+  }
 
 }

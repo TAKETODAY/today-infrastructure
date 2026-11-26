@@ -43,7 +43,7 @@ import infra.web.util.WebUtils;
  * @see SessionManager
  * @since 4.0 2022/2/21 11:40
  */
-public class SessionScope extends AbstractWebContextScope<Session> {
+public class SessionScope extends AbstractWebScope {
 
   /**
    * Constant identifying the {@link String} prefixed to the name of a
@@ -54,18 +54,12 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable String getConversationId() {
-    ServerHttpExchange context = HttpExchangeHolder.required();
-    Session session = getSession(context, false);
-    if (session != null) {
-      return session.getId();
-    }
-    return null;
+    return HttpExchangeHolder.required().getSessionId();
   }
 
   @Override
   public Object get(String name, Supplier<?> objectFactory) {
-    ServerHttpExchange context = HttpExchangeHolder.required();
-    Session session = getSession(context);
+    Session session = HttpExchangeHolder.required().getSession();
     Object sessionMutex = WebUtils.getSessionMutex(session);
     synchronized(sessionMutex) {
       return doGetBean(session, name, objectFactory);
@@ -74,9 +68,9 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public @Nullable Object remove(String name) {
-    ServerHttpExchange context = HttpExchangeHolder.current();
-    if (context != null) {
-      Session session = getSession(context);
+    ServerHttpExchange exchange = HttpExchangeHolder.current();
+    if (exchange != null) {
+      Session session = exchange.getSession(false);
       if (session != null) {
         Object sessionMutex = WebUtils.getSessionMutex(session);
         synchronized(sessionMutex) {
@@ -87,71 +81,15 @@ public class SessionScope extends AbstractWebContextScope<Session> {
     return null;
   }
 
-  /**
-   * Returns the current session associated with this request, or if the request
-   * does not have a session, creates one.
-   *
-   * @param context Current request
-   * @return the <code>Session</code> associated with this request
-   * @see #getSession(ServerHttpExchange, boolean)
-   */
-  @SuppressWarnings("NullAway")
-  private Session getSession(ServerHttpExchange context) {
-    return getSession(context, true);
-  }
-
-  /**
-   * Returns the current <code>Session</code> associated with this request or,
-   * if there is no current session and <code>create</code> is true, returns a new
-   * session.
-   *
-   * <p>
-   * If <code>create</code> is <code>false</code> and the request has no valid
-   * <code>Session</code>, this method returns <code>null</code>.
-   *
-   * <p>
-   * To make sure the session is properly maintained, you must call this method
-   * before the response is committed. If the container is using cookies to
-   * maintain session integrity and is asked to create a new session when the
-   * response is committed, an IllegalStateException is thrown.
-   *
-   * @param request Current request
-   * @param create <code>true</code> to create a new session for this request if
-   * necessary; <code>false</code> to return <code>null</code> if
-   * there's no current session
-   * @return the <code>Session</code> associated with this request or
-   * <code>null</code> if <code>create</code> is <code>false</code> and
-   * the request has no valid session
-   * @see #getSession(ServerHttpExchange)
-   */
-  private @Nullable Session getSession(ServerHttpExchange request, boolean create) {
-    return request.getSession(create);
-  }
-
-  @Override
-  protected void setAttribute(Session context, String beanName, Object scopedObject) {
-    context.setAttribute(beanName, scopedObject);
-  }
-
-  @Override
-  protected @Nullable Object getAttribute(Session context, String beanName) {
-    return context.getAttribute(beanName);
-  }
-
-  @Override
-  protected void removeAttribute(Session context, String name) {
-    context.removeAttribute(name);
-  }
-
   @Override
   public @Nullable Object resolveContextualObject(String key) {
     if (ServerHttpExchange.SCOPE_REQUEST.equals(key)) {
       return HttpExchangeHolder.current();
     }
     else if (ServerHttpExchange.SCOPE_SESSION.equals(key)) {
-      ServerHttpExchange context = HttpExchangeHolder.current();
-      if (context != null) {
-        return getSession(context, false);
+      ServerHttpExchange exchange = HttpExchangeHolder.current();
+      if (exchange != null) {
+        return exchange.getSession(false);
       }
     }
     return null;
@@ -159,9 +97,7 @@ public class SessionScope extends AbstractWebContextScope<Session> {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    ServerHttpExchange context = HttpExchangeHolder.required();
-    Session session = getSession(context);
-    session.setAttribute(getDestructionCallbackName(name),
+    HttpExchangeHolder.required().setSessionAttribute(getDestructionCallbackName(name),
             new DestructionCallbackBindingListener(callback));
   }
 

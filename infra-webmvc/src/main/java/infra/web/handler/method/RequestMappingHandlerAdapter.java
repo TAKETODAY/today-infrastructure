@@ -155,37 +155,33 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
   }
 
   @Override
-  protected @Nullable Object handleInternal(ServerHttpExchange request, HandlerMethod handlerMethod) throws Exception {
+  protected @Nullable Object handleInternal(ServerHttpExchange exchange, HandlerMethod handlerMethod) throws Exception {
     Object returnValue;
 
     // Execute invokeHandlerMethod in synchronized block if required.
     if (synchronizeOnSession) {
-      Session session = getSession(request);
+      Session session = exchange.getSession(false);
       if (session != null) {
         Object mutex = WebUtils.getSessionMutex(session);
         synchronized(mutex) {
-          returnValue = invokeHandlerMethod(request, handlerMethod);
+          returnValue = invokeHandlerMethod(exchange, handlerMethod);
         }
       }
       else {
         // No Session available -> no mutex necessary
-        returnValue = invokeHandlerMethod(request, handlerMethod);
+        returnValue = invokeHandlerMethod(exchange, handlerMethod);
       }
     }
     else {
       // No synchronization on session demanded at all...
-      returnValue = invokeHandlerMethod(request, handlerMethod);
+      returnValue = invokeHandlerMethod(exchange, handlerMethod);
     }
 
-    if (!request.containsResponseHeader(HttpHeaders.CACHE_CONTROL)) {
-      prepareResponse(request);
+    if (!exchange.containsResponseHeader(HttpHeaders.CACHE_CONTROL)) {
+      prepareResponse(exchange);
     }
 
     return returnValue;
-  }
-
-  private @Nullable Session getSession(ServerHttpExchange request) {
-    return request.getSession(false);
   }
 
   /**
@@ -194,21 +190,21 @@ public class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter i
    *
    * @see ControllerMethodResolver#createHandlerMethod(HandlerMethod)
    */
-  protected @Nullable Object invokeHandlerMethod(ServerHttpExchange request, HandlerMethod handlerMethod) throws Exception {
+  protected @Nullable Object invokeHandlerMethod(ServerHttpExchange exchange, HandlerMethod handlerMethod) throws Exception {
     InvocableHandlerMethod invocableMethod = methodResolver.createHandlerMethod(handlerMethod);
 
     var binding = new InitBinderBindingContext(modelHandler, webBindingInitializer, methodResolver, invocableMethod);
     binding.setMethodValidationApplicable(methodValidator != null && handlerMethod.shouldValidateArguments());
-    BindingContext.set(request, binding);
+    BindingContext.set(exchange, binding);
 
     // add last RedirectModel to this request
-    var inputRedirectModel = RedirectModel.findInputModel(request, redirectModelManager);
+    var inputRedirectModel = RedirectModel.findInputModel(exchange, redirectModelManager);
     if (inputRedirectModel != null) {
       binding.addAllAttributes(inputRedirectModel);
     }
 
-    binding.initModel(request);
-    return invocableMethod.invokeAndHandle(request, methodValidator, null);
+    binding.initModel(exchange);
+    return invocableMethod.invokeAndHandle(exchange, methodValidator, null);
   }
 
 }

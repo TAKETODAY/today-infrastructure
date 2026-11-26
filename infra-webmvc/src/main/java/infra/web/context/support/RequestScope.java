@@ -31,35 +31,20 @@ import infra.web.ServerHttpExchange;
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/1/19 21:40
  */
-public class RequestScope extends AbstractWebContextScope<ServerHttpExchange> {
+public class RequestScope extends AbstractWebScope {
 
   public static final RequestScope instance = new RequestScope();
 
   @Override
   public Object get(String beanName, Supplier<?> objectFactory) {
-    ServerHttpExchange context = HttpExchangeHolder.required();
-    return doGetBean(context, beanName, objectFactory);
+    ServerHttpExchange exchange = HttpExchangeHolder.required();
+    return doGetBean(exchange, beanName, objectFactory);
   }
 
   @Override
   public @Nullable Object remove(String name) {
-    ServerHttpExchange context = HttpExchangeHolder.required();
-    return remove(context, name);
-  }
-
-  @Override
-  protected void setAttribute(ServerHttpExchange context, String beanName, Object scopedObject) {
-    context.setAttribute(beanName, scopedObject);
-  }
-
-  @Override
-  protected @Nullable Object getAttribute(ServerHttpExchange context, String beanName) {
-    return context.getAttribute(beanName);
-  }
-
-  @Override
-  protected void removeAttribute(ServerHttpExchange context, String name) {
-    context.removeAttribute(name);
+    ServerHttpExchange exchange = HttpExchangeHolder.required();
+    return remove(exchange, name);
   }
 
   @Override
@@ -78,8 +63,8 @@ public class RequestScope extends AbstractWebContextScope<ServerHttpExchange> {
 
   @Override
   public void registerDestructionCallback(String name, Runnable callback) {
-    var request = HttpExchangeHolder.required();
-    request.registerCallback(ServerHttpExchange.Lifecycle.COMPLETED, name, callback);
+    HttpExchangeHolder.required().registerCallback(
+            ServerHttpExchange.Lifecycle.COMPLETED, name, callback);
   }
 
 }
