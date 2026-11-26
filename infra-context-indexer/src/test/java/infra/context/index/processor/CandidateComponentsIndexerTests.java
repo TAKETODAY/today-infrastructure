@@ -25,7 +25,17 @@ import org.junit.jupiter.api.io.TempDir;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
+
+import javax.annotation.processing.Filer;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.PackageElement;
+import javax.lang.model.type.NoType;
+import javax.tools.StandardLocation;
 
 import infra.context.index.sample.AbstractController;
 import infra.context.index.sample.MetaControllerIndexed;
@@ -61,6 +71,10 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.transaction.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willReturn;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link CandidateComponentsIndexer}.
@@ -214,6 +228,53 @@ class CandidateComponentsIndexerTests {
   void embeddedNonStaticCandidateAreIgnored() {
     CandidateComponentsMetadata metadata = compile(SampleNonStaticEmbedded.class);
     assertThat(metadata.getItems()).hasSize(0);
+  }
+
+  @Test
+  void incrementalCompilationKeepsUnchangedEntriesAndReplacesOrDropsStaleEntries() throws IOException {
+    String deletedType = "infra.context.index.sample.DeletedComponent";
+    CandidateComponentsMetadata previous = new CandidateComponentsMetadata();
+    previous.add(new ItemMetadata(SampleComponent.class.getName(), Set.of(Component.class.getName())));
+    previous.add(new ItemMetadata(SampleService.class.getName(), Set.of("old.Stereotype")));
+    previous.add(new ItemMetadata(SampleNone.class.getName(), Set.of(Component.class.getName())));
+    previous.add(new ItemMetadata(deletedType, Set.of(Component.class.getName())));
+    Path index = this.compiler.getOutputLocation().toPath().resolve(MetadataStore.METADATA_PATH);
+    Files.createDirectories(index.getParent());
+    try (var output = Files.newOutputStream(index)) {
+      PropertiesMarshaller.write(previous, output);
+    }
+
+    CandidateComponentsMetadata metadata = compile(SampleService.class, SampleNone.class);
+
+    assertThat(metadata.getItems()).extracting(ItemMetadata::getType)
+            .containsExactlyInAnyOrder(SampleComponent.class.getName(), SampleService.class.getName());
+    assertThat(metadata).has(Metadata.of(SampleComponent.class, Component.class));
+    assertThat(metadata).has(Metadata.of(SampleService.class, Component.class));
+  }
+
+  @Test
+  void reportsMetadataWriteFailureWithOriginalCause() throws IOException {
+    Filer filer = mock(Filer.class);
+    ProcessingEnvironment environment = mock(ProcessingEnvironment.class);
+    given(environment.getFiler()).willReturn(filer);
+    given(filer.getResource(StandardLocation.CLASS_OUTPUT, "", MetadataStore.METADATA_PATH))
+            .willThrow(new IOException("No previous index"));
+    IOException writeFailure = new IOException("Cannot create index");
+    given(filer.createResource(StandardLocation.CLASS_OUTPUT, "", MetadataStore.METADATA_PATH)).willThrow(writeFailure);
+    PackageElement packageInfo = mock();
+    given(packageInfo.getKind()).willReturn(ElementKind.PACKAGE);
+    NoType packageType = mock();
+    given(packageInfo.asType()).willReturn(packageType);
+    given(packageType.toString()).willReturn("example");
+    RoundEnvironment round = mock(RoundEnvironment.class);
+    willReturn(Set.of(packageInfo)).given(round).getRootElements();
+    given(round.processingOver()).willReturn(true);
+    CandidateComponentsIndexer indexer = new CandidateComponentsIndexer();
+    indexer.init(environment);
+
+    assertThatIllegalStateException().isThrownBy(() -> indexer.process(Set.of(), round))
+            .withMessage("Failed to write metadata")
+            .withCause(writeFailure);
   }
 
   private void testComponent(Class<?>... classes) {
