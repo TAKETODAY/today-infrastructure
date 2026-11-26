@@ -70,9 +70,9 @@ class EnumerableTests {
 
   @Test
   void getValue() {
-    assertThat(Enumerable.getValue(Gender.class, "MALE")).isEqualTo(1);
-    assertThat(Enumerable.getValue(Gender.class, "FEMALE")).isEqualTo(0);
-    assertThat(Enumerable.getValue(Gender.class, "FEMALE_")).isNull();
+    assertThat(Enumerable.findValue(Gender.class, "MALE")).isEqualTo(1);
+    assertThat(Enumerable.findValue(Gender.class, "FEMALE")).isEqualTo(0);
+    assertThat(Enumerable.findValue(Gender.class, "FEMALE_")).isNull();
 
   }
 
@@ -137,16 +137,16 @@ class EnumerableTests {
 
   @Test
   void getValueReturnsNullForNonExistentName() {
-    Integer value = Enumerable.getValue(Gender.class, "UNKNOWN");
+    Integer value = Enumerable.findValue(Gender.class, "UNKNOWN");
     assertThat(value).isNull();
   }
 
   @Test
   void getValueReturnsCorrectValueForExistingName() {
-    Integer value = Enumerable.getValue(Gender.class, "MALE");
+    Integer value = Enumerable.findValue(Gender.class, "MALE");
     assertThat(value).isEqualTo(1);
 
-    value = Enumerable.getValue(Gender.class, "FEMALE");
+    value = Enumerable.findValue(Gender.class, "FEMALE");
     assertThat(value).isEqualTo(0);
   }
 

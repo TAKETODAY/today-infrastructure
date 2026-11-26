@@ -23,40 +23,65 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 /**
- * Enumerable for {@link Enum}
+ * Associates an {@link Enum} constant with a value and a textual description.
+ * By default, both are the constant's declared name. Override {@link #getValue()}
+ * to associate a custom value and {@link #getDescription()} to provide a
+ * different description.
  *
- * @param <V> Value type
+ * <p>Use {@link #of(Class, Object)} to look up a constant by its associated
+ * value, or {@link #findValue(Class, String)} to look up a value by the
+ * constant's declared name.
+ *
+ * @param <V> the type of the associated value
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0
  */
 public interface Enumerable<V> extends Descriptive {
 
+  /**
+   * Return the value associated with this constant.
+   *
+   * @return the associated value
+   * @implSpec The default implementation returns {@link #name()} cast to
+   * {@code V}. Override this method if {@code V} cannot represent a {@link String}.
+   */
   @SuppressWarnings("unchecked")
   default V getValue() {
     return (V) name();
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * @implSpec The default implementation returns {@link #name()}, not the
+   * associated value.
+   */
   @Override
   default String getDescription() {
     return name();
   }
 
   /**
-   * The default name of the enumeration, this method does not need
-   * to be implemented, the enumeration class is automatically inherited
+   * Return the name of this constant exactly as declared in the enum.
+   * Enum implementations inherit this method from {@link Enum#name()}.
+   *
+   * @return the declared name of the constant
    */
   String name();
 
   /**
-   * Returns Enumerable by {@link Enumerable#getValue() enum value}
+   * Find the first constant whose {@linkplain #getValue() associated value}
+   * matches the supplied value according to {@link Objects#equals(Object, Object)}.
+   * Constants are checked in declaration order.
    *
-   * @param enumerable enum
-   * @param value enumeration value
-   * @param <T> enumeration type
-   * @param <V> enumeration value type
-   * @return enumeration instance
-   * @throws NullPointerException if enumerable is {@code null}
-   * @see Enumerable#getValue()
+   * @param <T> the enum type
+   * @param <V> the associated value type
+   * @param enumerable the enum class to search
+   * @param value the value to match, or {@code null} to skip the lookup
+   * @return the first matching constant, or {@code null} if the value is
+   * {@code null}, the class is not an enum, or no constant matches
+   * @throws NullPointerException if {@code enumerable} is {@code null}
+   * and {@code value} is non-null
    */
   static <T extends Enumerable<V>, V> @Nullable T of(Class<T> enumerable, @Nullable V value) {
     if (value != null) {
@@ -73,16 +98,18 @@ public interface Enumerable<V> extends Descriptive {
   }
 
   /**
-   * Get the value corresponding to the name
+   * Return the associated value of the constant with the given declared name.
+   * Names are matched case-sensitively.
    *
-   * @param enumerable enumeration class
-   * @param name enumeration name
-   * @param <T> enum type
-   * @param <V> enumeration value type
-   * @return enumeration value
-   * @see Enumerable#getValue()
+   * @param <T> the enum type
+   * @param <V> the associated value type
+   * @param enumerable the enum class to search
+   * @param name the declared name of the constant
+   * @return the associated value, or {@code null} if the class is not an enum
+   * or no constant has the given name
+   * @see #getValue()
    */
-  static <T extends Enumerable<V>, V> @Nullable V getValue(Class<T> enumerable, String name) {
+  static <T extends Enumerable<V>, V> @Nullable V findValue(Class<T> enumerable, String name) {
     T[] enumConstants = enumerable.getEnumConstants();
     if (enumConstants != null) {
       for (T constant : enumConstants) {
@@ -95,9 +122,16 @@ public interface Enumerable<V> extends Descriptive {
   }
 
   /**
-   * @param <T> enum type
-   * @param <V> enumeration value type
-   * @param defaultValue default value
+   * Find a constant by its associated value, or obtain a fallback from a supplier.
+   * The supplier is invoked only when the lookup finds no match.
+   *
+   * @param <T> the enum type
+   * @param <V> the associated value type
+   * @param enumerable the enum class to search
+   * @param value the value to match
+   * @param defaultValue the supplier of the fallback constant
+   * @return the first matching constant, or the result of the supplier if the
+   * value is {@code null} or no constant matches
    * @see #of(Class, Object)
    */
   static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value, Supplier<T> defaultValue) {
@@ -105,9 +139,15 @@ public interface Enumerable<V> extends Descriptive {
   }
 
   /**
-   * @param defaultValue default value
-   * @param <T> enum type
-   * @param <V> enumeration value type
+   * Find a constant by its associated value, or return the given fallback.
+   *
+   * @param <T> the enum type
+   * @param <V> the associated value type
+   * @param enumerable the enum class to search
+   * @param value the value to match
+   * @param defaultValue the fallback constant
+   * @return the first matching constant, or {@code defaultValue} if the value
+   * is {@code null} or no constant matches
    * @see #of(Class, Object)
    */
   static <T extends Enumerable<V>, V> T of(Class<T> enumerable, V value, T defaultValue) {
@@ -115,7 +155,15 @@ public interface Enumerable<V> extends Descriptive {
   }
 
   /**
-   * @return Optional of T
+   * Find a constant by its associated value and return the result as an {@link Optional}.
+   *
+   * @param <T> the enum type
+   * @param <V> the associated value type
+   * @param enumerable the enum class to search
+   * @param value the value to match
+   * @return an optional containing the first matching constant, or an empty
+   * optional if the value is {@code null} or no constant matches
+   * @see #of(Class, Object)
    */
   static <T extends Enumerable<V>, V> Optional<T> find(Class<T> enumerable, V value) {
     return Optional.ofNullable(of(enumerable, value));
