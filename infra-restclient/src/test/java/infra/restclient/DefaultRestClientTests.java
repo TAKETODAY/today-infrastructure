@@ -21,8 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.ParameterizedType;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -43,23 +46,32 @@ import infra.http.HttpStatus;
 import infra.http.HttpStatusCode;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
+import infra.http.ServerSentEvent;
 import infra.http.StreamingHttpOutputMessage;
 import infra.http.client.ClientHttpRequest;
 import infra.http.client.ClientHttpRequestFactory;
 import infra.http.client.ClientHttpResponse;
 import infra.http.converter.HttpMessageConverter;
-import infra.util.LinkedMultiValueMap;
-import infra.util.MultiValueMap;
+import infra.http.converter.StringHttpMessageConverter;
 import infra.restclient.DefaultRestClient.AbstractResponseSpec;
 import infra.restclient.DefaultRestClient.DefaultClientResponse;
 import infra.restclient.DefaultRestClient.DefaultRequestBodyUriSpec;
+import infra.util.LinkedMultiValueMap;
+import infra.util.MultiValueMap;
+import infra.web.client.ApiVersionInserter;
+import infra.web.testfixture.http.MockClientHttpRequest;
+import infra.web.testfixture.http.MockClientHttpResponse;
 import infra.web.util.UriBuilderFactory;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -87,6 +99,254 @@ class DefaultRestClientTests {
     this.client = RestClient.builder()
             .requestFactory(this.requestFactory)
             .build();
+  }
+
+  @Test
+  void requestDefaultsCanBeOverriddenWithoutChangingOriginalClient() throws IOException {
+    RestClient original = this.client.mutate()
+            .baseURI(URL)
+            .defaultUriVariables(Map.of("region", "eu"))
+            .defaultHeader("X-Source", "original")
+            .defaultCookie("session", "default")
+            .defaultCookie("theme", "light")
+            .defaultApiVersion("1")
+            .apiVersionInserter(ApiVersionInserter.forHeader("API-Version"))
+            .defaultRequest(spec -> spec.header("X-Trace", "default"))
+            .defaultRequest(spec -> spec.attribute("trace", "enabled"))
+            .requestInitializer(request -> request.getHeaders().add("X-Stage", "initializer"))
+            .build();
+    RestClient derived = original.mutate().defaultHeader("X-Source", "derived").build();
+    MockClientHttpRequest originalRequest = stubRequest(HttpMethod.GET, URL);
+    MockClientHttpRequest derivedRequest = stubRequest(HttpMethod.GET, URL + "/eu/items/42");
+
+    original.get().retrieve().toBodiless();
+    derived.get().uri("/{region}/items/{id}", Map.of("id", 42))
+            .header("X-Trace", "explicit")
+            .cookie("session", "first").cookie("session", "second")
+            .apiVersion("2")
+            .attribute("item", 42)
+            .httpRequest(request -> request.getHeaders().add("X-Stage", "first callback"))
+            .httpRequest(request -> request.getHeaders().add("X-Stage", "second callback"))
+            .retrieve().toBodiless();
+
+    assertThat(originalRequest.getHeaders().getFirst("X-Source")).isEqualTo("original");
+    assertThat(originalRequest.getHeaders().getFirst("X-Trace")).isEqualTo("default");
+    assertThat(originalRequest.getHeaders().getFirst("API-Version")).isEqualTo("1");
+    assertThat(originalRequest.getHeaders().getFirst(HttpHeaders.COOKIE)).isEqualTo("session=default; theme=light");
+    assertThat(derivedRequest.getHeaders().getFirst("X-Source")).isEqualTo("derived");
+    assertThat(derivedRequest.getHeaders().getFirst("X-Trace")).isEqualTo("explicit");
+    assertThat(derivedRequest.getHeaders().getFirst("API-Version")).isEqualTo("2");
+    assertThat(derivedRequest.getHeaders().getFirst(HttpHeaders.COOKIE)).isEqualTo("session=first; session=second; theme=light");
+    assertThat(derivedRequest.getHeaders().get("X-Stage")).containsExactly("initializer", "first callback", "second callback");
+    assertThat(derivedRequest.getAttributes()).containsEntry("trace", "enabled").containsEntry("item", 42);
+  }
+
+  @Test
+  void interceptorCanReadBufferedResponseBeforeReturningItToCaller() throws IOException {
+    RestClient client = this.client.mutate().baseURI(URL)
+            .bufferContent(request -> request.getURI().getPath().startsWith("/items/"))
+            .requestInterceptor((request, body, execution) -> {
+              request.getHeaders().set("X-Intercepted", "true");
+              ClientHttpResponse response = execution.execute(request, body);
+              assertThat(response.getContentAsString(UTF_8)).isEqualTo(BODY);
+              return response;
+            })
+            .build();
+
+    for (int id : List.of(1, 2)) {
+      MockClientHttpRequest request = stubRequest(HttpMethod.GET, URL + "/items/" + id);
+      MockClientHttpResponse response = new MockClientHttpResponse(BODY.getBytes(UTF_8), HttpStatus.OK);
+      response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
+      request.setResponse(response);
+
+      String result = client.get().uri("/items/{id}", builder -> builder.build(id))
+              .cookie("view", "summary").retrieve().requiredBody(String.class);
+
+      assertThat(result).isEqualTo(BODY);
+      assertThat(request.getHeaders().getFirst("X-Intercepted")).isEqualTo("true");
+      assertThat(request.getHeaders().getFirst(HttpHeaders.COOKIE)).isEqualTo("view=summary");
+    }
+  }
+
+  @Test
+  void requestBodyUsesParameterizedTypeWhenWritingJson() throws IOException {
+    MockClientHttpRequest request = stubRequest(HttpMethod.POST, URL + "/items");
+    RestClient client = this.client.mutate().baseURI(URL).build();
+
+    client.post().uri(builder -> builder.path("/items").build()).contentType(MediaType.APPLICATION_JSON)
+            .body(List.of("first", "second"), new ParameterizedTypeReference<List<String>>() { })
+            .retrieve().toBodiless();
+
+    assertThat(request.getBodyAsString(UTF_8)).isEqualTo("[\"first\",\"second\"]");
+  }
+
+  @Test
+  void streamingBodyWritesDirectlyToNonStreamingRequest() throws IOException {
+    mockSentRequest(HttpMethod.POST, URL);
+    mockResponseStatus(HttpStatus.NO_CONTENT);
+    ByteArrayOutputStream body = new ByteArrayOutputStream();
+    given(this.request.getBody()).willReturn(body);
+
+    this.client.post().uri(URL).body(output -> output.write(BODY.getBytes(UTF_8))).retrieve().toBodiless();
+
+    assertThat(body.toString(UTF_8)).isEqualTo(BODY);
+    verify(this.response).close();
+  }
+
+  @Test
+  void unsupportedRequestBodyFailsBeforeExecutingRequest() throws IOException {
+    MockClientHttpRequest request = stubRequest(HttpMethod.POST, URL);
+    RestClient client = this.client.mutate().messageConverters(List.of(new StringHttpMessageConverter())).build();
+
+    assertThatThrownBy(() -> client.post().uri(URL).contentType(MediaType.APPLICATION_JSON).body(42).retrieve())
+            .isInstanceOf(RestClientException.class)
+            .hasMessage("No HttpMessageConverter for java.lang.Integer and content type \"application/json\"");
+    assertThat(request.isExecuted()).isFalse();
+  }
+
+  @Test
+  void unsupportedResponseBodyPreservesStatusHeadersAndPayload() throws IOException {
+    MockClientHttpRequest request = stubRequest(HttpMethod.GET, URL);
+    MockClientHttpResponse response = new MockClientHttpResponse(BODY.getBytes(UTF_8), HttpStatus.ACCEPTED);
+    response.getHeaders().setContentType(MediaType.TEXT_PLAIN);
+    response.getHeaders().set("X-Trace", "trace-1");
+    request.setResponse(response);
+    RestClient client = this.client.mutate().messageConverters(List.of(new StringHttpMessageConverter())).build();
+
+    assertThatExceptionOfType(UnknownContentTypeException.class)
+            .isThrownBy(() -> client.get().uri(URL).retrieve().body(Integer.class))
+            .satisfies(error -> {
+              assertThat(error.getTargetType()).isEqualTo(Integer.class);
+              assertThat(error.getStatusCode()).isEqualTo(HttpStatus.ACCEPTED);
+              assertThat(error.getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+              assertThat(error.getResponseHeaders().getFirst("X-Trace")).isEqualTo("trace-1");
+              assertThat(error.getResponseBodyAsString()).isEqualTo(BODY);
+            });
+  }
+
+  @Test
+  void bodilessResponseClosesWhenStatusHandlerFails() throws IOException {
+    mockSentRequest(HttpMethod.GET, URL);
+    mockResponseStatus(HttpStatus.BAD_REQUEST);
+    IOException failure = new IOException("status handler failed");
+
+    assertThatThrownBy(() -> this.client.get().uri(URL).retrieve()
+            .onStatus(HttpStatusCode::is4xxClientError, (request, response) -> {
+              throw failure;
+            }).toBodiless())
+            .isInstanceOf(ResourceAccessException.class)
+            .hasMessage("Could not retrieve response status code: status handler failed")
+            .cause().isSameAs(failure);
+
+    verify(this.response).close();
+  }
+
+  @ParameterizedTest(name = "{0}")
+  @MethodSource("eventReaders")
+  void readsServerSentEvents(String name, Function<RestClient.RequestHeadersSpec<?>, ServerSentEvents<?>> reader,
+          Object expectedData) throws IOException {
+    MockClientHttpRequest request = stubRequest(HttpMethod.GET, URL);
+    MockClientHttpResponse response = spy(new MockClientHttpResponse("id: 3\ndata: [42]\n\n".getBytes(UTF_8), HttpStatus.OK));
+    response.getHeaders().setContentType(MediaType.TEXT_EVENT_STREAM);
+    request.setResponse(response);
+
+    try (ServerSentEvents<?> events = reader.apply(this.client.get().uri(URL))) {
+      verify(response, never()).close();
+      ServerSentEvent<?> event = events.iterator().next();
+      assertThat(event.id()).isEqualTo("3");
+      assertThat(event.data()).isEqualTo(expectedData);
+    }
+
+    verify(response).close();
+  }
+
+  static Stream<Arguments> eventReaders() {
+    ParameterizedTypeReference<List<Integer>> type = new ParameterizedTypeReference<>() { };
+    return Stream.of(
+            eventReader("raw events", spec -> spec.retrieve().events(), "[42]"),
+            eventReader("typed events", spec -> spec.retrieve().events(type, MediaType.APPLICATION_JSON), List.of(42)),
+            eventReader("async raw events", spec -> spec.async(Runnable::run).events().join(), "[42]"),
+            eventReader("async typed events", spec -> spec.async(Runnable::run).events(type, MediaType.APPLICATION_JSON).join(), List.of(42))
+    );
+  }
+
+  private static Arguments eventReader(String name, Function<RestClient.RequestHeadersSpec<?>, ServerSentEvents<?>> reader,
+          Object expectedData) {
+    return Arguments.of(name, reader, expectedData);
+  }
+
+  @Test
+  void asyncEntityReadsParameterizedResponse() throws IOException {
+    MockClientHttpRequest request = stubRequest(HttpMethod.GET, URL);
+    MockClientHttpResponse response = new MockClientHttpResponse("[42]".getBytes(UTF_8), HttpStatus.OK);
+    response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
+    request.setResponse(response);
+
+    ResponseEntity<List<Integer>> result = this.client.get().uri(URL).async(Runnable::run)
+            .toEntity(new ParameterizedTypeReference<List<Integer>>() { }).join();
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(result.getBody()).containsExactly(42);
+  }
+
+  @Test
+  void asyncBodilessEntityKeepsStatusAndHeadersAndClosesResponse() throws IOException {
+    MockClientHttpRequest request = stubRequest(HttpMethod.GET, URL);
+    MockClientHttpResponse response = spy(new MockClientHttpResponse(new byte[0], HttpStatus.NO_CONTENT));
+    response.getHeaders().setETag("\"v1\"");
+    request.setResponse(response);
+
+    ResponseEntity<Void> result = this.client.get().uri(URL).async(Runnable::run).toBodilessEntity().join();
+
+    assertThat(result.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
+    assertThat(result.headers().getETag()).isEqualTo("\"v1\"");
+    assertThat(result.hasBody()).isFalse();
+    verify(response).close();
+  }
+
+  @ParameterizedTest
+  @ValueSource(booleans = { true, false })
+  void asyncFailuresFromRequestCreationAndExecutionOmitQuery(boolean creationFailure) throws IOException {
+    String url = URL + "/items?token=hidden";
+    IOException failure = new IOException("connection failed");
+    if (creationFailure) {
+      given(this.requestFactory.createRequest(URI.create(url), HttpMethod.GET)).willThrow(failure);
+    }
+    else {
+      MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.GET, URI.create(url)) {
+        @Override
+        protected ClientHttpResponse executeInternal() throws IOException {
+          throw failure;
+        }
+      };
+      given(this.requestFactory.createRequest(URI.create(url), HttpMethod.GET)).willReturn(request);
+    }
+
+    var future = this.client.get().uri(url).async(Runnable::run).toBodiless();
+
+    assertThatThrownBy(future::join).isInstanceOf(ResourceAccessException.class)
+            .hasMessage("I/O error on GET request for \"https://example.com/items\": connection failed")
+            .cause().isSameAs(failure);
+  }
+
+  @Test
+  void exchangeLeavesReturnedStreamOpenForCaller() throws IOException {
+    mockSentRequest(HttpMethod.GET, URL);
+    mockResponseStatus(HttpStatus.OK);
+    mockResponseBody(BODY, MediaType.APPLICATION_OCTET_STREAM);
+
+    try (InputStream stream = this.client.get().uri(URL).exchange((request, response) -> response.getBody())) {
+      verify(this.response, never()).close();
+      assertThat(stream.readAllBytes()).isEqualTo(BODY.getBytes(UTF_8));
+    }
+  }
+
+  private MockClientHttpRequest stubRequest(HttpMethod method, String url) throws IOException {
+    URI uri = URI.create(url);
+    MockClientHttpRequest request = new MockClientHttpRequest(method, uri);
+    request.setResponse(new MockClientHttpResponse());
+    given(this.requestFactory.createRequest(uri, method)).willReturn(request);
+    return request;
   }
 
   @Test
