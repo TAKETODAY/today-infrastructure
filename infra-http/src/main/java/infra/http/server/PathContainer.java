@@ -66,7 +66,7 @@ public abstract class PathContainer {
    * @return the sub-path
    */
   public PathContainer subPath(int startIndex, int endIndex) {
-    return infra.http.server.DefaultPathContainer.subPath(this, startIndex, endIndex);
+    return DefaultPathContainer.subPath(this, startIndex, endIndex);
   }
 
   /**

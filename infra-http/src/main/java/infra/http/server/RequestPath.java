@@ -75,7 +75,7 @@ public abstract class RequestPath extends PathContainer {
    * @param contextPath the contextPath portion of the URI path
    */
   public static RequestPath parse(String rawPath, @Nullable String contextPath) {
-    return new infra.http.server.DefaultRequestPath(rawPath, contextPath);
+    return new DefaultRequestPath(rawPath, contextPath);
   }
 
 }
