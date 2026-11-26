@@ -105,7 +105,7 @@ class FreeMarkerAutoConfigurationIntegrationTests {
             .hasFieldOrPropertyWithValue("exposeRequestAttributes", true)
             .hasFieldOrPropertyWithValue("allowRequestOverride", true)
             .hasFieldOrPropertyWithValue("exposeSessionAttributes", true)
-            .hasFieldOrPropertyWithValue("httpContextAttribute", "webContext");
+            .hasFieldOrPropertyWithValue("exchangeAttribute", "webContext");
   }
 
   @Test
