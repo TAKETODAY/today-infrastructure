@@ -20,10 +20,14 @@ package infra.jdbc.metadata;
 
 import java.sql.SQLException;
 
+import org.junit.jupiter.api.Test;
+
 import oracle.ucp.jdbc.PoolDataSource;
 import oracle.ucp.jdbc.PoolDataSourceImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 /**
  * Tests for {@link infra.jdbc.metadata.OracleUcpDataSourcePoolMetadata}.
@@ -42,6 +46,7 @@ class OracleUcpDataSourcePoolMetadataTests
   }
 
   @Override
+  @Test
   void getValidationQuery() throws SQLException {
     PoolDataSource dataSource = createDataSource(0, 4);
     dataSource.setSQLForValidateConnection("SELECT NULL FROM DUAL");
@@ -50,10 +55,31 @@ class OracleUcpDataSourcePoolMetadataTests
   }
 
   @Override
+  @Test
   void getDefaultAutoCommit() throws SQLException {
     PoolDataSource dataSource = createDataSource(0, 4);
     dataSource.setConnectionProperty("autoCommit", "false");
     assertThat(new infra.jdbc.metadata.OracleUcpDataSourcePoolMetadata(dataSource).getDefaultAutoCommit()).isFalse();
+  }
+
+  @Test
+  void returnsNullWhenConnectionCountsAreUnavailable() throws SQLException {
+    PoolDataSource dataSource = mock(PoolDataSource.class);
+    given(dataSource.getBorrowedConnectionsCount()).willThrow(new SQLException());
+    given(dataSource.getAvailableConnectionsCount()).willThrow(new SQLException());
+
+    infra.jdbc.metadata.OracleUcpDataSourcePoolMetadata metadata = new infra.jdbc.metadata.OracleUcpDataSourcePoolMetadata(dataSource);
+
+    assertThat(metadata.getActive()).isNull();
+    assertThat(metadata.getIdle()).isNull();
+  }
+
+  @Test
+  void returnsNullForBlankAutoCommitProperty() throws SQLException {
+    PoolDataSource dataSource = mock(PoolDataSource.class);
+    given(dataSource.getConnectionProperty("autoCommit")).willReturn(" ");
+
+    assertThat(new infra.jdbc.metadata.OracleUcpDataSourcePoolMetadata(dataSource).getDefaultAutoCommit()).isNull();
   }
 
   private PoolDataSource createDataSource(int minSize, int maxSize) {

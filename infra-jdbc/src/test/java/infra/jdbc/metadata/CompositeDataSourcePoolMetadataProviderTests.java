@@ -32,6 +32,7 @@ import infra.jdbc.metadata.DataSourcePoolMetadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.lenient;
 
 /**
  * Tests for {@link infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider}.
@@ -64,8 +65,8 @@ class CompositeDataSourcePoolMetadataProviderTests {
 
   @BeforeEach
   void setup() {
-    given(this.firstProvider.getDataSourcePoolMetadata(this.firstDataSource)).willReturn(this.first);
-    given(this.firstProvider.getDataSourcePoolMetadata(this.secondDataSource)).willReturn(this.second);
+    lenient().when(this.firstProvider.getDataSourcePoolMetadata(this.firstDataSource)).thenReturn(this.first);
+    lenient().when(this.firstProvider.getDataSourcePoolMetadata(this.secondDataSource)).thenReturn(this.second);
   }
 
   @Test
@@ -74,6 +75,24 @@ class CompositeDataSourcePoolMetadataProviderTests {
             Arrays.asList(this.firstProvider, this.secondProvider));
     assertThat(provider.getDataSourcePoolMetadata(this.firstDataSource)).isSameAs(this.first);
     assertThat(provider.getDataSourcePoolMetadata(this.secondDataSource)).isSameAs(this.second);
+    assertThat(provider.getDataSourcePoolMetadata(this.unknownDataSource)).isNull();
+  }
+
+  @Test
+  void returnsMetadataFromFirstProviderThatMatches() {
+    given(this.firstProvider.getDataSourcePoolMetadata(this.unknownDataSource)).willReturn(null);
+    given(this.secondProvider.getDataSourcePoolMetadata(this.unknownDataSource)).willReturn(this.second);
+
+    infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider provider = new infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider(
+            Arrays.asList(this.firstProvider, this.secondProvider));
+
+    assertThat(provider.getDataSourcePoolMetadata(this.unknownDataSource)).isSameAs(this.second);
+  }
+
+  @Test
+  void handlesNullProviders() {
+    infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider provider = new infra.jdbc.metadata.CompositeDataSourcePoolMetadataProvider(null);
+
     assertThat(provider.getDataSourcePoolMetadata(this.unknownDataSource)).isNull();
   }
 

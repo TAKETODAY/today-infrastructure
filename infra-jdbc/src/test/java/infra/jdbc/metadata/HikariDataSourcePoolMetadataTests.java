@@ -20,6 +20,8 @@ package infra.jdbc.metadata;
 
 import com.zaxxer.hikari.HikariDataSource;
 
+import org.junit.jupiter.api.Test;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -39,6 +41,7 @@ public class HikariDataSourcePoolMetadataTests
   }
 
   @Override
+  @Test
   public void getValidationQuery() {
     HikariDataSource dataSource = createDataSource(0, 4);
     dataSource.setConnectionTestQuery("SELECT FROM FOO");
@@ -46,10 +49,24 @@ public class HikariDataSourcePoolMetadataTests
   }
 
   @Override
+  @Test
   public void getDefaultAutoCommit() {
     HikariDataSource dataSource = createDataSource(0, 4);
     dataSource.setAutoCommit(false);
     assertThat(new infra.jdbc.metadata.HikariDataSourcePoolMetadata(dataSource).getDefaultAutoCommit()).isFalse();
+  }
+
+  @Test
+  void returnsNullWhenPoolIsNotInitialized() {
+    HikariDataSource dataSource = new HikariDataSource();
+    try {
+      infra.jdbc.metadata.HikariDataSourcePoolMetadata metadata = new infra.jdbc.metadata.HikariDataSourcePoolMetadata(dataSource);
+      assertThat(metadata.getActive()).isNull();
+      assertThat(metadata.getIdle()).isNull();
+    }
+    finally {
+      dataSource.close();
+    }
   }
 
   private HikariDataSource createDataSource(int minSize, int maxSize) {

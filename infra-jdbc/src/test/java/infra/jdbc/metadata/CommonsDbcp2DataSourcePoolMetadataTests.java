@@ -68,6 +68,7 @@ class CommonsDbcp2DataSourcePoolMetadataTests extends AbstractDataSourcePoolMeta
   }
 
   @Override
+  @Test
   public void getValidationQuery() {
     BasicDataSource dataSource = createDataSource();
     dataSource.setValidationQuery("SELECT FROM FOO");
@@ -76,6 +77,7 @@ class CommonsDbcp2DataSourcePoolMetadataTests extends AbstractDataSourcePoolMeta
   }
 
   @Override
+  @Test
   public void getDefaultAutoCommit() {
     BasicDataSource dataSource = createDataSource();
     dataSource.setDefaultAutoCommit(false);
