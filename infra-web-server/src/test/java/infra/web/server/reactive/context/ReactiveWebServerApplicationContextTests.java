@@ -25,6 +25,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import infra.context.availability.AvailabilityChangeEvent;
 import infra.context.availability.ReadinessState;
@@ -37,14 +38,19 @@ import infra.context.event.ContextClosedEvent;
 import infra.context.event.ContextRefreshedEvent;
 import infra.core.env.ConfigurableEnvironment;
 import infra.http.reactive.server.HttpHandler;
+import infra.http.reactive.server.ServerHttpRequest;
+import infra.http.reactive.server.ServerHttpResponse;
 import infra.web.server.MissingWebServerFactoryBeanException;
 import infra.web.server.context.ServerPortInfoApplicationContextInitializer;
 import infra.web.server.reactive.MockReactiveWebServerFactory;
+import reactor.core.publisher.Mono;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
 /**
@@ -130,6 +136,43 @@ class ReactiveWebServerApplicationContextTests {
     ConfigurableEnvironment environment = this.context.getEnvironment();
     assertThat(environment.containsProperty("local.server.port")).isTrue();
     assertThat(environment.getProperty("local.server.port")).isEqualTo("8080");
+  }
+
+  @Test
+  void whenFactoryIsLazyThenFirstRequestInitializesAndInvokesHttpHandler() {
+    addWebServerFactoryBean();
+    this.context.getBeanFactory().getBeanDefinition("webServerFactory").setLazyInit(true);
+    ServerHttpRequest request = mock(ServerHttpRequest.class);
+    ServerHttpResponse response = mock(ServerHttpResponse.class);
+    HttpHandler target = mock(HttpHandler.class);
+    given(target.handle(request, response)).willReturn(Mono.empty());
+    AtomicInteger creations = new AtomicInteger();
+    this.context.registerBean("httpHandler", HttpHandler.class, () -> {
+      creations.incrementAndGet();
+      return target;
+    });
+    this.context.getBeanFactory().getBeanDefinition("httpHandler").setLazyInit(true);
+
+    this.context.refresh();
+
+    HttpHandler handler = this.context.getBean(MockReactiveWebServerFactory.class).getWebServer().getHttpHandler();
+    assertThat(creations).hasValue(0);
+    handler.handle(request, response).block();
+    assertThat(creations).hasValue(1);
+    then(target).should().handle(request, response);
+  }
+
+  @Test
+  void whenContextIsNamespacedThenItsPortIsAvailableUnderThatNamespace() {
+    addWebServerFactoryBean();
+    addHttpHandlerBean();
+    this.context.setServerNamespace("management");
+    new ServerPortInfoApplicationContextInitializer().initialize(this.context);
+
+    this.context.refresh();
+
+    assertThat(this.context.getEnvironment().getProperty("local.management.port")).isEqualTo("8080");
+    assertThat(this.context.getEnvironment().containsProperty("local.server.port")).isFalse();
   }
 
   @Test
