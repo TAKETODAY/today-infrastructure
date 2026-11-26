@@ -51,14 +51,20 @@ public abstract class RequestThreadLocal {
   public abstract void set(@Nullable ServerHttpExchange exchange);
 
   /**
-   * Static factory method to lookup and create an appropriate RequestThreadLocal instance.
+   * Look up the {@link RequestThreadLocal} implementation to use.
    * <p>
-   * This method first attempts to find an implementation via {@link InfraStrategies}.
-   * If none is found, it checks for the presence of Netty's FastThreadLocal class.
-   * If available, it returns a Netty-based implementation; otherwise, it falls back
-   * to a default implementation using NamedThreadLocal.
+   * Implementations are discovered through {@link InfraStrategies}, i.e. by
+   * declaring a {@code RequestThreadLocal} entry in
+   * {@code META-INF/infra.strategies}; the first registered implementation wins.
+   * If none is registered, this method falls back to {@link Default}, which is
+   * backed by a {@link NamedThreadLocal}.
+   * <p>
+   * The lookup is performed on every invocation, so callers should cache the
+   * returned instance (as {@link HttpExchangeHolder} does) instead of calling
+   * this method on each access.
    *
-   * @return an appropriate RequestThreadLocal instance
+   * @return the first registered {@link RequestThreadLocal} implementation,
+   * or a {@link Default} instance if none is registered
    */
   public static RequestThreadLocal lookup() {
     RequestThreadLocal ret = InfraStrategies.findFirst(RequestThreadLocal.class, null);

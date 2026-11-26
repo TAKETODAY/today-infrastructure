@@ -29,13 +29,13 @@ import org.jspecify.annotations.Nullable;
  */
 public abstract class HttpExchangeHolder {
 
-  private static final RequestThreadLocal contextHolder = RequestThreadLocal.lookup();
+  private static final RequestThreadLocal holder = RequestThreadLocal.lookup();
 
   /**
    * Reset the {@link ServerHttpExchange} for the current thread.
    */
   public static void cleanup() {
-    contextHolder.remove();
+    holder.remove();
   }
 
   /**
@@ -44,7 +44,7 @@ public abstract class HttpExchangeHolder {
    * @param exchange the exchange to bind, or {@code null} to reset the thread-local
    */
   public static void set(@Nullable ServerHttpExchange exchange) {
-    contextHolder.set(exchange);
+    holder.set(exchange);
   }
 
   /**
@@ -53,7 +53,7 @@ public abstract class HttpExchangeHolder {
    * @return the current exchange, or {@code null} if none is bound
    */
   public static @Nullable ServerHttpExchange current() {
-    return contextHolder.get();
+    return holder.get();
   }
 
   /**
@@ -63,9 +63,10 @@ public abstract class HttpExchangeHolder {
    * @throws IllegalStateException if no exchange is bound to the current thread
    */
   public static ServerHttpExchange required() {
-    ServerHttpExchange exchange = contextHolder.get();
+    ServerHttpExchange exchange = holder.get();
     if (exchange == null) {
-      throw new IllegalStateException("No ServerHttpExchange set");
+      throw new IllegalStateException("No ServerHttpExchange bound to the current thread [%s]; the exchange is thread-bound and must be propagated to async tasks"
+              .formatted(Thread.currentThread().getName()));
     }
     return exchange;
   }

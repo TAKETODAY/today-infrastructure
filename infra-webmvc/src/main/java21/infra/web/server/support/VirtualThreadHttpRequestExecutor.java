@@ -31,11 +31,11 @@ public class VirtualThreadHttpRequestExecutor implements HttpRequestExecutor {
   /**
    * Execute the given command using a virtual thread.
    *
-   * @param ctx the request context
+   * @param exchange the request context
    * @param command the command to execute
    */
   @Override
-  public void execute(ServerHttpExchange ctx, Runnable command) {
+  public void execute(ServerHttpExchange exchange, Runnable command) {
     Thread.startVirtualThread(command);
   }
 

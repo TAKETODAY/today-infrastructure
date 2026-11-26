@@ -42,10 +42,10 @@ public interface HttpRequestExecutor {
    * may execute in a new thread, in a pooled thread, or in the calling
    * thread, at the discretion of the {@code Executor} implementation.
    *
-   * @param ctx the request context
+   * @param exchange the exchange
    * @param command the runnable task
    * @throws IOException if an I/O error occurs during execution
    */
-  void execute(ServerHttpExchange ctx, Runnable command) throws IOException;
+  void execute(ServerHttpExchange exchange, Runnable command) throws IOException;
 
 }

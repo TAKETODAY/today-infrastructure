@@ -48,18 +48,18 @@ public class SimpleHttpRequestExecutor implements HttpRequestExecutor {
    * Execute the given command using the configured executor.
    * If the executor rejects the task, set status to 503 SERVICE UNAVAILABLE.
    *
-   * @param ctx the request context
+   * @param exchange the request context
    * @param command the command to execute
    * @throws IOException if an I/O error occurs
    */
   @Override
-  public void execute(ServerHttpExchange ctx, Runnable command) throws IOException {
+  public void execute(ServerHttpExchange exchange, Runnable command) throws IOException {
     try {
       executor.execute(command);
     }
     catch (RejectedExecutionException e) {
-      ctx.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
-      ctx.flush();
+      exchange.setStatus(HttpStatus.SERVICE_UNAVAILABLE);
+      exchange.flush();
     }
   }
 
