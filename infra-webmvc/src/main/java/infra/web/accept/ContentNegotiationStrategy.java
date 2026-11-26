@@ -22,8 +22,8 @@ import java.util.Collections;
 import java.util.List;
 
 import infra.http.MediaType;
-import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
+import infra.web.ServerHttpExchange;
 
 /**
  * A strategy for resolving the requested media types for a request.

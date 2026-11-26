@@ -19,8 +19,8 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 
 import infra.core.NamedThreadLocal;
-import infra.util.InfraStrategies;
 import infra.lang.VisibleForTesting;
+import infra.util.InfraStrategies;
 
 /**
  * Abstract base class for managing request context in a thread-local manner.

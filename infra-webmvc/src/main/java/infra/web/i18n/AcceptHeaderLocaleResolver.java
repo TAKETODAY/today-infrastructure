@@ -25,8 +25,8 @@ import java.util.List;
 import java.util.Locale;
 
 import infra.util.StringUtils;
-import infra.web.ServerHttpExchange;
 import infra.web.LocaleResolver;
+import infra.web.ServerHttpExchange;
 
 /**
  * {@link LocaleResolver} implementation that looks for a match between locales

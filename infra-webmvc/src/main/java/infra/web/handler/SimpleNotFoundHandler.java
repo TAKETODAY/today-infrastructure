@@ -19,8 +19,8 @@ package infra.web.handler;
 import java.io.IOException;
 
 import infra.http.HttpStatus;
-import infra.web.ServerHttpExchange;
 import infra.web.NotFoundHandler;
+import infra.web.ServerHttpExchange;
 
 /**
  * A simple implementation of {@link NotFoundHandler} that handles requests

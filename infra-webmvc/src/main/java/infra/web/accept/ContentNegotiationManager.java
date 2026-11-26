@@ -33,8 +33,8 @@ import java.util.function.Function;
 import infra.http.MediaType;
 import infra.util.Assert;
 import infra.util.CollectionUtils;
-import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
+import infra.web.ServerHttpExchange;
 
 /**
  * Central class to determine requested {@linkplain MediaType media types}

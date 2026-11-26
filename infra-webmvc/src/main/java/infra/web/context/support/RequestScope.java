@@ -22,8 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
+import infra.web.ServerHttpExchange;
 
 /**
  * RequestScope beans just available in current {@link ServerHttpExchange}

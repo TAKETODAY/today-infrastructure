@@ -26,8 +26,8 @@ import infra.http.MediaType;
 import infra.util.CollectionUtils;
 import infra.util.InvalidMimeTypeException;
 import infra.util.MimeTypeUtils;
-import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
+import infra.web.ServerHttpExchange;
 
 /**
  * A {@code ContentNegotiationStrategy} that checks the 'Accept' request header.

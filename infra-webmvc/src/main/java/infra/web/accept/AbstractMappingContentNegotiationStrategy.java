@@ -28,8 +28,8 @@ import java.util.Optional;
 import infra.http.MediaType;
 import infra.http.MediaTypeFactory;
 import infra.util.StringUtils;
-import infra.web.ServerHttpExchange;
 import infra.web.HttpMediaTypeNotAcceptableException;
+import infra.web.ServerHttpExchange;
 
 /**
  * Base class for {@code ContentNegotiationStrategy} implementations with the

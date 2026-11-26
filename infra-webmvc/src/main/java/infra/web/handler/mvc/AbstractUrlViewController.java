@@ -18,8 +18,8 @@
 
 package infra.web.handler.mvc;
 
-import infra.web.ServerHttpExchange;
 import infra.web.RedirectModel;
+import infra.web.ServerHttpExchange;
 import infra.web.view.ModelAndView;
 
 /**

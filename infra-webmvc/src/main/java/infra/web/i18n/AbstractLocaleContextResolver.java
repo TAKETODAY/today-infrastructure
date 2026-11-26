@@ -24,8 +24,8 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import infra.core.i18n.SimpleLocaleContext;
-import infra.web.ServerHttpExchange;
 import infra.web.LocaleContextResolver;
+import infra.web.ServerHttpExchange;
 
 /**
  * Abstract base class for {@link LocaleContextResolver} implementations.

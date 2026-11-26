@@ -938,7 +938,7 @@ public class DispatcherHandler extends WebLifecycleManager {
   /**
    * Determine whether the request expects a 100 Continue response.
    *
-   * @param request current request
+   * @param exchange current request
    * @return {@code true} if the request expects a 100 Continue response,
    * {@code false} if it does not, or {@code null} if uncertain
    * @since 5.0

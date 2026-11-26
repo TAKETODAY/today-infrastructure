@@ -29,9 +29,9 @@ import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import infra.beans.factory.InitializingBean;
 import infra.context.ResourceLoaderAware;
-import infra.util.Assert;
 import infra.ui.freemarker.FreeMarkerConfigurationFactory;
 import infra.ui.freemarker.FreeMarkerConfigurationFactoryBean;
+import infra.util.Assert;
 
 /**
  * Bean to configure FreeMarker for web usage, via the "configLocation",

@@ -25,8 +25,8 @@ import java.util.function.Supplier;
 import infra.beans.factory.config.ConfigurableBeanFactory;
 import infra.session.Session;
 import infra.web.AbstractDelegatingServerHttpExchange;
-import infra.web.ServerHttpExchange;
 import infra.web.HttpContextHolder;
+import infra.web.ServerHttpExchange;
 
 /**
  * Registers web scopes and injectable request-context dependencies with a BeanFactory.

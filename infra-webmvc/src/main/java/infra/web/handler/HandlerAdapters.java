@@ -21,8 +21,8 @@ import org.jspecify.annotations.Nullable;
 import infra.util.Assert;
 import infra.web.HandlerAdapter;
 import infra.web.HandlerAdapterNotFoundException;
-import infra.web.ServerHttpExchange;
 import infra.web.HttpRequestHandler;
+import infra.web.ServerHttpExchange;
 
 /**
  * composite HandlerAdapter

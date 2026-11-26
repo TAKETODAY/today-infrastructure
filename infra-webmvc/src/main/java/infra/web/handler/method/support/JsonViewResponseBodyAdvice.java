@@ -30,6 +30,7 @@ import infra.http.MediaType;
 import infra.http.converter.HttpMessageConverter;
 import infra.http.converter.SmartHttpMessageConverter;
 import infra.util.Assert;
+import infra.web.handler.method.ResponseBodyAdvice;
 
 /**
  * A {@link ResponseBodyAdvice} implementation that adds support for Jackson's
