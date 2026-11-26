@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
+import infra.web.HttpContext;
 import infra.core.ResolvableType;
 import infra.http.MediaType;
 import infra.http.ResponseEntity;
@@ -117,6 +118,36 @@ class ResponseBodyEmitterReturnValueHandlerTests {
 
     assertThat(this.handler.supportsHandler(
             on(TestController.class).resolveHandlerMethod(ResponseEntity.class))).isFalse();
+  }
+
+  @Test
+  void notifiesEmitterWhenAsyncStartupFails() throws Exception {
+    HttpContext context = mock(HttpContext.class);
+    IllegalStateException failure = new IllegalStateException("async unavailable");
+    Mockito.when(context.asyncManager()).thenThrow(failure);
+    ResponseBodyEmitter emitter = forChunkedTransferEncoding();
+    AtomicReference<Throwable> notification = new AtomicReference<>();
+    emitter.onError(notification::set);
+    emitter.send("buffered");
+
+    org.assertj.core.api.Assertions.assertThatThrownBy(() -> handler.handleReturnValue(context, null, emitter))
+            .isSameAs(failure);
+
+    assertThat(notification.get()).isSameAs(failure);
+    org.assertj.core.api.Assertions.assertThatIllegalStateException()
+            .isThrownBy(() -> emitter.send(List.of(new ResponseBodyEmitter.DataWithMediaType("late", MediaType.TEXT_PLAIN))))
+            .withMessageContaining("async unavailable");
+  }
+
+  @Test
+  void handlesNullAndRecognizesAnEmitterWithoutAHandlerMethod() throws Exception {
+    HttpContext context = mock(HttpContext.class);
+    assertThat(handler.supportsHandler(new Object(), forChunkedTransferEncoding())).isTrue();
+    assertThat(handler.supportsHandler(new Object(), "not an emitter")).isFalse();
+
+    handler.handleReturnValue(context, null, null);
+
+    Mockito.verifyNoInteractions(context);
   }
 
   @Test

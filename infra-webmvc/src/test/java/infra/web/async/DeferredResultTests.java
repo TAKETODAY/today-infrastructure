@@ -21,14 +21,67 @@ package infra.web.async;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
  * @since 4.0 2022/10/21 19:00
  */
 class DeferredResultTests {
+
+  @Test
+  void ignoresHandlerRegisteredAfterCompletion() throws Exception {
+    DeferredResult<String> result = new DeferredResult<>();
+    result.createInterceptor().afterCompletion(null, result);
+    DeferredResultHandler handler = mock(DeferredResultHandler.class);
+
+    result.setResultHandler(handler);
+
+    assertThat(result.setResult("late")).isFalse();
+    assertThat(result.hasResult()).isFalse();
+    verifyNoInteractions(handler);
+  }
+
+  @Test
+  void retainsExistingResultWhenLateHandlerThrows() {
+    var result = new DeferredResult<String>();
+    assertThat(result.setResult("ready")).isTrue();
+    DeferredResultHandler handler = mock(DeferredResultHandler.class);
+    willThrow(new IllegalStateException("handler failure")).given(handler).handleResult("ready");
+
+    result.setResultHandler(handler);
+
+    assertThat(result.getResult()).isEqualTo("ready");
+    verify(handler).handleResult("ready");
+  }
+
+  @Test
+  void retainsTimeoutResultWhenHandlerThrows() throws Exception {
+    var result = new DeferredResult<String>(null, "fallback");
+    DeferredResultHandler handler = mock(DeferredResultHandler.class);
+    willThrow(new IllegalStateException("handler failure")).given(handler).handleResult("fallback");
+    result.setResultHandler(handler);
+
+    assertThat(result.createInterceptor().handleTimeout(null, result)).isFalse();
+    assertThat(result.getResult()).isEqualTo("fallback");
+    verify(handler).handleResult("fallback");
+  }
+
+  @Test
+  void retainsRequestErrorWhenHandlerThrows() throws Exception {
+    var result = new DeferredResult<String>();
+    Exception requestError = new Exception("request failure");
+    DeferredResultHandler handler = mock(DeferredResultHandler.class);
+    willThrow(new IllegalStateException("handler failure")).given(handler).handleResult(requestError);
+    result.setResultHandler(handler);
+
+    assertThat(result.createInterceptor().handleError(null, result, requestError)).isFalse();
+    assertThat(result.getResult()).isSameAs(requestError);
+    verify(handler).handleResult(requestError);
+  }
 
   @Test
   public void setResult() {

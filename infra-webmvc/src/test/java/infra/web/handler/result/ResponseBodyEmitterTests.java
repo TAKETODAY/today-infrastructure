@@ -25,6 +25,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.List;
 import java.util.function.Consumer;
 
 import infra.http.HttpHeaders;
@@ -132,6 +134,30 @@ class ResponseBodyEmitterTests {
   void sendFailsAfterComplete() {
     this.emitter.complete();
     assertThatIllegalStateException().isThrownBy(() -> this.emitter.send("foo"));
+  }
+
+  @Test
+  void batchSendPreservesIoFailureAndWrapsOtherFailures() throws Exception {
+    this.emitter.initialize(this.handler);
+    var batch = List.of(new ResponseBodyEmitter.DataWithMediaType("sample", MediaType.TEXT_PLAIN));
+    IOException ioFailure = new IOException("write failed");
+    IllegalArgumentException otherFailure = new IllegalArgumentException("conversion failed");
+    willThrow(ioFailure, otherFailure).given(this.handler).send(batch);
+
+    assertThatIOException().isThrownBy(() -> this.emitter.send(batch)).isSameAs(ioFailure);
+    assertThatIllegalStateException().isThrownBy(() -> this.emitter.send(batch)).withCause(otherFailure);
+  }
+
+  @Test
+  void createsChunkedEmitterWithBothTimeoutAndContentType() {
+    HttpContext context = mock();
+    Duration timeout = Duration.ofSeconds(2);
+    ResponseBodyEmitter configured = ResponseBodyEmitter.forChunkedTransferEncoding(timeout, MediaType.TEXT_PLAIN);
+
+    configured.extendResponse(context);
+
+    assertThat(configured.getTimeout()).isEqualTo(timeout);
+    verify(context).setContentType(MediaType.TEXT_PLAIN);
   }
 
   @Test

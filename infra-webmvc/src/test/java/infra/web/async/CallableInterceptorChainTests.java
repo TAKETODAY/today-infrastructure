@@ -20,18 +20,59 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.concurrent.Callable;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
 import infra.web.HttpContext;
 import infra.web.mock.MockHttpContext;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">海子 Yang</a>
  * @since 5.0 2025/10/10 15:41
  */
 class CallableInterceptorChainTests {
+
+  @Test
+  void stopsTimeoutInterceptorsWhenResponseIsHandledEvenIfCancellationFails() throws Exception {
+    var request = new MockHttpContext();
+    Callable<String> task = () -> "unused";
+    Future<?> future = mock(Future.class);
+    given(future.cancel(true)).willThrow(new IllegalStateException("cannot cancel"));
+    CallableProcessingInterceptor first = mock(CallableProcessingInterceptor.class);
+    CallableProcessingInterceptor second = mock(CallableProcessingInterceptor.class);
+    given(first.handleTimeout(request, task)).willReturn(CallableProcessingInterceptor.RESPONSE_HANDLED);
+    var interceptors = new ArrayList<CallableProcessingInterceptor>();
+    interceptors.add(first);
+    interceptors.add(second);
+    var chain = new CallableInterceptorChain(interceptors);
+    chain.setTaskFuture(future);
+
+    assertThat(chain.triggerAfterTimeout(request, task)).isSameAs(CallableProcessingInterceptor.RESULT_NONE);
+    then(future).should().cancel(true);
+    then(second).shouldHaveNoInteractions();
+  }
+
+  @Test
+  void stopsErrorInterceptorsWhenResponseIsHandled() throws Exception {
+    var request = new MockHttpContext();
+    Callable<String> task = () -> "unused";
+    Exception failure = new Exception("request failure");
+    CallableProcessingInterceptor first = mock(CallableProcessingInterceptor.class);
+    CallableProcessingInterceptor second = mock(CallableProcessingInterceptor.class);
+    given(first.handleError(request, task, failure)).willReturn(CallableProcessingInterceptor.RESPONSE_HANDLED);
+    var interceptors = new ArrayList<CallableProcessingInterceptor>();
+    interceptors.add(first);
+    interceptors.add(second);
+    var chain = new CallableInterceptorChain(interceptors);
+
+    assertThat(chain.triggerAfterError(request, task, failure)).isSameAs(CallableProcessingInterceptor.RESULT_NONE);
+    then(second).shouldHaveNoInteractions();
+  }
 
   @Test
   void setTaskFutureStoresFuture() throws Exception {
