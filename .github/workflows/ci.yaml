@@ -51,7 +51,7 @@ concurrency:
 
 jobs:
   check:
-    if: github.repository_owner == 'TAKETODAY'
+    if: github.repository_owner == 'today-tech'
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
     strategy:

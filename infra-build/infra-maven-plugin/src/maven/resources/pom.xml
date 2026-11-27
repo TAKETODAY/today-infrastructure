@@ -12,7 +12,7 @@
 
   <name>Maven plugin for Today Infrastructure Applications</name>
 
-  <url>https://github.com/TAKETODAY/today-infrastructure</url>
+  <url>https://github.com/today-tech/today-infrastructure</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -42,14 +42,14 @@
   </developers>
 
   <scm>
-    <url>https://github.com/TAKETODAY/today-infrastructure.git</url>
+    <url>https://github.com/today-tech/today-infrastructure.git</url>
     <developerConnection>Harry Yang</developerConnection>
     <tag>dependency-injection, aspect-oriented-programing, web-framework</tag>
   </scm>
 
   <issueManagement>
     <system>Github Issues</system>
-    <url>https://github.com/TAKETODAY/today-infrastructure/issues</url>
+    <url>https://github.com/today-tech/today-infrastructure/issues</url>
   </issueManagement>
 
   <build>

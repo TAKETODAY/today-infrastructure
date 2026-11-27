@@ -13,7 +13,7 @@ permissions:
 jobs:
   build-and-stage-release:
     name: Build and Stage Release
-    if: github.repository_owner == 'TAKETODAY'
+    if: github.repository_owner == 'today-tech'
     runs-on: 'ubuntu-latest'
     steps:
       - name: Checkout project sources
@@ -62,7 +62,7 @@ jobs:
   await-release-sync:
     name: Await Release Sync
     timeout-minutes: 60
-    if: github.repository_owner == 'TAKETODAY'
+    if: github.repository_owner == 'today-tech'
     needs:
       - build-and-stage-release
       - publish-gradle-plugin
@@ -101,7 +101,7 @@ jobs:
 
   publish-gradle-plugin:
     name: Publish Gradle Plugin
-    if: github.repository_owner == 'TAKETODAY'
+    if: github.repository_owner == 'today-tech'
     needs:
       - build-and-stage-release
     runs-on: 'ubuntu-latest'

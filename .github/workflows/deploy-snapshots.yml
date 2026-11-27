@@ -29,7 +29,7 @@ permissions:
 
 jobs:
   deploy-snapshot:
-    if: github.repository_owner == 'TAKETODAY'
+    if: github.repository_owner == 'today-tech'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout project sources

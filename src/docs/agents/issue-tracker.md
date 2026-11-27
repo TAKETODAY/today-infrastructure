@@ -1,8 +1,8 @@
 # Issue tracker: GitHub
 
-本仓库的任务与规格存放在 `TAKETODAY/today-infrastructure` 的 GitHub Issues。
+本仓库的任务与规格存放在 `today-tech/today-infrastructure` 的 GitHub Issues。
 所有操作使用 `gh` CLI；下列命令在仓库目录执行，由远程配置识别仓库。
-在其他目录执行时，显式指定 `--repo TAKETODAY/today-infrastructure`。
+在其他目录执行时，显式指定 `--repo today-tech/today-infrastructure`。
 
 ## 常用操作
 
@@ -32,13 +32,13 @@ GitHub 的 Issue 与 PR 共享编号空间；编号类型不明确时，
 - `gh` 2.94+ 可通过 `gh issue create --parent <parent> ...`
   或 `gh issue edit <parent> --add-sub-issue <child>` 建立子任务。
 - 旧版 CLI 使用 GitHub API：
-  `gh api --method POST repos/TAKETODAY/today-infrastructure/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>`。
+  `gh api --method POST repos/today-tech/today-infrastructure/issues/<parent>/sub_issues -F sub_issue_id=<child-db-id>`。
 - 子任务不可用时，在子任务正文开头写 `Part of #<parent>`，
   并在父任务正文维护任务列表。
 - 阻塞关系优先使用 GitHub 原生 Issue dependencies：
-  `gh api --method POST repos/TAKETODAY/today-infrastructure/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>`。
+  `gh api --method POST repos/today-tech/today-infrastructure/issues/<child>/dependencies/blocked_by -F issue_id=<blocker-db-id>`。
 - 数据库 ID 通过
-  `gh api repos/TAKETODAY/today-infrastructure/issues/<number> --jq .id`
+  `gh api repos/today-tech/today-infrastructure/issues/<number> --jq .id`
   获取，区别于 Issue 编号及 `node_id`。
 - 原生依赖不可用时，在任务正文开头写 `Blocked by: #<n>, #<n>`。
   所有阻塞任务关闭后，该任务才可开始。

@@ -98,7 +98,7 @@ Java 基础设施库，移植/演进自 Spring Framework（group `cn.taketoday`�
 
 ### Issue tracker
 
-任务与规格使用 `TAKETODAY/today-infrastructure` 的 GitHub Issues；读写任务前参阅 `src/docs/agents/issue-tracker.md`。
+任务与规格使用 `today-tech/today-infrastructure` 的 GitHub Issues；读写任务前参阅 `src/docs/agents/issue-tracker.md`。
 
 ### Triage labels
 

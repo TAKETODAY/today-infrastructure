@@ -49,7 +49,7 @@ concurrency:
 
 jobs:
   code-coverage:
-    if: github.repository_owner == 'TAKETODAY'
+    if: github.repository_owner == 'today-tech'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:

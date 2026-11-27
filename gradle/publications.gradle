@@ -5,7 +5,7 @@ apply plugin: "maven-publish"
 //  repositories {
 //    maven {
 //      name = "GitHubPackages"
-//      url = "https://maven.pkg.github.com/TAKETODAY/today-infrastructure"
+//      url = "https://maven.pkg.github.com/today-tech/today-infrastructure"
 //      credentials {
 //        username = System.getenv("GITHUB_ACTOR")
 //        password = System.getenv("GITHUB_TOKEN")
@@ -24,7 +24,7 @@ publishing.publications.withType(MavenPublication.class).configureEach {
   pom {
     name = publicationName
     description = publicationDescription
-    url = "https://github.com/TAKETODAY/today-infrastructure"
+    url = "https://github.com/today-tech/today-infrastructure"
     organization {
       name = "TODAY Tech"
       url = "https://taketoday.cn"
@@ -37,9 +37,9 @@ publishing.publications.withType(MavenPublication.class).configureEach {
       }
     }
     scm {
-      url = "https://github.com/TAKETODAY/today-infrastructure.git"
-      connection = "scm:git:git://github.com/TAKETODAY/today-infrastructure"
-      developerConnection = "scm:git:git://github.com/TAKETODAY/today-infrastructure"
+      url = "https://github.com/today-tech/today-infrastructure.git"
+      connection = "scm:git:git://github.com/today-tech/today-infrastructure"
+      developerConnection = "scm:git:git://github.com/today-tech/today-infrastructure"
     }
     developers {
       developer {
@@ -50,7 +50,7 @@ publishing.publications.withType(MavenPublication.class).configureEach {
     }
     issueManagement {
       system = "GitHub"
-      url = "https://github.com/TAKETODAY/today-infrastructure/issues"
+      url = "https://github.com/today-tech/today-infrastructure/issues"
     }
   }
   versionMapping {

@@ -5,17 +5,17 @@
 ![Logo](./logo.svg) A modular Java application framework with dependency injection, auto-configuration, Web MVC, Netty and DATA Access support.
 
 ![Java17](https://img.shields.io/badge/JDK-17+-success.svg)
-[![Apache License 2.0](https://img.shields.io/github/license/TAKETODAY/today-infrastructure?color=blue)](./LICENSE)
-[![Deploy](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/deploy-snapshots.yml)
-[![Codecov](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/codecov.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/codecov.yaml)
-[![Coveralls](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/coveralls.yaml)
-[![CI](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml)
+[![Apache License 2.0](https://img.shields.io/github/license/today-tech/today-infrastructure?color=blue)](./LICENSE)
+[![Deploy](https://github.com/today-tech/today-infrastructure/actions/workflows/deploy-snapshots.yml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/deploy-snapshots.yml)
+[![Codecov](https://github.com/today-tech/today-infrastructure/actions/workflows/codecov.yaml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/codecov.yaml)
+[![Coveralls](https://github.com/today-tech/today-infrastructure/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/coveralls.yaml)
+[![CI](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://app.codacy.com/gh/TAKETODAY/today-infrastructure/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
 [![Coverage Status](https://codecov.io/gh/TAKETODAY/today-infrastructure/branch/master/graph/badge.svg?token=OUMKSYNTDC)](https://codecov.io/gh/TAKETODAY/today-infrastructure)
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
 
-[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [AI 辅助开发](#ai-辅助开发) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/TAKETODAY/today-infrastructure/discussions)
+[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [AI 辅助开发](#ai-辅助开发) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/today-tech/today-infrastructure/discussions)
 
 ## 概述
 
@@ -277,7 +277,7 @@ dependencies {
 - **框架源码构建 toolchain**：与示例应用运行环境不同，完整源码构建的 JDK 要求见项目构建配置，不在快速开始中推导。
 
 ```bash
-git clone https://github.com/TAKETODAY/today-infrastructure.git
+git clone https://github.com/today-tech/today-infrastructure.git
 cd today-infrastructure/infra-samples
 ./gradlew infraRun --args='--server.port=8080'
 ```
@@ -411,7 +411,7 @@ cd today-infra-skill
 - 讨论 Web 和模块设计；
 - 提交 Bug 修复或功能改进。
 
-开始贡献前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。建议先查看带有 [`good first issue`](https://github.com/TAKETODAY/today-infrastructure/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) 标签的 Issue。
+开始贡献前请阅读 [CONTRIBUTING.md](CONTRIBUTING.md)。建议先查看带有 [`good first issue`](https://github.com/today-tech/today-infrastructure/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22) 标签的 Issue。
 
 
 ## ⚡ 性能表现
@@ -491,7 +491,7 @@ Native Image 测试还需记录 GraalVM 版本、构建参数和可执行文件�
 * [Spring Framework](https://github.com/spring-projects/spring-framework)
 * [Spring Boot](https://github.com/spring-projects/spring-boot)
 * [ASM Bytecode Manipulation Framework](https://asm.ow2.io/)
-* [JetBrains](https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure): 感谢 JetBrains 提供免费 IDE 开源授权
+* [JetBrains](https://www.jetbrains.com/?from=https://github.com/today-tech/today-infrastructure): 感谢 JetBrains 提供免费 IDE 开源授权
 
 ## 📄 开源协议
 

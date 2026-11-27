@@ -7,10 +7,10 @@
 A modular Java application framework with dependency injection, auto-configuration, Web MVC, Netty and data access support.
 
 ![Java 17+](https://img.shields.io/badge/JDK-17+-success.svg)
-[![Apache License 2.0](https://img.shields.io/github/license/TAKETODAY/today-infrastructure?color=blue)](LICENSE)
-[![CI](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/TAKETODAY/today-infrastructure/actions/workflows/ci.yaml)
+[![Apache License 2.0](https://img.shields.io/github/license/today-tech/today-infrastructure?color=blue)](LICENSE)
+[![CI](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml)
 
-[Quick start](#quick-start) · [Project setup](#project-setup) · [Real-world application](#real-world-application-today-blog) · [Documentation](https://docs.today-tech.cn/today-infrastructure/) · [AI-assisted development](#ai-assisted-development) · [Samples](infra-samples) · [Contributing](#contributing) · [Discussions](https://github.com/TAKETODAY/today-infrastructure/discussions)
+[Quick start](#quick-start) · [Project setup](#project-setup) · [Real-world application](#real-world-application-today-blog) · [Documentation](https://docs.today-tech.cn/today-infrastructure/) · [AI-assisted development](#ai-assisted-development) · [Samples](infra-samples) · [Contributing](#contributing) · [Discussions](https://github.com/today-tech/today-infrastructure/discussions)
 
 ## Overview
 
@@ -93,7 +93,7 @@ Runtime requirements:
 - **Framework source build toolchain**: building the full source tree has its own JDK requirements and is separate from running the sample; see the project build configuration rather than the quick start.
 
 ```bash
-git clone https://github.com/TAKETODAY/today-infrastructure.git
+git clone https://github.com/today-tech/today-infrastructure.git
 cd today-infrastructure/infra-samples
 ./gradlew :netty-app:infraRun --args='--server.port=8080'
 ```
@@ -223,7 +223,7 @@ Contributions can include:
 - Discussing framework design and module boundaries.
 - Fixing bugs and proposing improvements.
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing. Browse [good first issues](https://github.com/TAKETODAY/today-infrastructure/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22), report problems in [Issues](https://github.com/TAKETODAY/today-infrastructure/issues), or join [Discussions](https://github.com/TAKETODAY/today-infrastructure/discussions).
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before contributing. Browse [good first issues](https://github.com/today-tech/today-infrastructure/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22), report problems in [Issues](https://github.com/today-tech/today-infrastructure/issues), or join [Discussions](https://github.com/today-tech/today-infrastructure/discussions).
 
 ## Performance measurements
 

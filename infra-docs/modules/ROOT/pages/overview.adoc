@@ -49,7 +49,7 @@ https://github.com/TAKETODAY/today-blog[today-blog]
 == 反馈和贡献
 
 如果您相当确定框架中存在问题或想要建议某个功能，
-请使用 https://github.com/TAKETODAY/today-infrastructure/issues/new[GitHub Issues]。
+请使用 https://github.com/today-tech/today-infrastructure/issues/new[GitHub Issues]。
 
 如果您有解决方案或建议的修复方案，您可以在 Github 上提交 PR。
 
@@ -59,8 +59,8 @@ https://github.com/TAKETODAY/today-blog[today-blog]
 
 * https://github.com/spring-projects/spring-framework[Spring Framework]
 * https://github.com/spring-projects/spring-boot[Spring Boot]
-* 感谢 https://www.jetbrains.com/?from=https://github.com/TAKETODAY/today-infrastructure[Jetbrains] 提供免费 IDE 开源授权
+* 感谢 https://www.jetbrains.com/?from=https://github.com/today-tech/today-infrastructure[Jetbrains] 提供免费 IDE 开源授权
 
 == 📄 开源协议
 
-使用 https://github.com/TAKETODAY/today-infrastructure/blob/master/LICENSE[Apache License 2.0] 开源协议
+使用 https://github.com/today-tech/today-infrastructure/blob/master/LICENSE[Apache License 2.0] 开源协议
