@@ -86,16 +86,21 @@ class PropertySourceOriginTests {
             withSettings().extraInterfaces(OriginLookup.class));
     OriginLookup<String> originCapablePropertySource = (OriginLookup<String>) propertySource;
     given(originCapablePropertySource.getOrigin("foo")).willReturn(origin);
+    Origin parent = MockOrigin.of("import");
+    given(origin.getParent()).willReturn(parent);
     Origin actual = PropertySourceOrigin.get(propertySource, "foo");
     assertThat(actual).hasToString(origin.toString());
     assertThat(((PropertySourceOrigin) actual).getOrigin()).isSameAs(origin);
+    assertThat(actual.getParent()).isSameAs(parent);
   }
 
   @Test
   void getWhenPropertySourceSupportsOriginLookupButNoOriginShouldWrap() {
     PropertySource<?> propertySource = mock(PropertySource.class,
             withSettings().extraInterfaces(OriginLookup.class));
-    assertThat(PropertySourceOrigin.get(propertySource, "foo")).isInstanceOf(PropertySourceOrigin.class);
+    Origin origin = PropertySourceOrigin.get(propertySource, "foo");
+    assertThat(origin).isInstanceOf(PropertySourceOrigin.class);
+    assertThat(origin.getParent()).isNull();
   }
 
   @Test

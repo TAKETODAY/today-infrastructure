@@ -31,6 +31,17 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class SystemEnvironmentOriginTests {
 
   @Test
+  void equalityUsesPropertyName() {
+    var origin = new SystemEnvironmentOrigin("FOO_BAR");
+    var equivalent = new SystemEnvironmentOrigin("FOO_BAR");
+
+    assertThat(origin.equals(origin)).isTrue();
+    assertThat(origin.equals(null)).isFalse();
+    assertThat(origin).isEqualTo(equivalent).hasSameHashCodeAs(equivalent)
+            .isNotEqualTo(new SystemEnvironmentOrigin("FOO_BAZ")).isNotEqualTo("FOO_BAR");
+  }
+
+  @Test
   void createWhenPropertyIsNullShouldThrowException() {
     assertThatIllegalArgumentException().isThrownBy(() -> new infra.origin.SystemEnvironmentOrigin(null));
   }

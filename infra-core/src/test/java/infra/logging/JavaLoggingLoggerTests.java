@@ -18,6 +18,13 @@ package infra.logging;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,6 +34,58 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @since 5.0 2025/11/7 21:34
  */
 class JavaLoggingLoggerTests {
+
+  @Test
+  void publishesFormattedRecordWithCallerAndSerializesAsJulRecord() throws Exception {
+    Logger target = Logger.getAnonymousLogger();
+    target.setUseParentHandlers(false);
+    target.setLevel(Level.ALL);
+    var handler = new RecordingHandler();
+    target.addHandler(handler);
+    var logger = new JavaLoggingLogger(target, true);
+    var failure = new IllegalArgumentException("bad input");
+
+    logger.warn("Could not read {}", "settings", failure);
+
+    LogRecord record = handler.record;
+    assertThat(record.getMessage()).isEqualTo("Could not read settings");
+    assertThat(record.getLevel()).isEqualTo(Level.WARNING);
+    assertThat(record.getThrown()).isSameAs(failure);
+    assertThat(record.getSourceClassName()).isEqualTo(getClass().getName());
+    assertThat(record.getSourceMethodName()).isEqualTo("publishesFormattedRecordWithCallerAndSerializesAsJulRecord");
+
+    var bytes = new ByteArrayOutputStream();
+    try (var stream = new ObjectOutputStream(bytes)) {
+      stream.writeObject(record);
+    }
+    try (var stream = new ObjectInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+      var restored = (LogRecord) stream.readObject();
+      assertThat(restored).isExactlyInstanceOf(LogRecord.class);
+      assertThat(restored.getMessage()).isEqualTo(record.getMessage());
+      assertThat(restored.getSourceClassName()).isEqualTo(record.getSourceClassName());
+      assertThat(restored.getSourceMethodName()).isEqualTo(record.getSourceMethodName());
+      assertThat(restored.getThrown()).hasMessage(failure.getMessage());
+    }
+  }
+
+  private static class RecordingHandler extends Handler {
+
+    private LogRecord record;
+
+    @Override
+    public void publish(LogRecord record) {
+      this.record = record;
+      // Caller discovery is lazy, so trigger it while the logging frame is on the stack.
+      record.getSourceMethodName();
+    }
+
+    @Override
+    public void flush() { }
+
+    @Override
+    public void close() { }
+
+  }
 
   @Test
   void shouldCreateJavaLoggingLogger() {

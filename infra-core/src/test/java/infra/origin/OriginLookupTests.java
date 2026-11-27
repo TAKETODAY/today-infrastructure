@@ -33,6 +33,13 @@ import static org.mockito.Mockito.mock;
 class OriginLookupTests {
 
   @Test
+  void lookupIsMutableAndUnprefixedByDefault() {
+    OriginLookup<String> lookup = key -> null;
+    assertThat(lookup.isImmutable()).isFalse();
+    assertThat(lookup.getPrefix()).isNull();
+  }
+
+  @Test
   void getOriginWhenSourceIsNullShouldReturnNull() {
     assertThat(OriginLookup.getOrigin(null, "foo")).isNull();
   }

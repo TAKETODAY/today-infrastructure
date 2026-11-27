@@ -33,6 +33,25 @@ import static org.mockito.Mockito.when;
 class CompositeLoggerTests {
 
   @Test
+  void delegateFactoryUsesTheFirstEnabledCategoryAndPrefixesHiddenNames() {
+    Logger primary = mock(Logger.class);
+    Logger secondary = mock(Logger.class);
+    Logger fallback = mock(Logger.class);
+    when(primary.getName()).thenReturn("primary");
+    when(secondary.isEnabled(Level.INFO)).thenReturn(true);
+    when(fallback.isEnabled(Level.WARN)).thenReturn(true);
+
+    Logger logger = LogDelegateFactory.getCompositeLog(primary, secondary, fallback);
+    assertThat(logger.getName()).isEqualTo("primary");
+    logger.info("secondary message");
+    logger.warn("fallback message");
+    verify(secondary).logInternal(Level.INFO, "secondary message", null, null);
+    verify(fallback).logInternal(Level.WARN, "fallback message", null, null);
+    assertThat(LogDelegateFactory.getHiddenLog("category").getName()).isEqualTo("_category");
+    assertThat(LogDelegateFactory.getHiddenLog(getClass()).getName()).isEqualTo("_" + getClass().getName());
+  }
+
+  @Test
   void shouldCreateCompositeLoggerWithMultipleLoggers() {
     Logger logger1 = mock(Logger.class);
     Logger logger2 = mock(Logger.class);

@@ -18,6 +18,8 @@ package infra.logging;
 
 import org.junit.jupiter.api.Test;
 
+import infra.test.classpath.ClassPathExclusions;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -56,20 +58,23 @@ class LoggerFactoryTests {
 
   @Test
   void shouldCreateSlf4jLoggerFactoryWhenAvailable() {
-    // This test verifies the factory creation logic works
-    // The actual factory type depends on what's available in classpath
     Logger logger = LoggerFactory.getLogger("test.factory");
 
-    assertThat(logger).isNotNull();
+    assertThat(logger).isInstanceOf(Slf4jLogger.class);
   }
 
   @Test
+  @ClassPathExclusions("slf4j-api-*.jar")
+  void shouldFallBackToLog4j2WhenSlf4jIsAbsent() {
+    assertThat(LoggerFactory.getLogger("test.fallback.log4j2")).isInstanceOf(Log4j2Logger.class);
+  }
+
+  @Test
+  @ClassPathExclusions({ "slf4j-api-*.jar", "log4j-api-*.jar" })
   void shouldFallBackToJavaLoggingFactory() {
-    // This tests that fallback mechanism works
-    // Actual behavior depends on classpath, but should always return a logger
     Logger logger = LoggerFactory.getLogger("test.fallback");
 
-    assertThat(logger).isNotNull();
+    assertThat(logger).isInstanceOf(JavaLoggingLogger.class);
     assertThat(logger.getName()).isEqualTo("test.fallback");
   }
 

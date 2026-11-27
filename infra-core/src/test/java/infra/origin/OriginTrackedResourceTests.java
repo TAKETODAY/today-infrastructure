@@ -22,6 +22,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.channels.WritableByteChannel;
 
 import infra.core.io.ClassPathResource;
 import infra.core.io.Resource;
@@ -29,6 +31,7 @@ import infra.core.io.WritableResource;
 import infra.origin.OriginTrackedResource.OriginTrackedWritableResource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 
@@ -38,6 +41,20 @@ import static org.mockito.Mockito.mock;
  * @author Phillip Webb
  */
 class OriginTrackedResourceTests {
+
+  @Test
+  void writableResourcePreservesDelegateCapabilitiesAndHandles() throws IOException {
+    var writer = new StringWriter();
+    var channel = mock(WritableByteChannel.class);
+    given(this.resource.isWritable()).willReturn(true);
+    given(this.resource.getWriter()).willReturn(writer);
+    given(this.resource.writableChannel()).willReturn(channel);
+
+    assertThat(this.tracked.isWritable()).isTrue();
+    assertThat(this.tracked.getWriter()).isSameAs(writer);
+    assertThat(this.tracked.writableChannel()).isSameAs(channel);
+    assertThat(this.tracked).isNotEqualTo(this.resource);
+  }
 
   private Origin origin;
 

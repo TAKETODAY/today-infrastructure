@@ -25,6 +25,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import infra.core.io.ClassPathResource;
+import infra.core.io.DescriptiveResource;
 import infra.core.io.Resource;
 import infra.origin.TextResourceOrigin.Location;
 
@@ -36,6 +37,31 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Phillip Webb
  */
 class TextResourceOriginTests {
+
+  @Test
+  void describesTrackedNonClasspathResourceUsingItsDelegate() {
+    Resource delegate = new DescriptiveResource("external configuration");
+    Origin parent = MockOrigin.of("import");
+    var origin = new TextResourceOrigin(OriginTrackedResource.from(delegate, parent), new Location(0, 2));
+
+    assertThat(origin).hasToString(delegate + " - 1:3");
+    assertThat(origin.getParent()).isSameAs(parent);
+    assertThat(origin.equals(null)).isFalse();
+    assertThat(origin).isNotEqualTo(parent);
+    assertThat(origin.getLocation()).isNotEqualTo("1:3");
+  }
+
+  @Test
+  void fileBackedClasspathResourceHasNoJarDescription() {
+    ClassPathResource resource = new ClassPathResource("example.properties") {
+      @Override
+      public URI getURI() {
+        return URI.create("file:/config/example.properties");
+      }
+    };
+
+    assertThat(new TextResourceOrigin(resource, null)).hasToString(resource.toString());
+  }
 
   @Test
   void createWithNullResourceSetsNullResource() {

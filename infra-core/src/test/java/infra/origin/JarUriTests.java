@@ -28,6 +28,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class JarUriTests {
 
   @Test
+  void retainsOriginalUriAndSupportsRelativeJarName() {
+    String location = "jar:example.jar!/application.properties";
+    JarUri jarUri = JarUri.from(location);
+    assertThat(jarUri).hasToString(location);
+    assertThat(jarUri.getDescription()).isEqualTo("example.jar");
+  }
+
+  @Test
+  void ignoresLocationsThatDoNotIdentifyAJarArchive() {
+    assertThat(JarUri.from("file:/project.jar")).isNull();
+    assertThat(JarUri.from("jar:file:/project.zip!/application.properties")).isNull();
+  }
+
+  @Test
   void describeBootInfClassesUri() {
     JarUri uri = JarUri.from("jar:file:/home/user/project/target/project-0.0.1-SNAPSHOT.jar"
             + "!/APP-INF/classes!/application.properties");

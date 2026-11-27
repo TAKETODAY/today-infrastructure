@@ -66,6 +66,7 @@ dependencies {
   optional("io.micrometer:context-propagation")
 
   testCompileOnly("com.github.ben-manes.caffeine:caffeine")
+  testImplementation("org.graalvm.sdk:graal-sdk")
   testImplementation("jakarta.xml.bind:jakarta.xml.bind-api")
   testImplementation("com.google.code.findbugs:jsr305")
   testImplementation("com.fasterxml.woodstox:woodstox-core")
@@ -174,4 +175,3 @@ tasks.register('jcstress', JavaExec) {
     mkdir layout.buildDirectory.dir("jcstress")
   }
 }
-

@@ -24,6 +24,7 @@ import java.io.ByteArrayInputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,6 +59,8 @@ class ThrowawayClassLoaderTests {
     Class<?> loaded = classLoader.loadClass(className);
 
     assertThat(loaded.getName()).isEqualTo(className);
+    assertThat(loaded).isNotSameAs(Probe.class);
+    assertThat(classLoader.loadClass(className)).isSameAs(loaded);
     assertThat(closed).as("InputStream closed").isTrue();
   }
 
@@ -80,12 +83,49 @@ class ThrowawayClassLoaderTests {
             .withMessageContaining(name);
   }
 
+  @Test
+  void wrapsResourceReadFailure() {
+    IOException failure = new IOException("cannot read class bytes");
+    ClassLoader resourceLoader = new ClassLoader(null) {
+      @Override
+      public InputStream getResourceAsStream(String name) {
+        return new InputStream() {
+          @Override
+          public int read() throws IOException {
+            throw failure;
+          }
+        };
+      }
+    };
+    var classLoader = new ThrowawayClassLoader(resourceLoader);
+
+    assertThatExceptionOfType(ClassNotFoundException.class)
+            .isThrownBy(() -> classLoader.loadClass(Probe.class.getName()))
+            .withMessageContaining(Probe.class.getName())
+            .withCause(failure);
+  }
+
   private static byte[] classBytesOf(String className) throws IOException {
     String resourceName = className.replace('.', '/') + ".class";
     try (InputStream in = ThrowawayClassLoaderTests.class.getClassLoader().getResourceAsStream(resourceName)) {
       assertThat(in).as("class bytes for %s", className).isNotNull();
       return in.readAllBytes();
     }
+  }
+
+  @Test
+  void findsResourcesThroughTheOriginalLoader() throws Exception {
+    URL resource = java.net.URI.create("file:/test-feature.properties").toURL();
+    ClassLoader resourceLoader = new ClassLoader(null) {
+      @Override
+      public URL getResource(String name) {
+        return "test-feature.properties".equals(name) ? resource : null;
+      }
+    };
+    var loader = new ThrowawayClassLoader(resourceLoader);
+
+    assertThat(loader.getResource("test-feature.properties")).isSameAs(resource);
+    assertThat(loader.getResource("missing.properties")).isNull();
   }
 
   static class Probe {
