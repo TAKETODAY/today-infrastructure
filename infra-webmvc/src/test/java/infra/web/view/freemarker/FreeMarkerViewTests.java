@@ -26,11 +26,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import freemarker.core.ParseException;
 import freemarker.template.Configuration;
+import freemarker.template.ObjectWrapper;
 import freemarker.template.SimpleHash;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
@@ -38,6 +42,7 @@ import infra.context.ApplicationContext;
 import infra.context.ApplicationContextException;
 import infra.context.ConfigurableApplicationContext;
 import infra.context.annotation.AnnotationConfigApplicationContext;
+import infra.context.support.StaticMessageSource;
 import infra.web.mock.MockServerHttpExchange;
 import infra.web.mock.MockResponse;
 import infra.web.mock.MockRequest;
@@ -51,6 +56,7 @@ import infra.web.view.View;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.InstanceOfAssertFactories.type;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -169,6 +175,99 @@ public class FreeMarkerViewTests {
   }
 
   @Test
+  void usesExplicitCharsetWhenLoadingAndRenderingATemplate() throws Exception {
+    RecordingConfiguration configuration = new RecordingConfiguration();
+    ExposedFreeMarkerView view = new ExposedFreeMarkerView();
+    view.setConfiguration(configuration);
+    view.setUrl("templateName");
+    view.setEncoding("UTF-16");
+    view.setCharset(StandardCharsets.UTF_16);
+    view.setLocale(Locale.US);
+
+    assertThat(view.template("templateName", Locale.US)).isNotNull();
+    assertThat(configuration.requestedEncoding).isEqualTo("UTF-16");
+
+    MockResponse response = new MockResponse();
+    view.render(Map.of("myattr", "myvalue"), new MockServerHttpExchange(
+            mock(ApplicationContext.class), new MockRequest(), response));
+    assertThat(response.getContentAsString()).isEqualTo("test");
+  }
+
+  @Test
+  void checksMissingAndMalformedTemplatesWithUsefulResults() throws Exception {
+    ExposedFreeMarkerView view = new ExposedFreeMarkerView();
+    view.setUrl("missing");
+    view.setConfiguration(new TestConfiguration());
+    assertThat(view.checkResource(Locale.US)).isFalse();
+
+    view.setConfiguration(new FailingConfiguration(Failure.PARSE));
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(() -> view.checkResource(Locale.US))
+            .withMessage("Failed to parse [missing]");
+
+    view.setConfiguration(new FailingConfiguration(Failure.IO));
+    assertThatExceptionOfType(ApplicationContextException.class)
+            .isThrownBy(() -> view.checkResource(Locale.US))
+            .withMessage("Failed to load [missing]");
+
+    ExposedFreeMarkerView noUrl = new ExposedFreeMarkerView();
+    assertThatIllegalStateException().isThrownBy(() -> noUrl.checkResource(Locale.US))
+            .withMessage("'url' not set");
+  }
+
+  @Test
+  void buildsADefaultObjectWrapperWhenConfigurationDoesNotProvideOne() {
+    Configuration configuration = mock();
+    given(configuration.getObjectWrapper()).willReturn(null);
+    ExposedFreeMarkerView view = new ExposedFreeMarkerView();
+    view.setConfiguration(configuration);
+
+    assertThat(view.objectWrapper()).isNotNull();
+  }
+
+  @Test
+  void fallsBackToRequestAttributesWhenTheModelDoesNotContainAValue() throws Exception {
+    ExposedFreeMarkerView view = new ExposedFreeMarkerView();
+    view.setConfiguration(new TestConfiguration());
+    MockRequest request = new MockRequest();
+    request.setAttribute("requestOnly", "from-request");
+    MockServerHttpExchange exchange = new MockServerHttpExchange(
+            mock(ApplicationContext.class), request, new MockResponse());
+
+    SimpleHash model = view.templateModel(Map.of("modelOnly", "from-model"), exchange);
+    assertThat(model.get("modelOnly").toString()).isEqualTo("from-model");
+    assertThat(model.get("requestOnly").toString()).isEqualTo("from-request");
+    assertThat(model.get("missing")).isNull();
+  }
+
+  @Test
+  void rendersTheModelDirectlyWhenMessageAndBindingExposureAreDisabled() throws Exception {
+    ExposedFreeMarkerView view = new ExposedFreeMarkerView();
+    view.setConfiguration(new TestConfiguration());
+    view.setUrl("templateName");
+    view.setExposeMessages(false);
+    view.setExposeBindings(false);
+
+    MockRequest request = new MockRequest();
+    request.addPreferredLocale(Locale.US);
+    MockResponse response = new MockResponse();
+    view.render(Map.of("myattr", "myvalue"), new MockServerHttpExchange(
+            mock(ApplicationContext.class), request, response));
+
+    assertThat(response.getContentType()).isEqualTo(AbstractView.DEFAULT_CONTENT_TYPE);
+  }
+
+  @Test
+  void resolvesMessagesWithSequenceArgumentsAndDefaults() {
+    StaticMessageSource source = new StaticMessageSource();
+    source.addMessage("greeting", Locale.US, "Hello {0}");
+    FreeMarkerView.FreeMarkerMessages messages = new FreeMarkerView.FreeMarkerMessages(source, Locale.US);
+
+    assertThat(messages.getMessage("greeting", List.of("FreeMarker"))).isEqualTo("Hello FreeMarker");
+    assertThat(messages.getMessage("missing", List.of(), "Fallback")).isEqualTo("Fallback");
+  }
+
+  @Test
   public void freeMarkerViewResolver() throws Exception {
 
     FreeMarkerConfigurer configurer = new FreeMarkerConfigurer();
@@ -226,6 +325,55 @@ public class FreeMarkerViewTests {
         throw new FileNotFoundException();
       }
     }
+  }
+
+  private static final class RecordingConfiguration extends TestConfiguration {
+
+    String requestedEncoding;
+
+    @Override
+    public Template getTemplate(String name, Locale locale, String encoding) throws IOException {
+      this.requestedEncoding = encoding;
+      return super.getTemplate(name, locale);
+    }
+
+  }
+
+  private enum Failure { PARSE, IO }
+
+  private static final class FailingConfiguration extends Configuration {
+
+    private final Failure failure;
+
+    FailingConfiguration(Failure failure) {
+      super(Configuration.DEFAULT_INCOMPATIBLE_IMPROVEMENTS);
+      this.failure = failure;
+    }
+
+    @Override
+    public Template getTemplate(String name, Locale locale) throws IOException {
+      if (this.failure == Failure.PARSE) {
+        throw new ParseException("invalid template", 1, 1);
+      }
+      throw new IOException("template unavailable");
+    }
+
+  }
+
+  private static final class ExposedFreeMarkerView extends FreeMarkerView {
+
+    Template template(String name, Locale locale) throws IOException {
+      return getTemplate(name, locale);
+    }
+
+    ObjectWrapper objectWrapper() {
+      return getObjectWrapper();
+    }
+
+    SimpleHash templateModel(Map<String, Object> model, MockServerHttpExchange exchange) {
+      return buildTemplateModel(model, exchange);
+    }
+
   }
 
 }
