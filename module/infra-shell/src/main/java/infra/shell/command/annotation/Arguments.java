@@ -1,0 +1,57 @@
+/*
+ * Copyright 2025-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell.command.annotation;
+
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Annotation marking a method parameter as a target for a collection of arguments to a
+ * {@link Command}. The parameter type must be an array or a collection.
+ *
+ * @author Mahmoud Ben Hassine
+ * @author David Pilar
+ * @since 5.0
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+@Documented
+public @interface Arguments {
+
+  /**
+   * Define the maximum number of arguments to be collected. By default, all remaining
+   * arguments are collected.
+   *
+   * @return the maximum number of arguments to be collected
+   * @since 5.0
+   */
+  int arity() default Integer.MAX_VALUE;
+
+  /**
+   * Return a description of the arguments.
+   *
+   * @return description of the arguments
+   * @since 5.0
+   */
+  String description() default "";
+
+}

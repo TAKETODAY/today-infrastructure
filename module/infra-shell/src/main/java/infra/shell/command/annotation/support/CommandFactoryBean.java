@@ -1,0 +1,347 @@
+/*
+ * Copyright 2023-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell.command.annotation.support;
+
+import org.jspecify.annotations.Nullable;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import infra.beans.BeansException;
+import infra.beans.factory.FactoryBean;
+import infra.beans.factory.NoSuchBeanDefinitionException;
+import infra.context.ApplicationContext;
+import infra.context.ApplicationContextAware;
+import infra.context.ConfigurableApplicationContext;
+import infra.core.ResolvableType;
+import infra.core.annotation.MergedAnnotations;
+import infra.core.conversion.Converter;
+import infra.core.conversion.ConverterFactory;
+import infra.core.conversion.GenericConverter;
+import infra.core.conversion.support.ConfigurableConversionService;
+import infra.core.conversion.support.DefaultConversionService;
+import infra.logging.Logger;
+import infra.logging.LoggerFactory;
+import infra.shell.command.Command;
+import infra.shell.command.CommandArgument;
+import infra.shell.command.CommandCreationException;
+import infra.shell.command.CommandOption;
+import infra.shell.command.adapter.MethodInvokerCommandAdapter;
+import infra.shell.command.annotation.Argument;
+import infra.shell.command.annotation.Arguments;
+import infra.shell.command.annotation.CommandGroup;
+import infra.shell.command.annotation.Option;
+import infra.shell.command.availability.AvailabilityProvider;
+import infra.shell.command.completion.CompletionProvider;
+import infra.shell.command.completion.DefaultCompletionProvider;
+import infra.shell.command.exit.ExitStatusExceptionMapper;
+import infra.shell.utils.Utils;
+import infra.util.Assert;
+import jakarta.validation.Validator;
+
+/**
+ * Factory bean to build instances of {@link Command}.
+ *
+ * @author Janne Valkealahti
+ * @author Piotr Olaszewski
+ * @author Mahmoud Ben Hassine
+ * @author David Pilar
+ */
+public class CommandFactoryBean implements ApplicationContextAware, FactoryBean<Command> {
+
+  private final Logger log = LoggerFactory.getLogger(CommandFactoryBean.class);
+
+  private final Method method;
+
+  @SuppressWarnings("NullAway.Init")
+  private ApplicationContext applicationContext;
+
+  public CommandFactoryBean(Method method) {
+    Assert.notNull(method, "'method' must not be null");
+    this.method = method;
+  }
+
+  @Override
+  public Command getObject() {
+    infra.shell.command.annotation.Command command = MergedAnnotations.from(this.method)
+            .get(infra.shell.command.annotation.Command.class)
+            .synthesize();
+
+    Class<?> declaringClass = this.method.getDeclaringClass();
+    String groupName = "";
+    String groupPrefix = "";
+    if (declaringClass.isAnnotationPresent(CommandGroup.class)) {
+      CommandGroup commandGroup = MergedAnnotations.from(declaringClass).get(CommandGroup.class).synthesize();
+      groupName = commandGroup.name();
+      groupPrefix = commandGroup.prefix();
+    }
+
+    // get command metadata
+    String baseName = String.join(" ", command.name());
+    baseName = baseName.isEmpty() ? Utils.unCamelify(this.method.getName()) : baseName;
+    String name = resolveName(groupPrefix, baseName);
+    String description = command.description();
+    description = description.isEmpty() ? "N/A" : description;
+    String help = command.help();
+    String group = !command.group().isEmpty() ? command.group() : groupName;
+    if (group.isEmpty()) {
+      String simpleName = Utils.splitCamelCase(declaringClass.getSimpleName());
+      if (!simpleName.endsWith(" Commands")) {
+        group = simpleName + " Commands";
+      }
+      else {
+        group = simpleName;
+      }
+
+    }
+    boolean hidden = command.hidden();
+    String[] aliases = command.alias();
+    String availabilityProviderBeanName = command.availabilityProvider();
+    String exitStatusExceptionMapperBeanName = command.exitStatusExceptionMapper();
+    String completionProviderBeanName = command.completionProvider();
+    log.debug("Creating command bean for method '%s' defined in class '%s' with name '%s'"
+            .formatted(this.method.getName(), declaringClass.getName(), name));
+    Object targetObject = getTagetObject(declaringClass);
+    ConfigurableConversionService configurableConversionService = getConfigurableConversionService();
+    AvailabilityProvider availabilityProviderBean = getAvailabilityProvider(availabilityProviderBeanName);
+    ExitStatusExceptionMapper exitStatusExceptionMapperBean = getExitStatusExceptionMapper(
+            exitStatusExceptionMapperBeanName);
+    Validator validator = getValidator();
+    CompletionProvider completionProvider = getCompletionProvider(completionProviderBeanName);
+    List<CommandOption> commandOptions = getCommandOptions();
+    List<CommandArgument> commandArguments = getCommandArguments();
+
+    // create command adapter
+    MethodInvokerCommandAdapter methodInvokerCommandAdapter = new MethodInvokerCommandAdapter(name, description,
+            group, help, hidden, this.method, targetObject, configurableConversionService, validator);
+    methodInvokerCommandAdapter.setAliases(Arrays.stream(aliases).toList());
+    methodInvokerCommandAdapter.setOptions(commandOptions);
+    methodInvokerCommandAdapter.setArguments(commandArguments);
+    methodInvokerCommandAdapter.setAvailabilityProvider(availabilityProviderBean);
+    methodInvokerCommandAdapter.setCompletionProvider(completionProvider);
+    if (exitStatusExceptionMapperBean != null) {
+      methodInvokerCommandAdapter.setExitStatusExceptionMapper(exitStatusExceptionMapperBean);
+    }
+    return methodInvokerCommandAdapter;
+  }
+
+  private String resolveName(String groupPrefix, String baseName) {
+    String globalPrefix = this.applicationContext.getEnvironment().getProperty("shell.command.prefix", "");
+    List<String> parts = new ArrayList<>();
+    if (!globalPrefix.isEmpty()) {
+      parts.add(globalPrefix);
+    }
+    if (!groupPrefix.isEmpty()) {
+      parts.add(groupPrefix);
+    }
+    parts.add(baseName);
+    return String.join(" ", parts);
+  }
+
+  private List<CommandOption> getCommandOptions() {
+    List<CommandOption> commandOptions = new ArrayList<>();
+    for (Parameter parameter : this.method.getParameters()) {
+      Option optionAnnotation = parameter.getAnnotation(Option.class);
+      if (optionAnnotation != null) {
+        char shortName = optionAnnotation.shortName();
+        String longName = optionAnnotation.longName();
+        if (longName.isEmpty()) {
+          longName = parameter.getName();
+        }
+        String description = optionAnnotation.description();
+        boolean required = optionAnnotation.required();
+        String defaultValue = optionAnnotation.defaultValue();
+        CommandOption commandOption = CommandOption.with()
+                .shortName(shortName)
+                .longName(longName)
+                .description(description)
+                .required(required)
+                .defaultValue(defaultValue)
+                .type(parameter.getType())
+                .build();
+        commandOptions.add(commandOption);
+      }
+    }
+    return commandOptions;
+  }
+
+  private List<CommandArgument> getCommandArguments() {
+    List<CommandArgument> commandArguments = new ArrayList<>();
+    Parameter[] parameters = this.method.getParameters();
+    for (int i = 0; i < parameters.length; i++) {
+      Parameter parameter = parameters[i];
+      Argument argumentAnnotation = parameter.getAnnotation(Argument.class);
+      if (argumentAnnotation != null) {
+        int index = argumentAnnotation.index();
+        String description = argumentAnnotation.description();
+        String defaultValue = argumentAnnotation.defaultValue();
+        CommandArgument commandArgument = CommandArgument.with()
+                .index(index)
+                .description(description)
+                .defaultValue(defaultValue)
+                .type(parameter.getType())
+                .build();
+        commandArguments.add(commandArgument);
+        continue;
+      }
+      Arguments argumentsAnnotation = parameter.getAnnotation(Arguments.class);
+      if (argumentsAnnotation != null) {
+        CommandArgument commandArgument = CommandArgument.with()
+                .index(commandArguments.size())
+                .description(argumentsAnnotation.description())
+                .type(getElementType(i))
+                .variadic(true)
+                .build();
+        commandArguments.add(commandArgument);
+      }
+    }
+    return commandArguments;
+  }
+
+  // the declared parameter is a collection or an array, the element type is what is
+  // meaningful to report for a variadic argument
+  private Class<?> getElementType(int parameterIndex) {
+    ResolvableType parameterType = ResolvableType.forMethodParameter(this.method, parameterIndex);
+    Class<?> elementType = parameterType.isArray() ? parameterType.getComponentType().resolve()
+            : parameterType.asCollection().resolveGeneric(0);
+    return elementType != null ? elementType : Object.class;
+  }
+
+  private CompletionProvider getCompletionProvider(String completionProviderBeanName) {
+    CompletionProvider completionProvider = new DefaultCompletionProvider();
+    if (!completionProviderBeanName.isEmpty()) {
+      try {
+        completionProvider = this.applicationContext.getBean(completionProviderBeanName,
+                CompletionProvider.class);
+      }
+      catch (BeansException e) {
+        log.debug("No CompletionProvider bean found with name '" + completionProviderBeanName
+                + "', using default completion provider.");
+      }
+    }
+    return completionProvider;
+  }
+
+  private Validator getValidator() {
+    try {
+      return this.applicationContext.getBean(Validator.class);
+    }
+    catch (BeansException e) {
+      log.debug("No Validator bean found, using default validator.");
+      return Utils.defaultValidator();
+    }
+  }
+
+  private @Nullable ExitStatusExceptionMapper getExitStatusExceptionMapper(String exitStatusExceptionMapper) {
+    try {
+      return this.applicationContext.getBean(exitStatusExceptionMapper, ExitStatusExceptionMapper.class);
+    }
+    catch (BeansException e) {
+      log.debug("No ExitStatusExceptionMapper bean found with name '" + exitStatusExceptionMapper
+              + "', using default exception mapping strategy.");
+      return null;
+    }
+  }
+
+  private AvailabilityProvider getAvailabilityProvider(String availabilityProvider) {
+    try {
+      return this.applicationContext.getBean(availabilityProvider, AvailabilityProvider.class);
+    }
+    catch (BeansException e) {
+      log.debug("No AvailabilityProvider bean found with name '" + availabilityProvider
+              + "', using always available provider.");
+      return AvailabilityProvider.alwaysAvailable();
+    }
+  }
+
+  private ConfigurableConversionService getConfigurableConversionService() {
+    try {
+      return this.applicationContext.getBean(ConfigurableConversionService.class);
+    }
+    catch (BeansException e) {
+      log.debug("No ConfigurableConversionService bean found, using a default conversion service.");
+      DefaultConversionService conversionService = new DefaultConversionService();
+      conversionService.addConverter(String.class, Path.class, Path::of);
+      registerConverterBeans(conversionService);
+      return conversionService;
+    }
+  }
+
+  private void registerConverterBeans(ConfigurableConversionService conversionService) {
+    this.applicationContext.getBeansOfType(GenericConverter.class)
+            .values()
+            .forEach(conversionService::addConverter);
+    this.applicationContext.getBeansOfType(ConverterFactory.class)
+            .values()
+            .forEach(conversionService::addConverterFactory);
+    this.applicationContext.getBeansOfType(Converter.class)
+            .forEach((name, converter) -> addConverter(conversionService, name, converter));
+  }
+
+  @SuppressWarnings({ "rawtypes", "unchecked" })
+  private void addConverter(ConfigurableConversionService conversionService, String beanName, Converter converter) {
+    ResolvableType type = beanType(beanName, converter).as(Converter.class);
+    Class<?> source = type.getGeneric(0).resolve();
+    Class<?> target = type.getGeneric(1).resolve();
+    if (source != null && target != null) {
+      conversionService.addConverter(source, target, converter);
+    }
+    else {
+      conversionService.addConverter(converter);
+    }
+  }
+
+  private ResolvableType beanType(String beanName, Object bean) {
+    if (this.applicationContext instanceof ConfigurableApplicationContext cac
+            && cac.getBeanFactory().containsBeanDefinition(beanName)) {
+      return cac.getBeanFactory().getMergedBeanDefinition(beanName).getResolvableType();
+    }
+    return ResolvableType.forClass(bean.getClass());
+  }
+
+  private Object getTagetObject(Class<?> declaringClass) {
+    try {
+      return this.applicationContext.getBean(declaringClass);
+    }
+    catch (NoSuchBeanDefinitionException e) {
+      String errorMessage = """
+              Unable to create command for method '%s' because no bean of type '%s' is defined in the application context.
+              Ensure that the declaring class is annotated with a Spring stereotype annotation (e.g., @Component) or
+              is otherwise registered as a bean in the application context.
+              """
+              .formatted(this.method.getName(), declaringClass.getName());
+      throw new CommandCreationException(errorMessage, e);
+    }
+  }
+
+  @Override
+  public Class<?> getObjectType() {
+    return Command.class;
+  }
+
+  @Override
+  public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+    this.applicationContext = applicationContext;
+  }
+
+}

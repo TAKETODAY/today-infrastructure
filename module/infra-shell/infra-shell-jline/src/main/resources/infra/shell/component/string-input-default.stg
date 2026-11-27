@@ -1,0 +1,57 @@
+/*
+ * Copyright 2025-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+// info section after '? xxx'
+info(model) ::= <%
+<if(model.hasMaskCharacter)>
+  <if(model.maskedInput)>
+    <model.maskedInput>
+  <else>
+    <if(model.defaultValue)>
+      <("[Default "); format="style-value"><model.defaultValue; format="style-value"><("]"); format="style-value">
+    <endif>
+  <endif>
+<else>
+  <if(model.input)>
+    <model.input>
+  <else>
+    <if(model.defaultValue)>
+      <("[Default "); format="style-value"><model.defaultValue; format="style-value"><("]"); format="style-value">
+    <endif>
+  <endif>
+<endif>
+%>
+
+// start '? xxx' shows both running and result
+question_name(model) ::= <<
+<({<figures.questionMark>}); format="style-list-value"> <model.name; format="style-title">
+>>
+
+// component result
+result(model) ::= <<
+<question_name(model)> <model.maskedResultValue; format="style-value">
+>>
+
+// component is running
+running(model) ::= <<
+<question_name(model)> <info(model)>
+>>
+
+// main
+main(model) ::= <<
+<if(model.resultValue)><result(model)><else><running(model)><endif>
+>>

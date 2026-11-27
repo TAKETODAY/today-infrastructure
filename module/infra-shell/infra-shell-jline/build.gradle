@@ -1,0 +1,16 @@
+description = 'Infra Shell JLine integration and terminal UI'
+
+dependencies {
+  api(project(':module:infra-shell'))
+  api(project(':infra-messaging'))
+  api('org.jline:jline:3.30.17')
+  api('io.projectreactor:reactor-core')
+  api('org.antlr:ST4:4.3.4')
+
+  annotationProcessor(project(':infra-build:infra-annotation-config-processor'))
+
+  testImplementation(project(':infra-test'))
+  testImplementation('io.projectreactor:reactor-test')
+  testImplementation('org.awaitility:awaitility')
+  testImplementation('com.google.jimfs:jimfs:1.3.2')
+}

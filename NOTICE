@@ -11,6 +11,11 @@ This product includes portions of software developed at:
 These portions are used and modified under the terms of the Apache License, Version 2.0.
 ===============================================================================
 
+The Infra Shell modules include modified portions of Spring Shell
+(https://github.com/spring-projects/spring-shell), licensed under the Apache
+License, Version 2.0. Original copyright notices are retained in the sources.
+===============================================================================
+
 ===============================================================================
 The module “infra-core” within this distribution contains modified portions of
 the following third-party libraries:

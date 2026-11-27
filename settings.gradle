@@ -84,3 +84,10 @@ file("${rootDir}/infra-build").eachDirMatch(~/infra-.*/) {
 file("${rootDir}/module").eachDirMatch(~/infra-.*/) {
   include "module:${it.name}"
 }
+
+// Shell submodules
+file("${rootDir}/module/infra-shell").eachDirMatch(~/infra-shell-.*/) {
+  if (new File(it, 'build.gradle').isFile()) {
+    include "module:infra-shell:${it.name}"
+  }
+}

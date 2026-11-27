@@ -1,0 +1,455 @@
+/*
+ * Copyright 2021-present the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+// Modifications Copyright 2017 - 2026 the TODAY authors.
+
+package infra.shell.config;
+
+import infra.context.properties.ConfigurationProperties;
+
+/**
+ * Configuration properties for Infra Shell.
+ *
+ * @author Janne Valkealahti
+ * @author Piotr Olaszewski
+ * @author Mahmoud Ben Hassine
+ */
+@ConfigurationProperties(prefix = "shell")
+public class InfraShellProperties {
+
+  private History history = new History();
+
+  private Config config = new Config();
+
+  private Interactive interactive = new Interactive();
+
+  private Debug debug = new Debug();
+
+  private Theme theme = new Theme();
+
+  private Command command = new Command();
+
+  private Context context = new Context();
+
+  public void setConfig(Config config) {
+    this.config = config;
+  }
+
+  public Config getConfig() {
+    return config;
+  }
+
+  public History getHistory() {
+    return history;
+  }
+
+  public void setHistory(History history) {
+    this.history = history;
+  }
+
+  public void setInteractive(Interactive interactive) {
+    this.interactive = interactive;
+  }
+
+  public Interactive getInteractive() {
+    return interactive;
+  }
+
+  public Debug getDebug() {
+    return debug;
+  }
+
+  public void setDebug(Debug debug) {
+    this.debug = debug;
+  }
+
+  public Theme getTheme() {
+    return theme;
+  }
+
+  public void setTheme(Theme theme) {
+    this.theme = theme;
+  }
+
+  public Command getCommand() {
+    return command;
+  }
+
+  public Context getContext() {
+    return context;
+  }
+
+  public void setContext(Context context) {
+    this.context = context;
+  }
+
+  public void setCommand(Command command) {
+    this.command = command;
+  }
+
+  public static class Config {
+
+    private String env;
+
+    private String location;
+
+    public String getEnv() {
+      return env;
+    }
+
+    public void setEnv(String env) {
+      this.env = env;
+    }
+
+    public String getLocation() {
+      return location;
+    }
+
+    public void setLocation(String location) {
+      this.location = location;
+    }
+
+  }
+
+  public static class History {
+
+    private String name;
+
+    private boolean enabled = true;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class Interactive {
+
+    private boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class Debug {
+
+    private boolean enabled = false;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class Theme {
+
+    private String name;
+
+    public String getName() {
+      return name;
+    }
+
+    public void setName(String name) {
+      this.name = name;
+    }
+
+  }
+
+  public static class HelpCommand {
+
+    private boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class ClearCommand {
+
+    private boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class ScriptCommand {
+
+    private boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class HistoryCommand {
+
+    private boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class QuitCommand {
+
+    private boolean enabled = true;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+  }
+
+  public static class Command {
+
+    private String prefix = "";
+
+    private HelpCommand help = new HelpCommand();
+
+    private ClearCommand clear = new ClearCommand();
+
+    private ScriptCommand script = new ScriptCommand();
+
+    private QuitCommand quit = new QuitCommand();
+
+    private HistoryCommand history = new HistoryCommand();
+
+    private VersionCommand version = new VersionCommand();
+
+    public String getPrefix() {
+      return prefix;
+    }
+
+    public void setPrefix(String prefix) {
+      this.prefix = prefix;
+    }
+
+    public void setHelp(HelpCommand help) {
+      this.help = help;
+    }
+
+    public HelpCommand getHelp() {
+      return help;
+    }
+
+    public ClearCommand getClear() {
+      return clear;
+    }
+
+    public void setClear(ClearCommand clear) {
+      this.clear = clear;
+    }
+
+    public ScriptCommand getScript() {
+      return script;
+    }
+
+    public void setScript(ScriptCommand script) {
+      this.script = script;
+    }
+
+    public HistoryCommand getHistory() {
+      return history;
+    }
+
+    public void setHistory(HistoryCommand history) {
+      this.history = history;
+    }
+
+    public QuitCommand getQuit() {
+      return quit;
+    }
+
+    public void setQuit(QuitCommand quit) {
+      this.quit = quit;
+    }
+
+    public VersionCommand getVersion() {
+      return version;
+    }
+
+    public void setVersion(VersionCommand version) {
+      this.version = version;
+    }
+
+  }
+
+  public static class VersionCommand {
+
+    private boolean enabled = true;
+
+    private boolean showBuildGroup = false;
+
+    private boolean showBuildArtifact = false;
+
+    private boolean showBuildName = false;
+
+    private boolean showBuildVersion = true;
+
+    private boolean showBuildTime = false;
+
+    private boolean showGitBranch = false;
+
+    private boolean showGitCommitId = false;
+
+    private boolean showGitShortCommitId = false;
+
+    private boolean showGitCommitTime = false;
+
+    public boolean isEnabled() {
+      return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+      this.enabled = enabled;
+    }
+
+    public boolean isShowBuildGroup() {
+      return showBuildGroup;
+    }
+
+    public void setShowBuildGroup(boolean showBuildGroup) {
+      this.showBuildGroup = showBuildGroup;
+    }
+
+    public boolean isShowBuildArtifact() {
+      return showBuildArtifact;
+    }
+
+    public void setShowBuildArtifact(boolean showBuildArtifact) {
+      this.showBuildArtifact = showBuildArtifact;
+    }
+
+    public boolean isShowBuildName() {
+      return showBuildName;
+    }
+
+    public void setShowBuildName(boolean showBuildName) {
+      this.showBuildName = showBuildName;
+    }
+
+    public boolean isShowBuildVersion() {
+      return showBuildVersion;
+    }
+
+    public void setShowBuildVersion(boolean showBuildVersion) {
+      this.showBuildVersion = showBuildVersion;
+    }
+
+    public boolean isShowBuildTime() {
+      return showBuildTime;
+    }
+
+    public void setShowBuildTime(boolean showBuildTime) {
+      this.showBuildTime = showBuildTime;
+    }
+
+    public boolean isShowGitBranch() {
+      return showGitBranch;
+    }
+
+    public void setShowGitBranch(boolean showGitBranch) {
+      this.showGitBranch = showGitBranch;
+    }
+
+    public boolean isShowGitCommitId() {
+      return showGitCommitId;
+    }
+
+    public void setShowGitCommitId(boolean showGitCommitId) {
+      this.showGitCommitId = showGitCommitId;
+    }
+
+    public boolean isShowGitShortCommitId() {
+      return showGitShortCommitId;
+    }
+
+    public void setShowGitShortCommitId(boolean showGitShortCommitId) {
+      this.showGitShortCommitId = showGitShortCommitId;
+    }
+
+    public boolean isShowGitCommitTime() {
+      return showGitCommitTime;
+    }
+
+    public void setShowGitCommitTime(boolean showGitCommitTime) {
+      this.showGitCommitTime = showGitCommitTime;
+    }
+
+  }
+
+  public static class Context {
+
+    private boolean close = false;
+
+    public boolean isClose() {
+      return close;
+    }
+
+    public void setClose(boolean close) {
+      this.close = close;
+    }
+
+  }
+
+}

@@ -1,0 +1,10 @@
+description = 'Infra Shell test client, assertions, and auto-configuration'
+
+dependencies {
+  api(project(':module:infra-shell'))
+  api(project(':infra-test'))
+  api('org.assertj:assertj-core')
+  api('org.junit.jupiter:junit-jupiter-api')
+
+  testImplementation(project(':module:infra-shell:infra-shell-jline'))
+}
