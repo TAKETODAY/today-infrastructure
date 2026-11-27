@@ -19,6 +19,9 @@
 package infra.scripting.support;
 
 import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.Nullable;
+
+import java.io.IOException;
 
 import infra.aop.support.AopUtils;
 import infra.beans.FatalBeanException;
@@ -28,10 +31,15 @@ import infra.beans.factory.BeanDefinitionValidationException;
 import infra.beans.factory.BeanFactory;
 import infra.beans.factory.config.BeanDefinition;
 import infra.beans.factory.support.BeanDefinitionBuilder;
+import infra.beans.factory.support.RootBeanDefinition;
+import infra.beans.factory.support.StandardBeanFactory;
 import infra.context.support.ClassPathXmlApplicationContext;
 import infra.context.support.GenericApplicationContext;
+import infra.core.Ordered;
 import infra.scripting.Messenger;
 import infra.scripting.ScriptCompilationException;
+import infra.scripting.ScriptFactory;
+import infra.scripting.ScriptSource;
 import infra.scripting.groovy.GroovyScriptFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,6 +88,179 @@ class ScriptFactoryPostProcessorTests {
           "    this.wrappedMessenger = wrappedMessenger\n" +
           "  }\n" +
           "}";
+
+  @Test
+  void configInterfaceContainsTypedSettersAndLifecycleMethods() throws Exception {
+    var definition = new RootBeanDefinition();
+    definition.getPropertyValues().add("message", "hello");
+    definition.setInitMethodNames("initialize", "start");
+    definition.setDestroyMethodNames("stop", "cleanup");
+    var processor = new ScriptFactoryPostProcessor();
+
+    Class<?> config = processor.createConfigInterface(definition, new Class<?>[] { MessageConfig.class });
+
+    assertThat(config.isInterface()).isTrue();
+    assertThat(config.getMethod("setMessage", String.class).getReturnType()).isEqualTo(void.class);
+    for (String method : new String[] { "initialize", "start", "stop", "cleanup" }) {
+      assertThat(config.getMethod(method).getReturnType()).isEqualTo(void.class);
+    }
+    assertThat(processor.getOrder()).isEqualTo(Ordered.HIGHEST_PRECEDENCE);
+  }
+
+  interface MessageConfig {
+
+    void setMessage(String message);
+
+  }
+
+  @Test
+  void passesGeneratedConfigInterfaceToScriptFactoryAndAppliesBeanProperties() throws Exception {
+    var definition = new RootBeanDefinition(ConfigurableScriptFactory.class);
+    definition.getPropertyValues().add("message", "configured");
+    var factory = new StandardBeanFactory();
+    factory.registerBeanDefinition("messenger", definition);
+    var processor = new ScriptFactoryPostProcessor();
+    processor.setBeanFactory(factory);
+
+    var messenger = (ConfigurableMessage) processor.postProcessBeforeInstantiation(ConfigurableScriptFactory.class, "messenger");
+
+    assertThat(messenger.getMessage()).isEqualTo("configured");
+    assertThat(messenger.interfaces).hasSize(3).startsWith(MessageConfig.class, Messenger.class);
+    assertThat(messenger.interfaces[2].getMethod("setMessage", String.class).getReturnType()).isEqualTo(void.class);
+  }
+
+  @Test
+  void combinesDeclaredInterfacesForTypePredictionAndRefreshableProxy() {
+    var definition = new RootBeanDefinition(ConfigurableScriptFactory.class);
+    definition.setAttribute(ScriptFactoryPostProcessor.REFRESH_CHECK_DELAY_ATTRIBUTE, 0);
+    definition.getPropertyValues().add("message", "refreshable");
+    var factory = new StandardBeanFactory();
+    factory.registerBeanDefinition("messenger", definition);
+    var processor = new ScriptFactoryPostProcessor();
+    processor.setBeanFactory(factory);
+
+    Class<?> predicted = processor.predictBeanType(ConfigurableScriptFactory.class, "messenger");
+    assertThat(predicted.getInterfaces()).containsExactly(MessageConfig.class, Messenger.class);
+
+    Object proxy = processor.postProcessBeforeInstantiation(ConfigurableScriptFactory.class, "messenger");
+    assertThat(AopUtils.isJdkDynamicProxy(proxy)).isTrue();
+    assertThat(proxy).isInstanceOf(MessageConfig.class).isInstanceOfSatisfying(Messenger.class,
+            messenger -> assertThat(messenger.getMessage()).isEqualTo("refreshable"));
+  }
+
+  public static class ConfigurableScriptFactory extends UntypedScriptFactory {
+
+    @Override
+    public Class<?>[] getScriptInterfaces() {
+      return new Class<?>[] { MessageConfig.class, Messenger.class };
+    }
+
+    @Override
+    public boolean requiresConfigInterface() {
+      return true;
+    }
+
+    @Override
+    public Object getScriptedObject(ScriptSource scriptSource, Class<?> @Nullable ... actualInterfaces) {
+      return new ConfigurableMessage(actualInterfaces);
+    }
+
+  }
+
+  public static class ConfigurableMessage implements MessageConfig, Messenger {
+
+    final Class<?> @Nullable [] interfaces;
+
+    private String message = "initial";
+
+    ConfigurableMessage(Class<?> @Nullable [] interfaces) {
+      this.interfaces = interfaces;
+    }
+
+    @Override
+    public String getMessage() {
+      return this.message;
+    }
+
+    @Override
+    public void setMessage(String message) {
+      this.message = message;
+    }
+
+  }
+
+  @Test
+  void predictsUntypedSingletonFromItsInstanceButDoesNotInstantiatePrototype() {
+    var singleton = new RootBeanDefinition(UntypedScriptFactory.class);
+    var prototype = new RootBeanDefinition(UntypedScriptFactory.class);
+    prototype.setScope(BeanDefinition.SCOPE_PROTOTYPE);
+    var factory = new StandardBeanFactory();
+    factory.registerBeanDefinition("singleton", singleton);
+    factory.registerBeanDefinition("prototype", prototype);
+    var processor = new ScriptFactoryPostProcessor();
+    processor.setBeanFactory(factory);
+
+    assertThat(processor.predictBeanType(UntypedScriptFactory.class, "singleton")).isEqualTo(String.class);
+    assertThat(processor.predictBeanType(UntypedScriptFactory.class, "prototype")).isNull();
+    assertThat(processor.postProcessBeforeInstantiation(UntypedScriptFactory.class, "prototype")).isEqualTo("scripted");
+  }
+
+  @Test
+  void defersScriptTypePredictionFailureUntilBeanCreation() {
+    var factory = new StandardBeanFactory();
+    factory.registerBeanDefinition("broken", new RootBeanDefinition(BrokenScriptFactory.class));
+    var processor = new ScriptFactoryPostProcessor();
+    processor.setBeanFactory(factory);
+
+    assertThat(processor.predictBeanType(BrokenScriptFactory.class, "broken")).isNull();
+    assertThatExceptionOfType(BeanCreationException.class)
+            .isThrownBy(() -> processor.postProcessBeforeInstantiation(BrokenScriptFactory.class, "broken"))
+            .withMessageContaining("broken", "Could not determine scripted object type")
+            .withCauseInstanceOf(IOException.class);
+  }
+
+  public static class UntypedScriptFactory implements ScriptFactory {
+
+    @Override
+    public String getScriptSourceLocator() {
+      return "inline:scripted";
+    }
+
+    @Override
+    public Class<?> @Nullable [] getScriptInterfaces() {
+      return null;
+    }
+
+    @Override
+    public boolean requiresConfigInterface() {
+      return false;
+    }
+
+    @Override
+    public Object getScriptedObject(ScriptSource scriptSource, Class<?> @Nullable ... actualInterfaces) throws IOException {
+      return scriptSource.getScriptAsString();
+    }
+
+    @Override
+    public @Nullable Class<?> getScriptedObjectType(ScriptSource scriptSource) throws IOException {
+      return null;
+    }
+
+    @Override
+    public boolean requiresScriptedObjectRefresh(ScriptSource scriptSource) {
+      return scriptSource.isModified();
+    }
+
+  }
+
+  public static class BrokenScriptFactory extends UntypedScriptFactory {
+
+    @Override
+    public @Nullable Class<?> getScriptedObjectType(ScriptSource scriptSource) throws IOException {
+      throw new IOException("script unavailable");
+    }
+
+  }
 
   @Test
   void testDoesNothingWhenPostProcessingNonScriptFactoryTypeBeforeInstantiation() {

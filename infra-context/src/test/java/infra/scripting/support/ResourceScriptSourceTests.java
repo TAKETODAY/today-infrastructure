@@ -22,8 +22,10 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 import infra.core.io.ByteArrayResource;
+import infra.core.io.EncodedResource;
 import infra.core.io.Resource;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,6 +37,23 @@ import static org.mockito.Mockito.mock;
  * @author Juergen Hoeller
  */
 public class ResourceScriptSourceTests {
+
+  @Test
+  void readsScriptUsingExplicitEncodingAndAllowsChangingIt() throws IOException {
+    String script = "'你好'";
+    Resource resource = new ByteArrayResource(script.getBytes(StandardCharsets.UTF_16LE), "script");
+    var encoded = new EncodedResource(resource, StandardCharsets.UTF_16LE);
+    var source = new ResourceScriptSource(encoded);
+
+    assertThat(source.getResource()).isSameAs(resource);
+    assertThat(source).hasToString(encoded.toString());
+    assertThat(source.getScriptAsString()).isEqualTo(script);
+
+    source.setEncoding(StandardCharsets.UTF_16BE.name());
+    assertThat(source.getScriptAsString()).isNotEqualTo(script);
+    source.setEncoding(StandardCharsets.UTF_16LE.name());
+    assertThat(source.getScriptAsString()).isEqualTo(script);
+  }
 
   @Test
   public void doesNotPropagateFatalExceptionOnResourceThatCannotBeResolvedToAFile() throws Exception {

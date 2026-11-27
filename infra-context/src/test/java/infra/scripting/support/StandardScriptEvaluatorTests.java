@@ -20,9 +20,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
@@ -32,6 +34,7 @@ import infra.scripting.ScriptCompilationException;
 import infra.scripting.ScriptSource;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.BDDMockito.given;
@@ -90,6 +93,40 @@ class StandardScriptEvaluatorTests {
             .withMessageContaining("no file extension defined");
     assertThatIllegalStateException().isThrownBy(() -> evaluator.evaluate(resource("expression.no-test-engine")))
             .withMessageContaining("No matching engine found");
+  }
+
+  @Test
+  void reportsAnInstalledEngineInitializationFailureWithItsCause() {
+    var manager = mock(ScriptEngineManager.class);
+    var factory = mock(ScriptEngineFactory.class);
+    var failure = new IllegalStateException("engine failed to start");
+    given(manager.getEngineFactories()).willReturn(List.of(factory));
+    given(factory.getNames()).willReturn(List.of("broken", "alias"));
+    given(factory.getScriptEngine()).willThrow(failure);
+    var evaluator = new StandardScriptEvaluator(manager);
+    evaluator.setEngineName("alias");
+
+    assertThatIllegalStateException().isThrownBy(() -> evaluator.evaluate(new StaticScriptSource("value")))
+            .withMessage("Script engine with name 'alias' failed to initialize")
+            .withCause(failure);
+  }
+
+  @Test
+  void reportsAnEngineThatCanOnlyBeCreatedThroughItsFactory() {
+    var manager = mock(ScriptEngineManager.class);
+    var factory = mock(ScriptEngineFactory.class);
+    var engine = mock(ScriptEngine.class);
+    var bindings = new SimpleBindings(Map.of("global", "value"));
+    given(manager.getEngineFactories()).willReturn(List.of(factory));
+    given(factory.getNames()).willReturn(List.of("factory-only"));
+    given(factory.getScriptEngine()).willReturn(engine);
+    given(manager.getBindings()).willReturn(bindings);
+    var evaluator = new StandardScriptEvaluator(manager);
+    evaluator.setEngineName("factory-only");
+
+    assertThatIllegalArgumentException().isThrownBy(() -> evaluator.evaluate(new StaticScriptSource("value")))
+            .withMessageContaining("factory-only", "factory-only");
+    then(engine).should().setBindings(bindings, javax.script.ScriptContext.GLOBAL_SCOPE);
   }
 
   @Test
