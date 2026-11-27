@@ -18,9 +18,14 @@ package infra.web;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.FutureTask;
+
 import infra.test.classpath.ClassPathExclusions;
+import infra.util.InfraStrategies;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
 
 /**
  * @author <a href="https://github.com/TAKETODAY">Harry Yang</a>
@@ -33,6 +38,41 @@ class RequestThreadLocalTests {
   void nettyNotPresent() {
     RequestThreadLocal requestThreadLocal = RequestThreadLocal.lookup();
     assertThat(requestThreadLocal).isInstanceOf(RequestThreadLocal.Default.class);
+  }
+
+  @Test
+  void lookupReturnsRegisteredStrategy() {
+    RequestThreadLocal strategy = mock(RequestThreadLocal.class);
+    try (var strategies = mockStatic(InfraStrategies.class)) {
+      strategies.when(() -> InfraStrategies.findFirst(RequestThreadLocal.class, null)).thenReturn(strategy);
+
+      assertThat(RequestThreadLocal.lookup()).isSameAs(strategy);
+    }
+  }
+
+  @Test
+  void defaultStorageIsThreadLocalAndCanBeCleared() throws Exception {
+    RequestThreadLocal storage = new RequestThreadLocal.Default();
+    ServerHttpExchange exchange = mock(ServerHttpExchange.class);
+    assertThat(storage.get()).isNull();
+
+    storage.set(exchange);
+    try {
+      FutureTask<ServerHttpExchange> otherThread = new FutureTask<>(storage::get);
+      new Thread(otherThread).start();
+      assertThat(otherThread.get()).isNull();
+      assertThat(storage.get()).isSameAs(exchange);
+
+      storage.set(null);
+      assertThat(storage.get()).isNull();
+
+      storage.set(exchange);
+      storage.remove();
+      assertThat(storage.get()).isNull();
+    }
+    finally {
+      storage.remove();
+    }
   }
 
 }

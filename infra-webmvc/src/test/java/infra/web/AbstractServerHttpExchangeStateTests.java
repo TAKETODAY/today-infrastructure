@@ -19,11 +19,14 @@ package infra.web;
 import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
@@ -32,8 +35,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import infra.http.HttpCookie;
 import infra.http.HttpHeaders;
 import infra.http.HttpMethod;
+import infra.http.HttpStatus;
 import infra.http.MediaType;
 import infra.http.ResponseCookie;
+import infra.context.support.GenericApplicationContext;
+import infra.session.Session;
+import infra.session.SessionManager;
 import infra.util.MultiValueMap;
 import infra.web.async.WebAsyncRequest;
 import infra.web.i18n.AcceptHeaderLocaleResolver;
@@ -45,6 +52,11 @@ import infra.web.util.WebUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 /**
  * White-box tests for the bit-packed {@link AbstractServerHttpExchange} state.
@@ -55,6 +67,107 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 class AbstractServerHttpExchangeStateTests {
 
   private final StateServerHttpExchange context = new StateServerHttpExchange();
+
+  @Test
+  void resolvesHostAndPortWithoutAnInetLocalAddress() {
+    context.localAddress = new SocketAddress() { };
+    assertThat(context.getServerName()).isEqualTo("localhost");
+    assertThat(context.getServerPort()).isEqualTo(80);
+
+    context.requestHeaders.set(HttpHeaders.HOST, "[::1]:8443");
+    assertThat(context.getServerName()).isEqualTo("[::1]");
+    assertThat(context.getServerPort()).isEqualTo(8443);
+    assertThat(context.getURI()).isEqualTo(URI.create("https://[::1]:8443/"));
+
+    context.requestHeaders.set(HttpHeaders.HOST, "example.test:invalid");
+    context.secure = true;
+    assertThat(context.getServerName()).isEqualTo("example.test");
+    assertThat(context.getServerPort()).isEqualTo(443);
+  }
+
+  @Test
+  void usesLocalSocketWhenHostIsAbsentAndResolvesRemoteEndpoint() {
+    assertThat(context.getServerName()).isEqualTo("127.0.0.1");
+    assertThat(context.getServerPort()).isEqualTo(443);
+    assertThat(context.getRemoteAddress()).isEqualTo("127.0.0.1");
+    assertThat(context.getRemotePort()).isEqualTo(1234);
+  }
+
+  @Test
+  void cachesRequestReaderAndDecodesUtf8() throws IOException {
+    context.body = "你好\n世界";
+    var reader = context.getReader();
+    assertThat(reader.readLine()).isEqualTo("你好");
+    assertThat(context.getReader()).isSameAs(reader);
+    assertThat(reader.readLine()).isEqualTo("世界");
+    assertThat(reader.readLine()).isNull();
+  }
+
+  @Test
+  void rejectsAnInvalidRequestUrlEvenAfterRemovingTheQuery() {
+    context.requestHeaders.set(HttpHeaders.HOST, "[broken");
+    assertThatIllegalStateException().isThrownBy(context::getURI)
+            .withCauseInstanceOf(URISyntaxException.class);
+
+    var withQuery = new StateServerHttpExchange();
+    withQuery.requestHeaders.set(HttpHeaders.HOST, "[broken");
+    withQuery.query = "q=value";
+    assertThatIllegalStateException().isThrownBy(withQuery::getURI)
+            .withMessage("Could not resolve ServerHttpExchange as URI: https://[broken/")
+            .withCauseInstanceOf(URISyntaxException.class);
+  }
+
+  @Test
+  void honorsLegacyConditionalDateAndPublishesValidators() {
+    long lastModified = 1397037462000L;
+    context.requestHeaders.set(HttpHeaders.IF_UNMODIFIED_SINCE, "Wed, 09 Apr 2014 09:57:42 GMT; length=13774");
+
+    assertThat(context.checkNotModified("revision", lastModified)).isFalse();
+    assertThat(context.getStatus()).isEqualTo(200);
+    assertThat(context.responseHeaders().getLastModified()).isEqualTo(lastModified);
+    assertThat(context.responseHeaders().getETag()).isEqualTo("\"revision\"");
+  }
+
+  @Test
+  void ignoresMalformedConditionalDate() {
+    context.requestHeaders.set(HttpHeaders.IF_UNMODIFIED_SINCE, "not a date");
+    context.requestHeaders.set(HttpHeaders.IF_MODIFIED_SINCE, "not a date; length=4");
+
+    assertThat(context.checkNotModified(1000L)).isFalse();
+    assertThat(context.getStatus()).isEqualTo(200);
+    assertThat(context.responseHeaders().getLastModified()).isEqualTo(1000L);
+  }
+
+  @Test
+  void retriesSessionLookupAfterAMissAndCachesTheResolvedSession() {
+    try (var application = new GenericApplicationContext()) {
+      var manager = mock(SessionManager.class);
+      application.getBeanFactory().registerSingleton(SessionManager.BEAN_NAME, manager);
+      application.refresh();
+      var exchange = new StateServerHttpExchange(application, new DispatcherHandler(application));
+      var session = mock(Session.class);
+      given(manager.getSession(exchange, true)).willReturn(session);
+
+      assertThat(exchange.getSession(false)).isNull();
+      assertThat(exchange.getSession()).isSameAs(session);
+      assertThat(exchange.getSession(false)).isSameAs(session);
+      verify(manager, times(1)).getSession(exchange, false);
+      verify(manager, times(1)).getSession(exchange, true);
+    }
+  }
+
+  @Test
+  void outputMessageSharesResponseStatusHeadersAndBody() throws IOException {
+    var response = context.asHttpOutputMessage();
+    response.setStatusCode(HttpStatus.ACCEPTED);
+    response.setContentType(MediaType.TEXT_PLAIN);
+    assertThat(context.getStatus()).isEqualTo(202);
+    assertThat(response.getHeaders()).isSameAs(context.responseHeaders());
+    assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.TEXT_PLAIN);
+    assertThat(response.getBody()).isSameAs(context.getOutputStream());
+    response.flush();
+    response.close();
+  }
 
   @Test
   void localeIsNullWithoutAcceptLanguage() {
@@ -252,6 +365,52 @@ class AbstractServerHttpExchangeStateTests {
   }
 
   @Test
+  void rejectsTrailersForResponsesThatCannotCarryThem() {
+    var trailer = Trailer.field("X-Checksum", () -> "value");
+    var head = new StateServerHttpExchange();
+    head.method = HttpMethod.HEAD;
+    assertThatIllegalStateException().isThrownBy(() -> head.setTrailerFields(trailer)).withMessageContaining("HEAD");
+
+    context.setStatus(204);
+    assertThatIllegalStateException().isThrownBy(() -> context.setTrailerFields(trailer)).withMessageContaining("204");
+
+    var connect = new StateServerHttpExchange();
+    connect.method = HttpMethod.CONNECT;
+    assertThatIllegalStateException().isThrownBy(() -> connect.setTrailerFields(trailer)).withMessageContaining("CONNECT");
+  }
+
+  @Test
+  void validatesTrailerNamesAndValuesSeparately() {
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> context.setTrailerFields(Trailer.field("invalid name", () -> "value")))
+            .withMessageContaining("Invalid trailer field name");
+    assertThatIllegalArgumentException()
+            .isThrownBy(() -> context.setTrailerFields(Trailer.field(HttpHeaders.CONTENT_TYPE, () -> "text/plain")))
+            .withMessageContaining("Trailer field is not allowed");
+
+    context.setTrailerFields(Trailer.field("X-Checksum", () -> "value\n"));
+    assertThatIllegalStateException().isThrownBy(context::evaluateTrailerFields)
+            .withMessageContaining("Invalid trailer value", "X-Checksum");
+    assertThat(context.evaluateTrailerFields()).isNull();
+  }
+
+  @Test
+  void dropsTrailersOnExplicitClearOrWhenFinalStatusDisallowsThem() {
+    var evaluations = new AtomicInteger();
+    var trailer = Trailer.field("X-Checksum", () -> Integer.toString(evaluations.incrementAndGet()));
+    context.setTrailerFields(trailer);
+    context.setTrailerFields();
+    assertThat(context.getTrailerFieldNames()).isNull();
+    assertThat(context.evaluateTrailerFields()).isNull();
+
+    context.setTrailerFields(trailer);
+    context.setStatus(205);
+    assertThat(context.evaluateTrailerFields()).isNull();
+    assertThat(context.getTrailerFieldNames()).isNull();
+    assertThat(evaluations).hasValue(0);
+  }
+
+  @Test
   void unnamedCallbackRegistrationsAreIndependent() {
     for (ServerHttpExchange.Lifecycle phase : ServerHttpExchange.Lifecycle.values()) {
       AtomicInteger invocations = new AtomicInteger();
@@ -423,6 +582,14 @@ class AbstractServerHttpExchangeStateTests {
 
     HttpMethod method = HttpMethod.GET;
 
+    SocketAddress localAddress = new InetSocketAddress("127.0.0.1", 443);
+
+    boolean secure;
+
+    String body = "";
+
+    @Nullable String query;
+
     final HttpHeaders requestHeaders = HttpHeaders.forWritable();
 
     final HttpHeaders responseHeaders = HttpHeaders.forWritable();
@@ -431,6 +598,10 @@ class AbstractServerHttpExchangeStateTests {
 
     StateServerHttpExchange() {
       super(null, null);
+    }
+
+    StateServerHttpExchange(GenericApplicationContext context, DispatcherHandler dispatcher) {
+      super(context, dispatcher);
     }
 
     @Override
@@ -445,7 +616,7 @@ class AbstractServerHttpExchangeStateTests {
 
     @Override
     protected @Nullable String readQueryString() {
-      return null;
+      return query;
     }
 
     @Override
@@ -470,7 +641,7 @@ class AbstractServerHttpExchangeStateTests {
 
     @Override
     protected InputStream createInputStream() throws IOException {
-      return InputStream.nullInputStream();
+      return new ByteArrayInputStream(body.getBytes(StandardCharsets.UTF_8));
     }
 
     @Override
@@ -500,7 +671,7 @@ class AbstractServerHttpExchangeStateTests {
 
     @Override
     public boolean isSecure() {
-      return false;
+      return secure;
     }
 
     @Override
@@ -515,7 +686,7 @@ class AbstractServerHttpExchangeStateTests {
 
     @Override
     public SocketAddress localAddress() {
-      return new InetSocketAddress("127.0.0.1", 443);
+      return localAddress;
     }
 
     @Override

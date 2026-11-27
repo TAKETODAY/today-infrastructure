@@ -20,8 +20,13 @@ package infra.web.handler.function;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import infra.http.HttpMethod;
 import infra.http.MediaType;
+import infra.web.mock.MockRequest;
+import infra.web.mock.MockResponse;
+import infra.web.mock.MockServerHttpExchange;
 
 import static infra.web.handler.function.RequestPredicates.GET;
 import static infra.web.handler.function.RequestPredicates.accept;
@@ -38,6 +43,45 @@ import static org.assertj.core.api.Assertions.assertThat;
  * @author Arjen Poutsma
  */
 public class ToStringVisitorTests {
+
+  @Test
+  void routesMethodShortcutsWithTheirPathAndAdditionalPredicate() {
+    HandlerFunction<ServerResponse> handler = new SimpleHandlerFunction();
+    RouterFunction<ServerResponse> router = route()
+            .HEAD("/records", handler)
+            .PUT("/records", handler)
+            .PATCH("/records", param("mode", "edit"), handler)
+            .DELETE("/records", handler)
+            .OPTIONS("/records", handler)
+            .build();
+
+    for (String method : List.of("HEAD", "PUT", "DELETE", "OPTIONS")) {
+      assertThat(router.route(request(method, "/records"))).as("%s /records", method).containsSame(handler);
+      assertThat(router.route(request(method, "/other"))).as("%s /other", method).isEmpty();
+    }
+    assertThat(router.route(request("GET", "/records"))).isEmpty();
+    assertThat(router.route(request("PATCH", "/records"))).isEmpty();
+    assertThat(router.route(request("PATCH", "/records", true))).containsSame(handler);
+    assertThat(router.route(request("PATCH", "/other", true))).isEmpty();
+
+    ToStringVisitor visitor = new ToStringVisitor();
+    router.accept(visitor);
+    assertThat(visitor.toString()).contains("(HEAD && /records)", "(PUT && /records)",
+            "((PATCH && /records) && ?mode == edit)", "(DELETE && /records)", "(OPTIONS && /records)");
+  }
+
+  private static ServerRequest request(String method, String path) {
+    return request(method, path, false);
+  }
+
+  private static ServerRequest request(String method, String path, boolean editing) {
+    var request = new MockRequest(method, path);
+    if (editing) {
+      request.addParameter("mode", "edit");
+    }
+    var exchange = new MockServerHttpExchange(null, request, new MockResponse());
+    return new DefaultServerRequest(exchange, List.of());
+  }
 
   @Test
   public void nested() {
