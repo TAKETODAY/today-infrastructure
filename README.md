@@ -15,7 +15,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
 
-[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://docs.today-tech.cn/today-infrastructure/) · [AI 辅助开发](#ai-辅助开发) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/today-tech/today-infrastructure/discussions)
+[快速开始](#快速开始) · [安装配置](#installation) · [真实应用](#today-blog) · [在线文档](https://today-tech.cn/today-infrastructure/) · [AI 辅助开发](#ai-辅助开发) · [示例工程](infra-samples) · [贡献指南](CONTRIBUTING.md) · [交流讨论](https://github.com/today-tech/today-infrastructure/discussions)
 
 ## 概述
 
@@ -379,7 +379,7 @@ Hello, TODAY!
 | 请求参数、响应对象、SSE 等 Web API | [web-api](infra-samples/web-api)                             |
 | Netty 应用启动与工程配置           | [netty-app](infra-samples/netty-app)                         |
 | 完整业务应用与框架使用实践         | [真实应用：TODAY BLOG](#today-blog)                          |
-| 模块用法与 API 文档                | [在线文档](https://docs.today-tech.cn/today-infrastructure)  |
+| 模块用法与 API 文档                | [在线文档](https://today-tech.cn/today-infrastructure/)  |
 
 ## AI 辅助开发
 

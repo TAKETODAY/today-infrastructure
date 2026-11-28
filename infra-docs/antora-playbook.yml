@@ -22,7 +22,7 @@ asciidoc:
     page-stackoverflow-url: https://stackoverflow.com/questions/tagged/today-infra
     hide-uri-scheme: '@'
     page-pagination: ''
-    primary-site-url: https://docs.today-tech.cn/today-infrastructure
+    primary-site-url: https://today-tech.cn/today-infrastructure
     tabs-sync-option: '@'
   extensions:
     - '@asciidoctor/tabs'

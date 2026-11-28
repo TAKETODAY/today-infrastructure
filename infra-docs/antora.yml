@@ -27,7 +27,7 @@ asciidoc:
     today-org: 'today-tech'
     today-github-org: "https://github.com/today-tech"
     today-framework-github: "https://github.com/today-tech/today-infrastructure"
-    today-framework-code: '{today-framework-github}/tree/main'
+    today-framework-code: '{today-framework-github}/tree/master'
     today-framework-issues: '{today-framework-github}/issues'
     today-framework-wiki: '{today-framework-github}/wiki'
 

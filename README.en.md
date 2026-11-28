@@ -10,7 +10,7 @@ A modular Java application framework with dependency injection, auto-configurati
 [![Apache License 2.0](https://img.shields.io/github/license/today-tech/today-infrastructure?color=blue)](LICENSE)
 [![CI](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml)
 
-[Quick start](#quick-start) · [Project setup](#project-setup) · [Real-world application](#real-world-application-today-blog) · [Documentation](https://docs.today-tech.cn/today-infrastructure/) · [AI-assisted development](#ai-assisted-development) · [Samples](infra-samples) · [Contributing](#contributing) · [Discussions](https://github.com/today-tech/today-infrastructure/discussions)
+[Quick start](#quick-start) · [Project setup](#project-setup) · [Real-world application](#real-world-application-today-blog) · [Documentation](https://today-tech.cn/today-infrastructure/) · [AI-assisted development](#ai-assisted-development) · [Samples](infra-samples) · [Contributing](#contributing) · [Discussions](https://github.com/today-tech/today-infrastructure/discussions)
 
 ## Overview
 
@@ -169,7 +169,7 @@ Expected response: `Hello, TODAY!`. If port 8080 is occupied, change `server.por
 | Parameters, response objects and SSE | [web-api](infra-samples/web-api) |
 | Netty application configuration | [netty-app](infra-samples/netty-app) |
 | A complete business application | [TODAY BLOG](#real-world-application-today-blog) |
-| Module usage and API documentation | [Online documentation](https://docs.today-tech.cn/today-infrastructure/) |
+| Module usage and API documentation | [Online documentation](https://today-tech.cn/today-infrastructure/) |
 
 Some documentation and contribution instructions are currently in Chinese.
 

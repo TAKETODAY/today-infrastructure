@@ -41,7 +41,7 @@ import reactor.core.publisher.Mono;
  *
  * <p><strong>Note:</strong> Transactional Publishers should avoid Subscription
  * cancellation. See the
- * <a href="https://docs.today-tech.cn/today-infrastructure/data-access.html#tx-prog-operator-cancel">Cancel Signals</a>
+ * <a href="https://today-tech.cn/today-infrastructure/data-access/transaction/programmatic.html#tx-prog-operator-cancel">Cancel Signals</a>
  * section of the Framework reference for more details.
  *
  * @author Mark Paluch

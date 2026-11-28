@@ -38,7 +38,7 @@ import infra.transaction.TransactionDefinition;
  * apply to ancestor classes up the class hierarchy; inherited methods need to be
  * locally redeclared in order to participate in a subclass-level annotation. For
  * details on method visibility constraints, consult the
- * <a href="https://docs.today-tech.cn/today-infrastructure/data-access.html#transaction">Transaction Management</a>
+ * <a href="https://today-tech.cn/today-infrastructure/data-access/transaction.html">Transaction Management</a>
  * section of the reference manual.
  *
  * <p>This annotation is generally directly comparable to Framework's

@@ -41,7 +41,7 @@ import infra.web.annotation.RequestMapping;
  * external clients. Therefore the design and use of data binding should be considered
  * carefully with regard to security. For more details, please refer to the dedicated
  * section on
- * <a href="https://docs.today-tech.cn/today-infrastructure/reference/web/webmvc/mvc-controller/ann-initbinder.html#mvc-ann-initbinder-model-design">Infra Web MVC data binding</a>
+ * <a href="https://today-tech.cn/today-infrastructure/web/webmvc/mvc-controller/ann-initbinder.html#mvc-ann-initbinder-model-design">Infra Web MVC data binding</a>
  * in the reference manual.
  *
  * <p>{@code @ModelAttribute} can be used to expose command objects to a web view,

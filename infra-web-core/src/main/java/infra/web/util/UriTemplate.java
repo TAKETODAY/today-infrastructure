@@ -44,7 +44,7 @@ import infra.util.CollectionUtils;
  * e.g. around URI encoding, consider using {@code UriComponentsBuilder} or the
  * higher level {@link DefaultUriBuilderFactory} which adds several encoding
  * modes on top of {@code UriComponentsBuilder}. See the
- * <a href="https://docs.today-tech.cn/today-infrastructure/web.html#mvc-uri-building">reference docs</a>
+ * <a href="https://today-tech.cn/today-infrastructure/web/webmvc/mvc-uri-building.html">reference docs</a>
  * for further details.
  *
  * @author Arjen Poutsma

@@ -364,7 +364,7 @@ import infra.stereotype.Component;
  * }</pre>
  *
  * <p>See the
- * <a href="https://docs.today-tech.cn/today-infrastructure/testing.html#testcontext-framework">TestContext framework</a>
+ * <a href="https://today-tech.cn/today-infrastructure/testing/testcontext-framework.html">TestContext framework</a>
  * reference documentation for details.
  *
  * <h2>Enabling built-in Framework features using {@code @Enable} annotations</h2>

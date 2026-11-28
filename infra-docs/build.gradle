@@ -114,7 +114,7 @@ tasks.register('docsZip', Zip) {
   dependsOn('api')
   group = "distribution"
   description = "Builds -${archiveClassifier} archive containing api and reference " +
-      "for deployment at https://taketoday.cn/open-source/projects/today-infrastructure/docs."
+      "for deployment at https://today-tech.cn/today-infrastructure/."
 
   archiveBaseName = "today-infrastructure"
   archiveClassifier = "docs"
