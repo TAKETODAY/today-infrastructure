@@ -48,7 +48,7 @@ ext {
 }
 
 configure(allprojects) {
-  group = "cn.taketoday"
+  group = "cn.infra-tech"
 
   if (it.hasProperty("skipDocs")) {
     it.afterEvaluate {
