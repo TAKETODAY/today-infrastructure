@@ -175,7 +175,7 @@ Some documentation and contribution instructions are currently in Chinese.
 
 ## AI-assisted development
 
-[TODAY Infrastructure Skill](https://github.com/TAKETODAY/today-infra-skill) is an Agent Skill for AI coding assistants that guides application development using the framework's real APIs:
+[TODAY Infrastructure Skill](https://github.com/today-tech/today-infra-skill) is an Agent Skill for AI coding assistants that guides application development using the framework's real APIs:
 
 - Project setup, the `@InfraApplication` bootstrap model, and the `infra.application` Gradle plugin
 - Controllers and request mapping, argument binding, exception handling, MVC configuration
@@ -185,7 +185,7 @@ Some documentation and contribution instructions are currently in Chinese.
 The content is generated from the `infra-docs` AsciiDoc sources and re-synced with each framework version, rather than being hand-picked snippets.
 
 ```bash
-git clone https://github.com/TAKETODAY/today-infra-skill
+git clone https://github.com/today-tech/today-infra-skill
 cd today-infra-skill
 ./install.sh
 ```

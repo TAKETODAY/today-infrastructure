@@ -11,7 +11,7 @@
 [![Coveralls](https://github.com/today-tech/today-infrastructure/actions/workflows/coveralls.yaml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/coveralls.yaml)
 [![CI](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml/badge.svg)](https://github.com/today-tech/today-infrastructure/actions/workflows/ci.yaml)
 [![Codacy Badge](https://app.codacy.com/project/badge/Grade/3ad5eed64065496fba9244d149820f67)](https://app.codacy.com/gh/TAKETODAY/today-infrastructure/dashboard?utm_source=gh&utm_medium=referral&utm_content=&utm_campaign=Badge_grade)
-[![Coverage Status](https://codecov.io/gh/TAKETODAY/today-infrastructure/branch/master/graph/badge.svg?token=OUMKSYNTDC)](https://codecov.io/gh/TAKETODAY/today-infrastructure)
+[![Coverage Status](https://codecov.io/gh/today-tech/today-infrastructure/branch/master/graph/badge.svg)](https://codecov.io/gh/today-tech/today-infrastructure)
 [![Coverage Status](https://coveralls.io/repos/github/TAKETODAY/today-infrastructure/badge.svg)](https://coveralls.io/github/TAKETODAY/today-infrastructure)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FTAKETODAY%2Ftoday-infrastructure?ref=badge_shield)
 
@@ -383,7 +383,7 @@ Hello, TODAY!
 
 ## AI 辅助开发
 
-[TODAY Infrastructure Skill](https://github.com/TAKETODAY/today-infra-skill) 是一个面向 AI 编码代理的 Agent Skill，按框架的真实 API 提供应用开发指引：
+[TODAY Infrastructure Skill](https://github.com/today-tech/today-infra-skill) 是一个面向 AI 编码代理的 Agent Skill，按框架的真实 API 提供应用开发指引：
 
 - 工程搭建、`@InfraApplication` 启动模型、`infra.application` Gradle 插件
 - 控制器与请求映射、参数绑定、异常处理、MVC 配置
@@ -393,7 +393,7 @@ Hello, TODAY!
 内容由 `infra-docs` 的 asciidoc 原文生成，随框架版本重新同步，不是手工摘抄的片段。
 
 ```bash
-git clone https://github.com/TAKETODAY/today-infra-skill
+git clone https://github.com/today-tech/today-infra-skill
 cd today-infra-skill
 ./install.sh
 ```
