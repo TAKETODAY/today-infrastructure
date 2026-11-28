@@ -24,4 +24,4 @@ StepVerifier.create(exchangeResult.getResponseBody())
     .verify();
 ----
 
-`WebTestClient` 还可以连接到实时服务器并执行完整的端到端集成测试。Infra App 也支持这一点，你可以在其中 {today-framework-reference}/spring-boot-features.html#boot-features-testing-spring-boot-applications-testing-with-running-server[测试运行中的服务器]。
+`WebTestClient` 还可以连接到运行中的服务器并执行完整的端到端集成测试。启动测试应用的入口见 xref:application:testing/index.adoc[应用测试支持]。

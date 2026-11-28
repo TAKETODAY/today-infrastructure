@@ -7,7 +7,7 @@ MockMvc 建立在来自 `infra-test` 模块的 Mock API mock 实现之上，不�
 
 这意味着，如果你使用 JSP，你可以验证请求转发到的 JSP 页面，但不会渲染任何 HTML。换句话说，JSP 不会被调用。但是请注意，所有其他不依赖于转发的渲染技术，例如 Thymeleaf 和 Freemarker，都会按预期将 HTML 渲染到响应体中。通过 `@ResponseBody` 方法渲染 JSON、XML 和其他格式也是如此。
 
-或者，你可以考虑 Infra App 提供的带有 `@InfraBootTest` 的完整端到端集成测试支持。请参阅 {today-framework-reference}/spring-boot-features.html#boot-features-testing[Infra App 参考指南]。
+需要完整的端到端测试时，可以使用 `@InfraTest` 启动应用，详情见 xref:application:testing/index.adoc[应用测试支持]。
 
 每种方法都有利弊。Web MVC Test 中提供的选项是从经典单元测试到完整集成测试的不同阶段。可以肯定的是，Web MVC Test 中的任何选项都不属于经典单元测试的范畴，但它们稍微接近一些。例如，你可以通过将 mock 服务注入控制器来隔离 Web 层，在这种情况下，你仅通过 `DispatcherHandler` 但使用实际的 Infra 配置来测试 Web 层，就像你可以将数据访问层与上层隔离进行测试一样。此外，你可以使用独立设置，一次专注于一个控制器，并手动提供使其工作所需的配置。
 

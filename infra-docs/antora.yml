@@ -35,7 +35,6 @@ asciidoc:
     docs-site: 'https://docs.today-tech.cn'
     today-framework-docs-root: '{docs-site}/today-infrastructure/docs'
     today-framework-api: '{today-framework-docs-root}/{infra-version}/javadoc-api/infra'
-    today-framework-reference: '{today-framework-docs-root}/{infra-version}/reference'
 
     # External projects URLs and related attributes
     aspectj-site: 'https://www.eclipse.org/aspectj'
