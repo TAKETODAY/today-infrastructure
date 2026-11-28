@@ -1,5 +1,5 @@
-import cn.taketoday.publishing.BundleFormat
-import cn.taketoday.publishing.PublishingType
+import infra.publishing.BundleFormat
+import infra.publishing.PublishingType
 
 plugins {
   id 'com.gradleup.shadow' version "9.1.0" apply false
@@ -141,7 +141,7 @@ configure(moduleProjects) {
 configure(rootProject) {
   description = "TODAY Infrastructure"
   apply plugin: 'infra.building.api-diff'
-  apply plugin: "cn.taketoday.maven-central-publishing"
+  apply plugin: "cn.infra-tech.maven-central-publishing"
 
   mavenCentral {
     bundle {
