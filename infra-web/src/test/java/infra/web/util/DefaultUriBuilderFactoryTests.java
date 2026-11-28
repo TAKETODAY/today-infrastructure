@@ -192,7 +192,7 @@ public class DefaultUriBuilderFactoryTests {
   @Test
     // gh-30027
   void uriTemplateString() {
-    String baseUrl = "https://github.com/TAKETODAY/today-infrastructure/releases";
+    String baseUrl = "https://github.com/today-tech/today-infrastructure/releases";
     String uriTemplate = "/tag/v{version}";
     String actual = new DefaultUriBuilderFactory(baseUrl).uriString(uriTemplate).toUriString();
     assertThat(actual).isEqualTo(baseUrl + uriTemplate);
