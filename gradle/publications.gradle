@@ -27,7 +27,7 @@ publishing.publications.withType(MavenPublication.class).configureEach {
     url = "https://github.com/today-tech/today-infrastructure"
     organization {
       name = "TODAY Tech"
-      url = "https://taketoday.cn"
+      url = "https://today-tech.cn"
     }
     licenses {
       license {
@@ -38,8 +38,8 @@ publishing.publications.withType(MavenPublication.class).configureEach {
     }
     scm {
       url = "https://github.com/today-tech/today-infrastructure.git"
-      connection = "scm:git:git://github.com/today-tech/today-infrastructure"
-      developerConnection = "scm:git:git://github.com/today-tech/today-infrastructure"
+      connection = "scm:git:https://github.com/today-tech/today-infrastructure.git"
+      developerConnection = "scm:git:ssh://git@github.com/today-tech/today-infrastructure.git"
     }
     developers {
       developer {

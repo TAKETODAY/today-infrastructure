@@ -49,7 +49,7 @@ if (portalPublishing) {
 
 gradlePlugin {
   automatedPublishing = true
-  website = "https://github.com/today-tech/today-infrastructure"
+  website = "https://infra-tech.cn/projects/today-infrastructure"
   vcsUrl = "https://github.com/today-tech/today-infrastructure"
 
   plugins {
